@@ -74,12 +74,25 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // 🔹 Lấy thông tin user & role từ backend
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         this.userRoles = user?.roles || [];
         localStorage.setItem('user', JSON.stringify(user));
+
+        // ✅ Cập nhật lại đường dẫn User Profile trước
+        const userProfileItem = this.navItems.find(i => i.name === 'User Profile');
+        if (userProfileItem && user?.id) {
+          userProfileItem.path = `/profile/${user.id}`;
+          console.log('✅ Updated profile path:', userProfileItem.path);
+
+        }
+
+        // ✅ Sau đó mới lọc menu theo role
         this.filterMenuByRole();
+
+        // ✅ Force update UI
+        this.navItems = [...this.navItems];
+        this.cdr.detectChanges();
       },
       error: () => {
         this.userRoles = [];
@@ -128,7 +141,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       'Quản lý gói dịch vụ': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
       'Quản lý dịch vụ': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
       'Ecommerce': ['ROLE_ADMIN'],
-      'User Profile': [],
+      'User Profile': ['ROLE_CUSTOMER'],
     };
 
     this.navItems = this.navItems.filter((item) => {
