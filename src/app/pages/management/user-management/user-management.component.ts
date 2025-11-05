@@ -12,6 +12,7 @@ import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog
 import {UserDialogComponent} from "../../dialog/user-dialog/user-dialog.component";
 import {ToastService} from "../../toast/toast.service";
 import {UserDto} from "../../../models/user-dto";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
@@ -36,7 +37,8 @@ export class UserManagementComponent implements OnInit, AfterViewInit {
     constructor(private auth: AuthService,
                 private userService: UserService,
                 private modal: ModalService,
-                private toast: ToastService,) {
+                private toast: ToastService,
+                private router: Router) {
     }
 
     ngOnInit(): void {
@@ -144,4 +146,9 @@ export class UserManagementComponent implements OnInit, AfterViewInit {
             }
         });
     }
+
+    viewProfile(userId: number) {
+      this.router.navigate(['/profile', userId]);
+    }
+
 }

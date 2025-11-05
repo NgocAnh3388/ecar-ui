@@ -168,22 +168,6 @@
                                                     <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12ZM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4Z"/>
                                                 </svg>
                                             </button>
-
-                                            <!-- =================================== -->
-                                            <!-- ===== ĐÂY LÀ PHẦN ĐÃ ĐƯỢC SỬA ===== -->
-                                            <!-- =================================== -->
-
-                                            @if (item.status === 'TECHNICIAN_RECEIVED') {
-                                                <button (click)="onComplete(item.id)"
-                                                        title="Hoàn thành"
-                                                        type="button"
-                                                        class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-theme-xs transition hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
-                                                >
-                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                                                    </svg>
-                                                </button>
-                                            }
                                         </div>
                                     </td>
 

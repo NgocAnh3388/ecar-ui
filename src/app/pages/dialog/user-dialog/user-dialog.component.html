@@ -19,8 +19,8 @@
         <div>
             <app-label>Tên</app-label>
             <app-input-field
-                    id="email"
-                    type="email"
+                    id="fullName"
+                    type="text"
                     [value]="fullName"
                     [error]="fullNameError"
                     (valueChange)="handleFullNameChange($event)"
@@ -30,15 +30,15 @@
         </div>
 
         <div>
-            <app-label>Tên</app-label>
+            <app-label>Số Điện Thoại</app-label>
             <app-input-field
                     id="phoneNo"
-                    type="phoneNo"
+                    type="tel"
                     [value]="phoneNo"
-                    [error]="fullNameError"
-                    (valueChange)="handleFullNameChange($event)"
+                    [error]="phoneError"
+                    (valueChange)="handlePhoneChange($event)"
                     placeholder="Nhập số điện thoại của bạn"
-                    [hint]="fullNameError ? 'Số điện thoại không đúng' : ''"
+                    [hint]="phoneError ? 'Số điện thoại không đúng' : ''"
             ></app-input-field>
         </div>
 
@@ -53,10 +53,10 @@
             ></app-select>
         </div>
 
-        <!-- Nút ở góc phải dưới -->
         <div class="mt-auto flex justify-end gap-2">
             <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
             <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
         </div>
+
     </div>
 </div>

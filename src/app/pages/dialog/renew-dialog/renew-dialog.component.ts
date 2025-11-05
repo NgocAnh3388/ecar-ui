@@ -8,25 +8,19 @@ import {ModalRef} from "../../modal/modal-ref";
 import {SubscriptionService} from "../../../services/subscription.service";
 import {RenewRequest} from "../../../models/renew-request";
 import {Router} from "@angular/router";
-import {finalize} from "rxjs/operators"; // <-- 1. Import `finalize`
-import { CommonModule } from '@angular/common'; // <-- 1. Import CommonModule
-import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
+
 @Component({
-    selector: 'app-renew-dialog',
+  selector: 'app-renew-dialog',
     imports: [
         ButtonComponent,
         InputFieldComponent,
-        LabelComponent,
-        CommonModule, // <-- 3. Thêm CommonModule vào đây
-        LoadingSpinnerComponent // <-- 4. Thêm LoadingSpinnerComponent vào đây
+        LabelComponent
     ],
-    standalone: true, // <-- 5. Rất có thể bạn cần thêm dòng này
-    templateUrl: './renew-dialog.component.html',
-    styleUrl: './renew-dialog.component.css'
+  templateUrl: './renew-dialog.component.html',
+  styleUrl: './renew-dialog.component.css'
 })
 export class RenewDialogComponent {
     numOfYears = 1;
-    public isLoading = false; // <-- 2. Thêm biến quản lý trạng thái loading
 
     constructor(private subscriptionService: SubscriptionService,
                 private router: Router) {
@@ -39,37 +33,11 @@ export class RenewDialogComponent {
     message = signal(this.data?.message ?? 'Bạn chắc chắn?');
 
     ok() {
-        if (this.isLoading) {
-            return;
-        }
-
-        this.isLoading = true; // Bật spinner
         const request = new RenewRequest(this.numOfYears);
+        this.subscriptionService.renew(request).pipe().subscribe(res => {
+            window.location.href = res.url;
 
-        // Bỏ đi .pipe(finalize(...))
-        this.subscriptionService.renew(request)
-            .subscribe({
-                next: (res) => {
-                    // KHI THÀNH CÔNG: Cứ để spinner và chuyển trang ngay lập tức.
-                    // Trình duyệt sẽ tự lo việc xóa spinner khi trang mới được tải.
-                    window.location.href = res.url;
-                },
-                error: (err) => {
-                    console.error('Lỗi khi gia hạn:', err);
-
-                    // KHI LỖI: Bắt buộc phải tắt spinner đi để người dùng có thể thao tác lại.
-                    this.isLoading = false; // <--- SỬA ĐỔI QUAN TRỌNG
-
-                    alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                    // Không đóng modal để người dùng có thể thử lại
-                }
-            });
+        })
     }
-
-    cancel() {
-        if (this.isLoading) { // Không cho hủy khi đang xử lý
-            return;
-        }
-        this.modalRef.close(false);
-    }
+    cancel() { this.modalRef.close(false); }
 }

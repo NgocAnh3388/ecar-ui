@@ -40,9 +40,4 @@ export class MaintenanceService {
     createService(request: ServiceCreateRequest): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/service-create`, request);
     }
-
-    completeTechnicianTask(id: number): Observable<any> {
-        // Gửi một yêu cầu POST đến endpoint mới
-        return this.http.post<any>(`${this.api}/api/maintenance/${id}/technician-complete`, {});
-    }
 }

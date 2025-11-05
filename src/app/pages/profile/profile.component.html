@@ -1,11 +1,46 @@
-<app-page-breadcrumb pageTitle="Profile" />
-<div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-  <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
-    Profile
-  </h3>
-  <div class="space-y-6">
-    <div><app-user-meta-card/></div>
-    <div><app-user-info-card/></div>
-    <div><app-user-address-card/></div>
-  </div>
+<div class="profile-container">
+    <h2>Profile</h2>
+
+    <!-- USER META -->
+    <div class="card user-meta-card">
+        <h3>User Meta</h3>
+        <p><strong>Full Name:</strong> {{ userData.fullName }}</p>
+        <p><strong>Email:</strong> {{ userData.email }}</p>
+        <p><strong>Phone Number:</strong> {{ userData.phoneNo || '-' }}</p>
+        <p><strong>Active:</strong> {{ userData.active ? 'Active' : 'Inactive' }}</p>
+        <p><strong>Roles:</strong> {{ userData.roles.join(', ') }}</p>
+    </div>
+
+    <!-- USER INFO -->
+    <div class="card user-info-card">
+        <h3>User Info</h3>
+        <p><strong>Full Name:</strong> {{ userData.fullName }}</p>
+        <p><strong>Email:</strong> {{ userData.email }}</p>
+        <p><strong>Phone Number:</strong> {{ userData.phoneNo || '-' }}</p>
+    </div>
+
+    <!-- VEHICLES -->
+    <ng-container *ngIf="userData && userData.vehicles && userData.vehicles.length > 0; else noVehicle">
+        <div class="card user-vehicles-card">
+            <h3>Vehicles</h3>
+
+            <div *ngFor="let vehicle of userData.vehicles" class="vehicle-item">
+                <p><strong>License Plate:</strong> {{ vehicle.licensePlate }}</p>
+                <p><strong>VIN:</strong> {{ vehicle.vinNumber || '-' }}</p>
+                <p><strong>Car Model:</strong> {{ vehicle.carModel?.carName }}</p>
+                <p><strong>Car Type:</strong> {{ vehicle.carModel?.carType }}</p>
+                <p><strong>Next KM:</strong> {{ vehicle.nextKm || '-' }}</p>
+                <p><strong>Next Date:</strong> {{ vehicle.nextDate || '-' }}</p>
+                <hr />
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- NO VEHICLE -->
+    <ng-template #noVehicle>
+        <div class="card user-vehicles-card">
+            <h3>Vehicles</h3>
+            <p>No vehicles found for this user.</p>
+        </div>
+    </ng-template>
 </div>

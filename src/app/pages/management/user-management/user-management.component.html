@@ -104,17 +104,22 @@
                                             </button>
                                         </div>
                                         <div dropdown-content>
+                                            <button (click)="viewProfile(item.id)"
+                                                    class="text-xs flex w-full rounded-lg px-3 py-2 text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+                                                Xem thông tin
+                                            </button>
+
                                             <button (click)="editUser(item)"
-                                                    class="text-xs flex w-full rounded-lg px-3 py-2 text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                                            >
+                                                    class="text-xs flex w-full rounded-lg px-3 py-2 text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
                                                 Chỉnh sửa
                                             </button>
+
                                             <button (click)="deleteUser(item.id)"
-                                                    class="text-xs flex w-full rounded-lg px-3 py-2 text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                                            >
-                                                Delete
+                                                    class="text-xs flex w-full rounded-lg px-3 py-2 text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+                                                Xoá
                                             </button>
                                         </div>
+
                                     </app-table-dropdown>
                                 </div>
                             </td>

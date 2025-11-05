@@ -7,8 +7,6 @@ import {BlankComponent} from './pages/blank/blank.component';
 import {NotFoundComponent} from './pages/other-page/not-found/not-found.component';
 import {AppLayoutComponent} from './shared/layout/app-layout/app-layout.component';
 import {InvoicesComponent} from './pages/invoices/invoices.component';
-import {LineChartComponent} from './pages/charts/line-chart/line-chart.component';
-import {BarChartComponent} from './pages/charts/bar-chart/bar-chart.component';
 import {AlertsComponent} from './pages/ui-elements/alerts/alerts.component';
 import {AvatarElementComponent} from './pages/ui-elements/avatar-element/avatar-element.component';
 import {BadgesComponent} from './pages/ui-elements/badges/badges.component';
@@ -17,16 +15,15 @@ import {ImagesComponent} from './pages/ui-elements/images/images.component';
 import {VideosComponent} from './pages/ui-elements/videos/videos.component';
 import {SignInComponent} from './pages/auth-pages/sign-in/sign-in.component';
 import {SignUpComponent} from './pages/auth-pages/sign-up/sign-up.component';
-import {CalenderComponent} from './pages/calender/calender.component';
 import {LandingShellComponent} from "./features/landing/landing-shell/landing-shell.component";
 import {UserManagementComponent} from "./pages/management/user-management/user-management.component";
 import {AuthGuard} from "./guard/auth.guard";
 import {CustomerDashboardComponent} from "./pages/dashboard/customer-dashboard/customer-dashboard.component";
-import {CustomerPaymentDashboardComponent} from "./pages/dashboard/customer-payment-dashboard/customer-payment-dashboard.component";
+import {
+    CustomerPaymentDashboardComponent
+} from "./pages/dashboard/customer-payment-dashboard/customer-payment-dashboard.component";
 import {PaypalSuccessComponent} from "./pages/paypal-success/paypal-success.component";
 import {ServiceDashboardComponent} from "./pages/dashboard/service-dashboard/service-dashboard.component";
-import { PaymentCancelComponent } from "./pages/payment-cancel/payment-cancel.component";
-
 
 export const routes: Routes = [
     {
@@ -42,12 +39,7 @@ export const routes: Routes = [
                     'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
             },
             {
-                path: 'calendar',
-                component: CalenderComponent,
-                title: 'Angular Calender | TailAdmin - Angular Admin Dashboard Template'
-            },
-            {
-                path: 'profile',
+                path: 'profile/:id',
                 component: ProfileComponent,
                 title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
             },
@@ -72,16 +64,7 @@ export const routes: Routes = [
                 component: InvoicesComponent,
                 title: 'Angular Invoice Details Dashboard | TailAdmin - Angular Admin Dashboard Template'
             },
-            {
-                path: 'line-chart',
-                component: LineChartComponent,
-                title: 'Angular Line Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
-            },
-            {
-                path: 'bar-chart',
-                component: BarChartComponent,
-                title: 'Angular Bar Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
-            },
+
             {
                 path: 'alerts',
                 component: AlertsComponent,
@@ -155,16 +138,10 @@ export const routes: Routes = [
         component: SignUpComponent,
         title: 'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
     },
-    {
-        path: 'paypal/cancel',
-        component: PaymentCancelComponent,
-        title: 'Payment Canceled'
-    },
     // error pages
     {
         path: '**',
         component: NotFoundComponent,
         title: 'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template'
     },
-
 ];

@@ -4,9 +4,7 @@ import {MaintenanceTicket} from "../../../models/maintenance-ticket";
 import {ModalService} from "../../modal/modal.service";
 import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.component";
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
-import {CommonModule, DatePipe} from "@angular/common";
-import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog.component';
-
+import {DatePipe} from "@angular/common";
 
 type OptionKey =
     | 'see_all'
@@ -24,10 +22,9 @@ interface OptionItem {
 
 @Component({
   selector: 'app-service-dashboard',
-    standalone: true,
     imports: [
-        DatePipe,
-        CommonModule
+        DatePipe
+
     ],
   templateUrl: './service-dashboard.component.html',
   styleUrl: './service-dashboard.component.css'
@@ -149,12 +146,12 @@ export class ServiceDashboardComponent implements OnInit {
         return undefined;
     }
 
-    getStatus(status: string): 'Mới' | 'Đang thực hiện' | 'Thực hiện xong' | 'Hoàn thành' | undefined {
+    getStatus(status: string): 'Mới' | 'Đang thực hện' | 'Thực hiện xong' | 'Hoàn thành' | undefined {
         switch (status) {
             case 'CUSTOMER_SUBMITTED':
                 return 'Mới';
             case 'TECHNICIAN_RECEIVED':
-                return 'Đang thực hiện';
+                return 'Đang thực hện';
             case 'TECHNICIAN_COMPLETED':
                 return 'Thực hiện xong';
             case 'DONE':
@@ -178,45 +175,4 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
-    onComplete(orderId: number): void {
-        // 1. Mở dialog xác nhận (bằng tiếng Anh)
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: {
-                message: 'Are you sure you want to mark this task as completed?',
-                isConfirm: true
-            },
-            panelClass: ['modal-panel', 'p-0'],
-            backdropClass: 'modal-backdrop',
-        });
-
-        // 2. Lắng nghe kết quả
-        confirmDialogRef.afterClosed$.subscribe(confirmed => {
-            if (confirmed) {
-                this.maintenanceService.completeTechnicianTask(orderId).subscribe({
-                    next: (updatedOrder) => {
-                        // Lọc mảng để loại bỏ mục vừa hoàn thành
-                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
-
-                        // Mở dialog thông báo THÀNH CÔNG (bằng tiếng Anh)
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: {
-                                message: 'Status updated successfully!',
-                                isConfirm: false // Chỉ có nút OK
-                            }
-                        });
-                    },
-                    error: (err) => {
-                        console.error('Error updating status:', err);
-                        // Mở dialog thông báo LỖI (bằng tiếng Anh)
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: {
-                                message: 'An error occurred. Please try again.',
-                                isConfirm: false // Chỉ có nút OK
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
 }
