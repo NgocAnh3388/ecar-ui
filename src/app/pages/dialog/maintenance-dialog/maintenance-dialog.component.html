@@ -1,0 +1,174 @@
+<div class="p-6 min-w-[320px]">
+    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+
+    <!-- 2 columns on md+, 1 column on mobile -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[20vh]">
+        <!-- Trung tâm: span 2 columns -->
+        <div class="col-span-1 md:col-span-2">
+            <app-label>Trung tâm</app-label>
+            <app-select
+                    [options]="centers"
+                    placeholder="Chọn trung tâm"
+                    [value]="selectedCenter"
+                    (valueChange)="handleCenterChange($event)"
+                    class="dark:bg-dark-900 w-full"
+            ></app-select>
+        </div>
+
+        <div class="relative">
+            <input
+                #timeInput
+                id="timeInput"
+                placeholder="Chọn giờ"
+                class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                autocomplete="off"
+            />
+            <span class="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2 dark:text-gray-400">
+        <svg
+                class="fill-current"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M3.04175 9.99984C3.04175 6.15686 6.1571 3.0415 10.0001 3.0415C13.8431 3.0415 16.9584 6.15686 16.9584 9.99984C16.9584 13.8428 13.8431 16.9582 10.0001 16.9582C6.1571 16.9582 3.04175 13.8428 3.04175 9.99984ZM10.0001 1.5415C5.32867 1.5415 1.54175 5.32843 1.54175 9.99984C1.54175 14.6712 5.32867 18.4582 10.0001 18.4582C14.6715 18.4582 18.4584 14.6712 18.4584 9.99984C18.4584 5.32843 14.6715 1.5415 10.0001 1.5415ZM9.99998 10.7498C9.58577 10.7498 9.24998 10.4141 9.24998 9.99984V5.4165C9.24998 5.00229 9.58577 4.6665 9.99998 4.6665C10.4142 4.6665 10.75 5.00229 10.75 5.4165V9.24984H13.3334C13.7476 9.24984 14.0834 9.58562 14.0834 9.99984C14.0834 10.4141 13.7476 10.7498 13.3334 10.7498H10.0001H9.99998Z"
+                  fill=""
+          />
+        </svg>
+      </span>
+        </div>
+
+        <!-- Date & Time in the same row (two columns) -->
+        <div class="relative">
+            <input
+                #dateInput
+                id="dateInput"
+                placeholder="Chọn ngày"
+                class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
+                autocomplete="off"
+            />
+            <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" class="size-6"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>
+    </span>
+        </div>
+
+        <div>
+            <app-label>Tên</app-label>
+            <app-input-field
+                    id="fullName"
+                    type="text"
+                    [value]="fullName"
+                    [error]="fullNameError"
+                    (valueChange)="handleFullNameChange($event)"
+                    [hint]="fullNameError ? 'Tên không thể trống' : ''"
+                    [readonly] = true
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Số điện thoại</app-label>
+            <app-input-field
+                    id="phoneNo"
+                    type="tel"
+                    [value]="phoneNo"
+                    [error]="phoneNoError"
+                    (valueChange)="handlePhoneNoChange($event)"
+                    placeholder="Nhập số điện thoại của bạn"
+                    [hint]="phoneNoError ? 'Số điện thoại không đúng' : ''"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Email</app-label>
+            <app-input-field
+                    id="email"
+                    type="email"
+                    [value]="email"
+                    [error]="emailError"
+                    (valueChange)="handleEmailChange($event)"
+                    [readonly] = true
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Xe</app-label>
+            <app-input-field
+                    id="vehicle"
+                    type="text"
+                    [value]="selectedVehicle"
+                    [error]="emailError"
+                    (valueChange)="handleEmailChange($event)"
+                    [readonly] = true
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Số Km</app-label>
+            <app-input-field
+                    id="inputKm"
+                    type="number"
+                    [value]="inputKm"
+                    (input)="inputKm = $any($event.target).value"
+                    [error]="kmError"
+                    placeholder="Nhập số Km"
+                    [hint]="kmError ? 'Số Km không hợp lệ' : ''"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Biển số xe</app-label>
+            <app-input-field
+                    id="licensePlate"
+                    type="text"
+                    [value]="licensePlate"
+                    [error]="licensePlateError"
+                    (valueChange)="handleEmailChange($event)"
+                    placeholder="Nhập biển số xe"
+                    [hint]="licensePlateError ? 'Biển số không hợp lệ' : ''"
+                    [readonly] = true
+            ></app-input-field>
+        </div>
+
+        <!-- Checkbox group spans both columns -->
+        <div class="flex items-center gap-4 col-span-1 md:col-span-2">
+            <div class="flex items-center gap-3">
+                <app-checkbox
+                        [checked]="isMaintenance"
+                        (checkedChange)="isMaintenance = $event"
+                ></app-checkbox>
+                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Bảo dưỡng</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <app-checkbox
+                        [checked]="isRepair"
+                        (checkedChange)="isRepair = $event"
+                ></app-checkbox>
+                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Sữa chữa</span>
+            </div>
+        </div>
+
+        <!-- Textareas span both columns -->
+        <div class="space-y-6 col-span-1 md:col-span-2">
+            <div>
+                <app-label>Ghi chú</app-label>
+                <app-text-area
+                        [value]="remark"
+                        (valueChange)="remark = $event"
+                        placeholder="Cụ thể yêu cầu"
+                        [rows]="6"
+                ></app-text-area>
+            </div>
+        </div>
+
+        <!-- Footer buttons span both columns -->
+        <div class="mt-auto flex justify-end gap-2 col-span-1 md:col-span-2">
+            <app-button size="sm" variant="outline" (btnClick)="ok()">Đặt</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
+        </div>
+    </div>
+</div>

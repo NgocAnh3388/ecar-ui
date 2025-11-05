@@ -1,0 +1,6 @@
+.cdk-overlay-container,
+.flatpickr-calendar,
+.datepicker-dropdown,
+.timepicker-dropdown {
+    z-index: 9999 !important;
+}
