@@ -1,0 +1,62 @@
+<div class="p-6 min-w-[320px]">
+    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+    <div class="flex flex-col gap-4 min-h-[20vh]">
+
+        <div>
+            <app-label>Email</app-label>
+            <app-input-field
+                    id="email"
+                    type="email"
+                    [value]="email"
+                    [error]="error"
+                    (valueChange)="handleEmailChange($event)"
+                    placeholder="Nhập email của bạn"
+                    [hint]="error ? 'Email không hợp lệ' : ''"
+                    [readonly]="isEdit"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Tên</app-label>
+            <app-input-field
+                    id="email"
+                    type="email"
+                    [value]="fullName"
+                    [error]="fullNameError"
+                    (valueChange)="handleFullNameChange($event)"
+                    placeholder="Nhập tên của bạn"
+                    [hint]="fullNameError ? 'Tên không thể trống' : ''"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Tên</app-label>
+            <app-input-field
+                    id="phoneNo"
+                    type="phoneNo"
+                    [value]="phoneNo"
+                    [error]="fullNameError"
+                    (valueChange)="handleFullNameChange($event)"
+                    placeholder="Nhập số điện thoại của bạn"
+                    [hint]="fullNameError ? 'Số điện thoại không đúng' : ''"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Vai trò</app-label>
+            <app-select
+                    [options]="options"
+                    placeholder="Chọn vai trò"
+                    [value]="selectedValue"
+                    (valueChange)="handleSelectChange($event)"
+                    class="dark:bg-dark-900"
+            ></app-select>
+        </div>
+
+        <!-- Nút ở góc phải dưới -->
+        <div class="mt-auto flex justify-end gap-2">
+            <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<!-- 1. Thêm spinner ở đây. Nó chỉ hiện khi `isLoading` là true -->
+<app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+
+<div class="p-6 min-w-[320px]">
+    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+    <div class="flex flex-col gap-4 min-h-[20vh]">
+        <div>
+            <app-label>Số năm đăng ký/gia hạn</app-label>
+            <app-input-field
+                    id="numOfYear"
+                    type="number"
+                    [value]="numOfYears"
+                    (input)="numOfYears = $any($event.target).value"
+                    placeholder="Nhập biển số xe của bạn"
+            ></app-input-field>
+        </div>
+        <!-- Nút ở góc phải dưới -->
+        <div class="mt-auto flex justify-end gap-2">
+            <!-- 2. Sửa lại nút OK -->
+            <app-button
+                    size="sm"
+                    variant="outline"
+                    (btnClick)="ok()"
+                    [disabled]="isLoading"
+                    [class.opacity-50]="isLoading"
+            >OK</app-button>
+
+            <!-- 3. Sửa lại nút Huỷ -->
+            <app-button
+                    size="sm"
+                    variant="outline"
+                    (btnClick)="cancel()"
+                    [disabled]="isLoading"
+            >Huỷ</app-button>
+        </div>
+    </div>
+</div>
