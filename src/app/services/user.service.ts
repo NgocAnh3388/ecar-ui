@@ -11,8 +11,11 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  me() {
-    return this.http.get<any>(`${this.api}/api/me`);
+  // API /me
+  me(): Observable<User> {
+    return this.http.get<User>(`${this.api}/api/users/me`).pipe(
+      map(res => new User(res)) // chuyển res JSON sang class User, đảm bảo vehicles có
+    );
   }
 
   getInfo() {
@@ -40,9 +43,13 @@ export class UserService {
     return this.http.get<any>(`${this.api}/api/users/get-by-role/${role}`);
   }
 
-  getUserById(id: number): Observable<User> {
-    return this.http.get<any>(`${this.api}/api/users/${id}`).pipe(
+
+  // API /users/{id}
+  getUserById(id: string | number): Observable<User> {
+    return this.http.get<User>(`${this.api}/api/users/${id}`).pipe(
       map(res => new User(res)) // ép dữ liệu backend sang User class
     );
   }
+
+
 }

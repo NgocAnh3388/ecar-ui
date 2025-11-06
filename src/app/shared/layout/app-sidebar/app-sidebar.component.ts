@@ -11,7 +11,6 @@ import {
 import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
-import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 import { combineLatest, Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 
@@ -41,7 +40,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   ];
 
   othersItems: NavItem[] = [];
-  openSubmenu: string | null | number = null;
+  openSubmenu: string | null = null;
   subMenuHeights: { [key: string]: number } = {};
 
   @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
@@ -64,33 +63,22 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     this.isHovered$ = this.sidebarService.isHovered$;
   }
 
-  // ✅ Hover handlers (fix lỗi template)
-  onSidebarMouseEnter() {
-    this.sidebarService.setHovered(true);
-  }
-
-  onSidebarMouseLeave() {
-    this.sidebarService.setHovered(false);
-  }
-
   ngOnInit() {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
+        console.log('User object from API:', user);
         this.userRoles = user?.roles || [];
         localStorage.setItem('user', JSON.stringify(user));
 
-        // ✅ Cập nhật lại đường dẫn User Profile trước
+        const googleId = user?.claims?.sub;
         const userProfileItem = this.navItems.find(i => i.name === 'User Profile');
-        if (userProfileItem && user?.id) {
-          userProfileItem.path = `/profile/${user.id}`;
-          console.log('✅ Updated profile path:', userProfileItem.path);
-
+        if (userProfileItem && googleId) {
+          userProfileItem.path = this.userRoles.includes('ROLE_ADMIN')
+              ? `/profile/${user.id}`      // numeric id admin
+              : `/profile/me`;             // customer dùng /me
         }
 
-        // ✅ Sau đó mới lọc menu theo role
         this.filterMenuByRole();
-
-        // ✅ Force update UI
         this.navItems = [...this.navItems];
         this.cdr.detectChanges();
       },
@@ -99,7 +87,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       },
     });
 
-    // 🔹 Theo dõi router để cập nhật active menu
+    // Theo dõi router để highlight active menu
     this.subscription.add(
       this.router.events.subscribe((event) => {
         if (event instanceof NavigationEnd) {
@@ -108,7 +96,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       })
     );
 
-    // 🔹 Cập nhật khi sidebar thay đổi trạng thái
+    // Theo dõi trạng thái sidebar
     this.subscription.add(
       combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(() => {
         this.cdr.detectChanges();
@@ -118,22 +106,38 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     this.setActiveMenuFromRoute(this.router.url);
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  onSidebarMouseEnter() {
+    this.sidebarService.setHovered(true);
+  }
+
+  onSidebarMouseLeave() {
+    this.sidebarService.setHovered(false);
+  }
+
   // ✅ Toggle submenu
   toggleSubmenu(prefix: string, index: number) {
     const key = `${prefix}-${index}`;
-    if (this.openSubmenu === key) {
-      this.openSubmenu = null;
-      this.subMenuHeights[key] = 0;
-    } else {
-      this.openSubmenu = key;
+    this.openSubmenu = this.openSubmenu === key ? null : key;
+
+    setTimeout(() => {
       const el = document.getElementById(key);
       if (el) {
         this.subMenuHeights[key] = el.scrollHeight;
+        this.cdr.detectChanges();
       }
-    }
+    });
   }
 
-  // Lọc menu theo role (ẩn menu không được phép)
+  onSubmenuClick() {
+    this.isMobileOpen$.subscribe((isMobile) => {
+      if (isMobile) this.sidebarService.setMobileOpen(false);
+    }).unsubscribe();
+  }
+
   private filterMenuByRole() {
     const roleAccess: Record<string, string[]> = {
       'Quản lý người dùng': ['ROLE_ADMIN', 'ROLE_STAFF'],
@@ -148,10 +152,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       const allowed = roleAccess[item.name];
       return !allowed || allowed.some((r) => this.userRoles.includes(r));
     });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
   isActive(path: string): boolean {
@@ -183,11 +183,5 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         }
       });
     });
-  }
-
-  onSubmenuClick() {
-    this.isMobileOpen$.subscribe((isMobile) => {
-      if (isMobile) this.sidebarService.setMobileOpen(false);
-    }).unsubscribe();
   }
 }

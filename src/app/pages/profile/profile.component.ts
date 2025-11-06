@@ -23,7 +23,7 @@ import { UserInfoCardComponent } from '../../shared/components/user-profile/user
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  userId!: number;
+  userId!: string;
   userData: User = new User({ vehicles: [] });
   isLoading = true;
 
@@ -34,45 +34,36 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const currentUser = this.authService.getUser();
     const roles = this.authService.getRoles();
 
-    // 👨‍💼 Nếu là admin → lấy id từ URL để xem profile của khách hàng
-    if (roles.includes('ADMIN')) {
+    if (roles.includes('ROLE_ADMIN')) {
+      // Admin: lấy id từ URL
       this.route.paramMap.subscribe(params => {
         const id = params.get('id');
         if (id) {
-          this.userId = +id;
+          this.userId = id;
           this.loadUser(this.userId);
-        } else {
-          // Nếu admin vào mà không có id -> không load gì cả
+        }
+      });
+    } else {
+      // Customer: gọi API /me
+      this.userService.me().subscribe({
+        next: (user) => {
+          console.log('Customer profile user object:', user);
+          this.userData = user;
+          this.isLoading = false;
+          localStorage.setItem('user', JSON.stringify(user));
+        },
+        error: (err) => {
+          console.error('Không thể tải thông tin người dùng:', err);
           this.isLoading = false;
         }
       });
     }
-    // 👤 Nếu là customer → tự xem profile của chính mình
-    else {
-      if (currentUser && currentUser.id) {
-        this.userId = currentUser.id;
-        this.loadUser(this.userId);
-      } else {
-        // Nếu localStorage trống -> gọi API /api/me để lấy lại
-        this.userService.me().subscribe({
-          next: (user: any) => {
-            this.userId = user.id;
-            localStorage.setItem('user', JSON.stringify(user));
-            this.loadUser(this.userId);
-          },
-          error: (err) => {
-            console.error('Không thể tải thông tin người dùng:', err);
-            this.isLoading = false;
-          }
-        });
-      }
-    }
   }
 
-  loadUser(id: number) {
+  // Chỉ giữ 1 method loadUser
+  loadUser(id: string) {
     this.isLoading = true;
     this.userService.getUserById(id).subscribe({
       next: (user: User) => {
