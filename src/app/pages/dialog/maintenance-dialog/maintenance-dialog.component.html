@@ -5,10 +5,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[20vh]">
         <!-- Trung tâm: span 2 columns -->
         <div class="col-span-1 md:col-span-2">
-            <app-label>Trung tâm</app-label>
+            <app-label>Center</app-label>
             <app-select
                     [options]="centers"
-                    placeholder="Chọn trung tâm"
+                    placeholder="Select center"
                     [value]="selectedCenter"
                     (valueChange)="handleCenterChange($event)"
                     class="dark:bg-dark-900 w-full"
@@ -19,7 +19,7 @@
             <input
                 #timeInput
                 id="timeInput"
-                placeholder="Chọn giờ"
+                placeholder="Time"
                 class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 autocomplete="off"
             />
@@ -47,7 +47,7 @@
             <input
                 #dateInput
                 id="dateInput"
-                placeholder="Chọn ngày"
+                placeholder="Date"
                 class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
                 autocomplete="off"
             />
@@ -57,7 +57,7 @@
         </div>
 
         <div>
-            <app-label>Tên</app-label>
+            <app-label>Name</app-label>
             <app-input-field
                     id="fullName"
                     type="text"
@@ -70,15 +70,15 @@
         </div>
 
         <div>
-            <app-label>Số điện thoại</app-label>
+            <app-label>Phone Number</app-label>
             <app-input-field
                     id="phoneNo"
                     type="tel"
                     [value]="phoneNo"
                     [error]="phoneNoError"
                     (valueChange)="handlePhoneNoChange($event)"
-                    placeholder="Nhập số điện thoại của bạn"
-                    [hint]="phoneNoError ? 'Số điện thoại không đúng' : ''"
+                    placeholder="Enter your phone number"
+                    [hint]="phoneNoError ? 'Incorrect phone number' : ''"
             ></app-input-field>
         </div>
 
@@ -95,7 +95,7 @@
         </div>
 
         <div>
-            <app-label>Xe</app-label>
+            <app-label>Vehicle</app-label>
             <app-input-field
                     id="vehicle"
                     type="text"
@@ -107,28 +107,28 @@
         </div>
 
         <div>
-            <app-label>Số Km</app-label>
+            <app-label>Kilometers</app-label>
             <app-input-field
                     id="inputKm"
                     type="number"
                     [value]="inputKm"
                     (input)="inputKm = $any($event.target).value"
                     [error]="kmError"
-                    placeholder="Nhập số Km"
-                    [hint]="kmError ? 'Số Km không hợp lệ' : ''"
+                    placeholder="Enter Km"
+                    [hint]="kmError ? 'Invalid Km Number' : ''"
             ></app-input-field>
         </div>
 
         <div>
-            <app-label>Biển số xe</app-label>
+            <app-label>License plate number</app-label>
             <app-input-field
                     id="licensePlate"
                     type="text"
                     [value]="licensePlate"
                     [error]="licensePlateError"
                     (valueChange)="handleEmailChange($event)"
-                    placeholder="Nhập biển số xe"
-                    [hint]="licensePlateError ? 'Biển số không hợp lệ' : ''"
+                    placeholder="Enter license plate number"
+                    [hint]="licensePlateError ? 'Invalid license plate' : ''"
                     [readonly] = true
             ></app-input-field>
         </div>
@@ -140,7 +140,7 @@
                         [checked]="isMaintenance"
                         (checkedChange)="isMaintenance = $event"
                 ></app-checkbox>
-                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Bảo dưỡng</span>
+                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Maintenance</span>
             </div>
 
             <div class="flex items-center gap-3">
@@ -148,18 +148,18 @@
                         [checked]="isRepair"
                         (checkedChange)="isRepair = $event"
                 ></app-checkbox>
-                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Sữa chữa</span>
+                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Repair</span>
             </div>
         </div>
 
         <!-- Textareas span both columns -->
         <div class="space-y-6 col-span-1 md:col-span-2">
             <div>
-                <app-label>Ghi chú</app-label>
+                <app-label>Note</app-label>
                 <app-text-area
                         [value]="remark"
                         (valueChange)="remark = $event"
-                        placeholder="Cụ thể yêu cầu"
+                        placeholder="Specific requirements"
                         [rows]="6"
                 ></app-text-area>
             </div>
@@ -167,8 +167,8 @@
 
         <!-- Footer buttons span both columns -->
         <div class="mt-auto flex justify-end gap-2 col-span-1 md:col-span-2">
-            <app-button size="sm" variant="outline" (btnClick)="ok()">Đặt</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="ok()">Book</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancle</app-button>
         </div>
     </div>
 </div>

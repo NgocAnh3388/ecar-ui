@@ -1,48 +1,69 @@
-<div class="profile-container">
-    <h2>Profile</h2>
-
-    <!-- USER META -->
-    <div class="card user-meta-card">
-        <h3>User Meta</h3>
-        <p><strong>Full Name:</strong> {{ userData.fullName }}</p>
-        <p><strong>Email:</strong> {{ userData.email }}</p>
-        <p><strong>Phone Number:</strong> {{ userData.phoneNo || '-' }}</p>
-        <p><strong>Active:</strong> {{ userData.active ? 'Active' : 'Inactive' }}</p>
-        <p><strong>Roles:</strong> {{ userData.roles.join(', ') }}</p>
-    </div>
+<div class="max-w-6xl mx-auto px-6 py-10">
+    <!-- Header -->
+    <h2 class="text-3xl font-semibold text-gray-800 dark:text-white mb-10 text-center">
+        User profile
+    </h2>
 
     <!-- USER INFO -->
-    <div class="card user-info-card">
-        <h3>User Info</h3>
-        <p><strong>Full Name:</strong> {{ userData.fullName }}</p>
-        <p><strong>Email:</strong> {{ userData.email }}</p>
-        <p><strong>Phone Number:</strong> {{ userData.phoneNo || '-' }}</p>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 mb-10 border border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100 mb-5 border-b pb-3">
+            Personal information
+        </h3>
+
+        <div class="grid sm:grid-cols-2 gap-6 text-gray-700 dark:text-gray-300">
+            <div>
+                <p class="font-medium text-gray-600 dark:text-gray-400">Full name</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.fullName }}</p>
+            </div>
+            <div>
+                <p class="font-medium text-gray-600 dark:text-gray-400">Email</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.email }}</p>
+            </div>
+            <div>
+                <p class="font-medium text-gray-600 dark:text-gray-400">Phone Number</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.phoneNo || '-' }}</p>
+            </div>
+        </div>
     </div>
 
     <!-- VEHICLES -->
-    <ng-container *ngIf="userData && userData.vehicles && userData.vehicles.length > 0; else noVehicle">
-        <div class="card user-vehicles-card">
-            <h3>Vehicles</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100">Your Vehicle</h3>
+            <button
+                    (click)="addVehicle()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow hover:bg-brand-600 focus:ring-2 focus:ring-brand-400 transition"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Vehicle
+            </button>
+        </div>
 
-            <div *ngFor="let vehicle of userData.vehicles" class="vehicle-item">
-                <p><strong>License Plate:</strong> {{ vehicle.licensePlate }}</p>
-                <p><strong>VIN:</strong> {{ vehicle.vinNumber || '-' }}</p>
-                <p><strong>Car Model:</strong> {{ vehicle.carModel?.carName }}</p>
-                <p><strong>Car Type:</strong> {{ vehicle.carModel?.carType }}</p>
-                <p><strong>Next KM:</strong> {{ vehicle.nextKm || '-' }}</p>
-                <p><strong>Next Date:</strong> {{ vehicle.nextDate || '-' }}</p>
-                <hr />
+        <ng-container *ngIf="userData.vehicles?.length; else noVehicle">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                        *ngFor="let vehicle of userData.vehicles"
+                        class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition"
+                >
+                    <div class="mb-3">
+                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ vehicle.carModel?.carName }}</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ vehicle.carModel?.carType }}</p>
+                    </div>
+
+                    <div class="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                        <p><strong>Number plate:</strong> {{ vehicle.licensePlate }}</p>
+                        <p><strong>VIN:</strong> {{ vehicle.vinNumber || '-' }}</p>
+                        <p><strong>Next kilometer:</strong> {{ vehicle.nextKm || '-' }}</p>
+                        <p><strong>Next maintenance date:</strong> {{ (vehicle.nextDate | date: 'dd-MM-yyyy') || '-' }}</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </ng-container>
+        </ng-container>
 
-    <!-- NO VEHICLE -->
-    <ng-template #noVehicle>
-        <div class="card user-vehicles-card">
-            <h3>Vehicles</h3>
-            <p>No vehicles found for this user.</p>
-        </div>
-    </ng-template>
-
-
+        <ng-template #noVehicle>
+            <p class="text-gray-500 dark:text-gray-400 text-center py-6">No vehicle added yet.</p>
+        </ng-template>
+    </div>
 </div>

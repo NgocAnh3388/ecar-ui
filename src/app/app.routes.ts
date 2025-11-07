@@ -18,12 +18,14 @@ import {SignUpComponent} from './pages/auth-pages/sign-up/sign-up.component';
 import {LandingShellComponent} from "./features/landing/landing-shell/landing-shell.component";
 import {UserManagementComponent} from "./pages/management/user-management/user-management.component";
 import {AuthGuard} from "./guard/auth.guard";
-import {CustomerDashboardComponent} from "./pages/dashboard/customer-dashboard/customer-dashboard.component";
 import {
     CustomerPaymentDashboardComponent
 } from "./pages/dashboard/customer-payment-dashboard/customer-payment-dashboard.component";
 import {PaypalSuccessComponent} from "./pages/paypal-success/paypal-success.component";
 import {ServiceDashboardComponent} from "./pages/dashboard/service-dashboard/service-dashboard.component";
+import { CustomerScheduleComponent } from './pages/dashboard/customer-schedule/customer-schedule.component';
+import { CustomerMaintenanceComponent } from './pages/dashboard/customer-maintenance/customer-maintenance.component';
+
 
 export const routes: Routes = [
     {
@@ -100,11 +102,18 @@ export const routes: Routes = [
                 component: UserManagementComponent,
                 title: 'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
             },
+
             {
-                path: 'customer-dashboard',
-                component: CustomerDashboardComponent,
-                title: 'Customer Dashboard'
+              path: 'customer-schedule',
+              component: CustomerScheduleComponent,
+              title: 'Đặt lịch'
             },
+            {
+              path: 'customer-maintenance',
+              component: CustomerMaintenanceComponent,
+              title: 'Lịch sử bảo dưỡng'
+            },
+
             {
                 path: 'customer-payment-dashboard',
                 component: CustomerPaymentDashboardComponent,

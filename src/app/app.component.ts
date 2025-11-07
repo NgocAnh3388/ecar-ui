@@ -21,11 +21,11 @@ export class AppComponent implements OnInit {
           const roles: string[] = user.roles;
 
           if (roles.includes('ROLE_ADMIN')) {
-            this.router.navigate(['/users']);
+            this.router.navigate(['/']);
           } else if (roles.includes('ROLE_STAFF')) {
             this.router.navigate(['/service-dashboard']);
           } else if (roles.includes('ROLE_CUSTOMER')) {
-            this.router.navigate(['/customer-dashboard']);
+            this.router.navigate(['/profile/me']);
           } else if (roles.includes('ROLE_TECHNICIAN')) {
             this.router.navigate(['/service-dashboard']);
           } else {

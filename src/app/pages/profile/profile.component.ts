@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
 import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../pages/modal/modal.service';
+import { CreateCarDialogComponent } from '../../pages/dialog/create-car-dialog/create-car-dialog.component';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { UserMetaCardComponent } from '../../shared/components/user-profile/user-meta-card/user-meta-card.component';
 import { UserInfoCardComponent } from '../../shared/components/user-profile/user-info-card/user-info-card.component';
@@ -30,8 +32,10 @@ export class ProfileComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modal: ModalService
   ) {}
+
 
   ngOnInit(): void {
     const roles = this.authService.getRoles();
@@ -76,4 +80,20 @@ export class ProfileComponent implements OnInit {
       }
     });
   }
+
+    addVehicle() {
+      const ref = this.modal.open(CreateCarDialogComponent, {
+        data: { title: 'Thêm xe', message: '' },
+        panelClass: ['modal-panel', 'p-0'],
+        backdropClass: 'modal-backdrop',
+        disableClose: false,
+      });
+
+      ref.afterClosed$.subscribe(confirmed => {
+        if (confirmed) {
+          this.userService.me().subscribe(user => (this.userData = user));
+        }
+      });
+    }
+
 }

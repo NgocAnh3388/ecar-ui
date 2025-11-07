@@ -136,33 +136,43 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
     }
 
     ngAfterViewInit() {
-        this.flatpickrInstance = flatpickr(this.dateInput.nativeElement, {
-            mode: this.mode,
-            static: true,
-            monthSelectorType: 'static',
-            dateFormat: 'd-m-Y',
-            defaultDate: this.defaultDate,
-            onChange: (selectedDates, dateStr, instance) => {
-                this.dateChange.emit({ selectedDates, dateStr, instance });
-                this.dateStr = dateStr;
-            }
+      // ✅ Khởi tạo flatpickr cho chọn ngày
+      if (this.dateInput) {
+        flatpickr(this.dateInput.nativeElement, {
+          mode: this.mode,
+          static: true,
+          monthSelectorType: 'static',
+          dateFormat: 'd-m-Y',
+          defaultDate: this.defaultDate,
+          minDate: 'today', // ⛔ Không cho chọn ngày trong quá khứ
+          onChange: (selectedDates, dateStr, instance) => {
+            this.dateChange.emit({ selectedDates, dateStr, instance });
+            this.dateStr = dateStr;
+          },
         });
+      }
 
-        this.flatpickrInstance = flatpickr(this.timeInput.nativeElement, {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: 'H:i',   // time format HH:mm
-            time_24hr: true,    // set true for 24hr clock
-            minuteIncrement: 1,
-            defaultDate: this.defaultTime,
-            appendTo: document.body,
-            onOpen: (_sel, _str, instance) => this.bumpZIndex(instance),
-            onChange: (selectedDates, dateStr) => {
-                this.timeChange.emit(dateStr); // emit "HH:mm"
-                this.timeStr = dateStr;
-            }
+      // ✅ Khởi tạo flatpickr cho chọn giờ
+      if (this.timeInput) {
+        flatpickr(this.timeInput.nativeElement, {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: 'H:i', // format HH:mm
+          time_24hr: true,
+          minuteIncrement: 1,
+          defaultDate: this.defaultTime,
+          minTime: '07:00', // ✅ giờ sớm nhất
+          maxTime: '20:00', // ✅ giờ muộn nhất
+          appendTo: document.body,
+          onOpen: (_sel, _str, instance) => this.bumpZIndex(instance),
+          onChange: (selectedDates, dateStr) => {
+            this.timeChange.emit(dateStr);
+            this.timeStr = dateStr;
+          },
         });
+      }
     }
+
 
     ngOnDestroy() {
         if (this.flatpickrInstance) {
@@ -198,28 +208,52 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
         this.selectedCenter = value;
     }
 
-    ok(){
-        const request: ScheduleRequest = new ScheduleRequest(
-            Number(this.selectedCenter),
-            this.timeInput.nativeElement.value,
-            this.dateInput.nativeElement.value,
-            this.vehicleId,
-            this.inputKm,
-            this.isMaintenance,
-            this.isRepair,
-            this.remark
-        );
-        console.log(request);
-        this.maintenanceService.createSchedule(request).pipe(
-            finalize(() => {  }),
-            catchError(err => {
-                console.error(err);
-                return EMPTY;
-            })
-        ).subscribe(res => {
-            this.modalRef.close(true);
+    ok() {
+      // ✅ Gộp date + time thành 1 Date object
+      const selectedDate = this.dateInput.nativeElement.value;
+      const selectedTime = this.timeInput.nativeElement.value;
+
+      if (!selectedDate || !selectedTime) {
+        alert('Please select both date and time before booking.');
+        return;
+      }
+
+      const [day, month, year] = selectedDate.split('-').map(Number);
+      const [hour, minute] = selectedTime.split(':').map(Number);
+      const combinedDateTime = new Date(year, month - 1, day, hour, minute);
+
+      // ✅ Kiểm tra nếu thời gian chọn đã qua
+      const now = new Date();
+      if (combinedDateTime < now) {
+        alert('You cannot book a time in the past. Please select a future date/time.');
+        return;
+      }
+
+      // ✅ Nếu hợp lệ thì tiếp tục
+      const request: ScheduleRequest = new ScheduleRequest(
+        Number(this.selectedCenter),
+        selectedTime,
+        selectedDate,
+        this.vehicleId,
+        this.inputKm,
+        this.isMaintenance,
+        this.isRepair,
+        this.remark
+      );
+
+      console.log('Sending booking request:', request);
+
+      this.maintenanceService.createSchedule(request).pipe(
+        finalize(() => {}),
+        catchError(err => {
+          console.error(err);
+          return EMPTY;
         })
+      ).subscribe(res => {
+        this.modalRef.close(true);
+      });
     }
+
 
     cancel(){ this.modalRef.close(false); }
 

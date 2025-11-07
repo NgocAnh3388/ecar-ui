@@ -31,10 +31,11 @@ type NavItem = {
 })
 export class AppSidebarComponent implements OnInit, OnDestroy {
   navItems: NavItem[] = [
-    { name: 'Quản lý người dùng', icon: '👤', path: '/users' },
-    { name: 'Quản lý xe & lịch sử bảo dưỡng', icon: '🚗', path: '/customer-dashboard' },
-    { name: 'Quản lý gói dịch vụ', icon: '📦', path: '/customer-payment-dashboard' },
-    { name: 'Quản lý dịch vụ', icon: '🧰', path: '/service-dashboard' },
+    { name: 'User management', icon: '👤', path: '/users' },
+    { name: 'Booking', icon: '🚗', path: '/customer-schedule' },
+    { name: 'Maintenance information', icon: '🧾', path: '/customer-maintenance' },
+    { name: 'Service package management', icon: '📦', path: '/customer-payment-dashboard' },
+    { name: 'Service management', icon: '🧰', path: '/service-dashboard' },
     { name: 'Ecommerce', icon: '🛒', path: '/' },
     { name: 'User Profile', icon: '👥', path: '/profile' },
   ];
@@ -140,19 +141,20 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
 
   private filterMenuByRole() {
     const roleAccess: Record<string, string[]> = {
-      'Quản lý người dùng': ['ROLE_ADMIN', 'ROLE_STAFF'],
-      'Quản lý xe & lịch sử bảo dưỡng': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
-      'Quản lý gói dịch vụ': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
-      'Quản lý dịch vụ': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
+      'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
+      'Booking': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
+      'Maintenance information': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
+      'Service package management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
+      'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
       'Ecommerce': ['ROLE_ADMIN'],
       'User Profile': ['ROLE_CUSTOMER'],
     };
-
     this.navItems = this.navItems.filter((item) => {
       const allowed = roleAccess[item.name];
       return !allowed || allowed.some((r) => this.userRoles.includes(r));
     });
   }
+
 
   isActive(path: string): boolean {
     return this.router.url === path;
