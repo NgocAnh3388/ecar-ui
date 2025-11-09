@@ -15,30 +15,29 @@ export class AppComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // this.authService.getCurrentUser().subscribe({
-    //   next: (user) => {
-    //     if (user && user.roles) {
-    //       const roles: string[] = user.roles;
-    //
-    //       if (roles.includes('ROLE_ADMIN')) {
-    //         this.router.navigate(['/']);
-    //       } else if (roles.includes('ROLE_STAFF')) {
-    //         this.router.navigate(['/service-dashboard']);
-    //       } else if (roles.includes('ROLE_CUSTOMER')) {
-    //         this.router.navigate(['/profile/me']);
-    //       } else if (roles.includes('ROLE_TECHNICIAN')) {
-    //         this.router.navigate(['/service-dashboard']);
-    //       } else {
-    //         this.router.navigate(['/profile']);
-    //       }
-    //     } else {
-    //       this.router.navigate(['/']);
-    //     }
-    //   },
-    //   error: () => {
-    //     console.warn('Không thể lấy thông tin user, chuyển về trang chủ.');
-    //     this.router.navigate(['/']);
-    //   },
-    // });
+    this.authService.getCurrentUser().subscribe({
+      next: (user: any) => {
+        if (!user || !user.roles) {
+          this.router.navigate(['/index']);
+          return;
+        }
+
+        const roles: string[] = user.roles;
+
+        if (roles.includes('ROLE_ADMIN')) {
+          this.router.navigate(['/']);
+        } else if (roles.includes('ROLE_STAFF') || roles.includes('ROLE_TECHNICIAN')) {
+          this.router.navigate(['/service-dashboard']);
+        } else if (roles.includes('ROLE_CUSTOMER')) {
+          this.router.navigate(['/profile/me']);
+        } else {
+          this.router.navigate(['/profile']);
+        }
+      },
+      error: () => {
+        console.warn('Không thể lấy thông tin user, chuyển về trang chủ.');
+        this.router.navigate(['/index']);
+      },
+    });
   }
 }
