@@ -36,7 +36,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     { name: 'Maintenance information', icon: '🧾', path: '/customer-maintenance' },
     { name: 'Service package management', icon: '📦', path: '/customer-payment-dashboard' },
     { name: 'Service management', icon: '🧰', path: '/service-dashboard' },
-    { name: 'Ecommerce', icon: '🛒', path: '/' },
+    { name: 'Overview', icon: '📊', path: '/' },
     { name: 'User Profile', icon: '👥', path: '/profile' },
   ];
 
@@ -146,7 +146,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       'Maintenance information': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
       'Service package management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
       'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
-      'Ecommerce': ['ROLE_ADMIN'],
+      'Overview': ['ROLE_ADMIN'],
       'User Profile': ['ROLE_CUSTOMER'],
     };
     this.navItems = this.navItems.filter((item) => {
