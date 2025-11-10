@@ -4,31 +4,31 @@ import {
     ElementRef,
     EventEmitter,
     inject,
-    Input, OnDestroy, OnInit,
+    Input,
+    OnDestroy,
+    OnInit,
     Output,
     signal,
     ViewChild
 } from '@angular/core';
-import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
-import {InputFieldComponent} from "../../../shared/components/form/input/input-field.component";
-import {LabelComponent} from "../../../shared/components/form/label/label.component";
-import {SelectComponent} from "../../../shared/components/form/select/select.component";
-import {CheckboxComponent} from "../../../shared/components/form/input/checkbox.component";
-import {TextAreaComponent} from "../../../shared/components/form/input/text-area.component";
-import {MODAL_DATA} from "../../modal/modal.token";
-import {User} from "../../../models/user";
-import {ModalRef} from "../../modal/modal-ref";
-import flatpickr from "flatpickr";
-import {CenterService} from "../../../services/center.service";
-import {Center} from "../../../models/center";
-import {catchError, EMPTY, finalize} from "rxjs";
-import {UserService} from "../../../services/user.service";
-import {Vehicle} from "../../../models/vehicle";
-import {ScheduleRequest} from "../../../models/schedule-request";
-import {MaintenanceService} from "../../../services/maintenance.service";
+import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
+import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
+import { LabelComponent } from '../../../shared/components/form/label/label.component';
+import { SelectComponent } from '../../../shared/components/form/select/select.component';
+import { CheckboxComponent } from '../../../shared/components/form/input/checkbox.component';
+import { TextAreaComponent } from '../../../shared/components/form/input/text-area.component';
+import { MODAL_DATA } from '../../modal/modal.token';
+import { ModalRef } from '../../modal/modal-ref';
+import flatpickr from 'flatpickr';
+import { CenterService } from '../../../services/center.service';
+import { catchError, EMPTY, finalize } from 'rxjs';
+import { UserService } from '../../../services/user.service';
+import { Vehicle } from '../../../models/vehicle';
+import { ScheduleRequest } from '../../../models/schedule-request';
+import { MaintenanceService } from '../../../services/maintenance.service';
 
 @Component({
-  selector: 'app-maintenance-dialog',
+    selector: 'app-maintenance-dialog',
     imports: [
         ButtonComponent,
         InputFieldComponent,
@@ -37,8 +37,8 @@ import {MaintenanceService} from "../../../services/maintenance.service";
         CheckboxComponent,
         TextAreaComponent
     ],
-  templateUrl: './maintenance-dialog.component.html',
-  styleUrl: './maintenance-dialog.component.css'
+    templateUrl: './maintenance-dialog.component.html',
+    styleUrl: './maintenance-dialog.component.css'
 })
 export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -48,6 +48,7 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
         { value: 'STAFF', label: 'STAFF' },
         { value: 'TECHNICIAN', label: 'TECHNICIAN' },
     ];
+
     @Input() id!: string;
     @Input() mode: 'single' | 'multiple' | 'range' | 'time' = 'single';
     @Input() defaultDate?: string | Date | string[] | Date[];
@@ -58,12 +59,14 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
 
     @Input() timeId!: string;
     @Input() timeLabel: string = 'Time Select Input';
-    @Input() timePlaceholder: string = 'Select time';
+    @Input() timePlaceholder: string = 'Select time'; // ✅ fixed typo
     @Input() defaultTime?: string | Date;
     @Output() timeChange = new EventEmitter<string>();
     @ViewChild('timeInput', { static: false }) timeInput!: ElementRef<HTMLInputElement>;
 
-    private flatpickrInstance: flatpickr.Instance | undefined;
+    // ✅ Manage two flatpickr instances separately
+    private datePickerInstance: flatpickr.Instance | undefined;
+    private timePickerInstance: flatpickr.Instance | undefined;
 
     fullName = '';
     fullNameError = false;
@@ -85,37 +88,37 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
     dateStr: string = '';
     timeStr: string = '';
 
-    centers: { value: string, label: string }[] = []
-    private data = inject(MODAL_DATA, { optional: true }) as { title?: string; message?: string, vehicle: Vehicle } | null;
+    centers: { value: string, label: string }[] = [];
+    private data = inject(MODAL_DATA, { optional: true }) as { title?: string; message?: string; vehicle: Vehicle } | null;
     private modalRef = inject<ModalRef<boolean>>(ModalRef);
 
-
-    constructor(private centerService: CenterService,
-                private userService: UserService,
-                private maintenanceService: MaintenanceService,) {
-    }
+    constructor(
+        private centerService: CenterService,
+        private userService: UserService,
+        private maintenanceService: MaintenanceService
+    ) {}
 
     ngOnInit(): void {
-        this.getCenter();
+        this.getCenters();
         this.getUserInfo();
-        this.initVehicleData()
+        this.initVehicleData();
     }
 
-    getCenter() {
+    getCenters() {
         this.centerService.getCenter().pipe(
-            finalize(() => {  }),
+            finalize(() => {}),
             catchError(err => {
                 console.error(err);
                 return EMPTY;
             })
         ).subscribe(res => {
             this.centers = this.toOptions(res, 'id', 'centerName');
-        })
+        });
     }
 
     getUserInfo() {
         this.userService.getInfo().pipe(
-            finalize(() => {  }),
+            finalize(() => {}),
             catchError(err => {
                 console.error(err);
                 return EMPTY;
@@ -124,73 +127,76 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
             this.fullName = res.fullName;
             this.phoneNo = res.phoneNo;
             this.email = res.email;
-        })
+        });
     }
 
     initVehicleData() {
         if (this.data?.vehicle) {
-            this.vehicleId = this.data?.vehicle.id
-            this.selectedVehicle = this.data?.vehicle.carModel.carName
-            this.licensePlate = this.data?.vehicle.licensePlate
+            this.vehicleId = this.data.vehicle.id;
+            this.selectedVehicle = this.data.vehicle.carModel.carName;
+            this.licensePlate = this.data.vehicle.licensePlate;
         }
     }
 
     ngAfterViewInit() {
-      // ✅ Khởi tạo flatpickr cho chọn ngày
-      if (this.dateInput) {
-        flatpickr(this.dateInput.nativeElement, {
-          mode: this.mode,
-          static: true,
-          monthSelectorType: 'static',
-          dateFormat: 'd-m-Y',
-          defaultDate: this.defaultDate,
-          minDate: 'today', // ⛔ Không cho chọn ngày trong quá khứ
-          onChange: (selectedDates, dateStr, instance) => {
-            this.dateChange.emit({ selectedDates, dateStr, instance });
-            this.dateStr = dateStr;
-          },
-        });
-      }
+        // ✅ Initialize flatpickr for date selection
+        if (this.dateInput) {
+            this.datePickerInstance = flatpickr(this.dateInput.nativeElement, {
+                mode: this.mode,
+                static: true,
+                monthSelectorType: 'static',
+                dateFormat: 'd-m-Y',
+                defaultDate: this.defaultDate,
+                minDate: 'today', // prevent past dates
+                onChange: (selectedDates, dateStr, instance) => {
+                    this.dateChange.emit({ selectedDates, dateStr, instance });
+                    this.dateStr = dateStr;
+                },
+            });
+        }
 
-      // ✅ Khởi tạo flatpickr cho chọn giờ
-      if (this.timeInput) {
-        flatpickr(this.timeInput.nativeElement, {
-          enableTime: true,
-          noCalendar: true,
-          dateFormat: 'H:i', // format HH:mm
-          time_24hr: true,
-          minuteIncrement: 1,
-          defaultDate: this.defaultTime,
-          minTime: '07:00', // ✅ giờ sớm nhất
-          maxTime: '20:00', // ✅ giờ muộn nhất
-          appendTo: document.body,
-          onOpen: (_sel, _str, instance) => this.bumpZIndex(instance),
-          onChange: (selectedDates, dateStr) => {
-            this.timeChange.emit(dateStr);
-            this.timeStr = dateStr;
-          },
-        });
-      }
-    }
-
-
-    ngOnDestroy() {
-        if (this.flatpickrInstance) {
-            this.flatpickrInstance.destroy();
+        // ✅ Initialize flatpickr for time selection
+        if (this.timeInput) {
+            this.timePickerInstance = flatpickr(this.timeInput.nativeElement, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: 'H:i', // format HH:mm
+                time_24hr: true,
+                minuteIncrement: 1,
+                defaultDate: this.defaultTime,
+                minTime: '07:00',
+                maxTime: '20:00',
+                appendTo: document.body,
+                onOpen: (_sel, _str, instance) => this.bumpZIndex(instance),
+                onChange: (selectedDates, dateStr) => {
+                    this.timeChange.emit(dateStr);
+                    this.timeStr = dateStr;
+                },
+            });
         }
     }
 
-    title = signal(this.data?.title ?? 'Xác nhận');
-    message = signal(this.data?.message ?? 'Bạn chắc chắn?');
+    // ✅ Destroy both flatpickr instances on component destroy
+    ngOnDestroy() {
+        if (this.datePickerInstance) {
+            this.datePickerInstance.destroy();
+        }
+        if (this.timePickerInstance) {
+            this.timePickerInstance.destroy();
+        }
+    }
+
+    title = signal(this.data?.title ?? 'Confirmation');
+    message = signal(this.data?.message ?? 'Are you sure?');
 
     handleFullNameChange(value: string | number) {
         this.fullName = value.toString();
-        this.fullNameError = !(this.fullName.trim() !== '');
+        this.fullNameError = this.fullName.trim() === '';
     }
 
     handlePhoneNoChange(value: string | number) {
         this.phoneNo = value.toString();
-        this.phoneNoError = !(this.phoneNo.trim() !== '');
+        this.phoneNoError = this.phoneNo.trim() === '';
     }
 
     validateEmail(value: string): boolean {
@@ -206,56 +212,56 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
 
     handleCenterChange(value: string) {
         this.selectedCenter = value;
+        console.log(this.selectedCenter);
     }
 
     ok() {
-      // ✅ Gộp date + time thành 1 Date object
-      const selectedDate = this.dateInput.nativeElement.value;
-      const selectedTime = this.timeInput.nativeElement.value;
+        // ✅ Combine date and time into a single Date object
+        const selectedDate = this.dateInput.nativeElement.value;
+        const selectedTime = this.timeInput.nativeElement.value;
 
-      if (!selectedDate || !selectedTime) {
-        alert('Please select both date and time before booking.');
-        return;
-      }
+        if (!selectedDate || !selectedTime) {
+            alert('Please select both date and time before booking.');
+            return;
+        }
 
-      const [day, month, year] = selectedDate.split('-').map(Number);
-      const [hour, minute] = selectedTime.split(':').map(Number);
-      const combinedDateTime = new Date(year, month - 1, day, hour, minute);
+        const [day, month, year] = selectedDate.split('-').map(Number);
+        const [hour, minute] = selectedTime.split(':').map(Number);
+        const combinedDateTime = new Date(year, month - 1, day, hour, minute);
 
-      // ✅ Kiểm tra nếu thời gian chọn đã qua
-      const now = new Date();
-      if (combinedDateTime < now) {
-        alert('You cannot book a time in the past. Please select a future date/time.');
-        return;
-      }
+        const now = new Date();
+        if (combinedDateTime < now) {
+            alert('You cannot book a time in the past. Please select a future date and time.');
+            return;
+        }
 
-      // ✅ Nếu hợp lệ thì tiếp tục
-      const request: ScheduleRequest = new ScheduleRequest(
-        Number(this.selectedCenter),
-        selectedTime,
-        selectedDate,
-        this.vehicleId,
-        this.inputKm,
-        this.isMaintenance,
-        this.isRepair,
-        this.remark
-      );
+        const request: ScheduleRequest = new ScheduleRequest(
+            Number(this.selectedCenter),
+            selectedTime,
+            selectedDate,
+            this.vehicleId,
+            this.inputKm,
+            this.isMaintenance,
+            this.isRepair,
+            this.remark
+        );
 
-      console.log('Sending booking request:', request);
+        console.log('Sending booking request:', request);
 
-      this.maintenanceService.createSchedule(request).pipe(
-        finalize(() => {}),
-        catchError(err => {
-          console.error(err);
-          return EMPTY;
-        })
-      ).subscribe(res => {
-        this.modalRef.close(true);
-      });
+        this.maintenanceService.createSchedule(request).pipe(
+            finalize(() => {}),
+            catchError(err => {
+                console.error(err);
+                return EMPTY;
+            })
+        ).subscribe(() => {
+            this.modalRef.close(true);
+        });
     }
 
-
-    cancel(){ this.modalRef.close(false); }
+    cancel() {
+        this.modalRef.close(false);
+    }
 
     toOptions(list: any[], valueKey: string, labelKey: string) {
         return list.map(item => ({
@@ -270,5 +276,4 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
             if (cal) cal.style.zIndex = '9999';
         } catch {}
     }
-
 }

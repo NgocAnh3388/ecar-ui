@@ -19,6 +19,7 @@ export class MaintenanceTicket {
     centerName: string = '';
     scheduleDate: string = '';
     scheduleTime: string = '';
+    scheduleId: number = 0;
 
     constructor(init?: Partial<MaintenanceTicket>) {
         Object.assign(this, init);
@@ -34,7 +35,7 @@ export class MaintenanceTicket {
         // ép kiểu an toàn: chỉ nhận các field hợp lệ
         const { id, customerName, carModelId, carName, licensePlate, numOfKm, submittedAt, staffName, staffId, staffReceivedAt,
             technicianName, technicianId, technicianReceivedAt, completedAt, status, isMaintenance, isRepair,
-            centerName, scheduleDate, scheduleTime } = (obj as any) ?? {};
+            centerName, scheduleDate, scheduleTime, scheduleId } = (obj as any) ?? {};
         return new MaintenanceTicket({
             id: id,
             customerName: customerName,
@@ -56,7 +57,9 @@ export class MaintenanceTicket {
             centerName: centerName,
             scheduleDate: scheduleDate,
             scheduleTime: scheduleTime,
+            scheduleId: scheduleId,
         });
     }
 
 }
+

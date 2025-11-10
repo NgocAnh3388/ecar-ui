@@ -11,7 +11,6 @@
                         </div>
 
                         <div class="relative" (keydown.escape)="open=false">
-                            <!-- Trigger -->
                             <button
                                     (click)="toggleDropdown($event)"
                                     class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -38,7 +37,6 @@
                                         (click)="$event.stopPropagation()"
                                         role="listbox"
                                 >
-                                    <!-- Actions -->
                                     <div class="mb-2 flex items-center justify-between gap-2">
                                         <button type="button" class="px-2 py-1 text-xs rounded-md hover:bg-gray-100 dark:hover:bg-white/10"
                                                 (click)="selectAll()">
@@ -50,7 +48,6 @@
                                         </button>
                                     </div>
 
-                                    <!-- Checkbox list -->
                                     <div class="max-h-64 overflow-auto pr-1">
                                         @for (opt of options; track opt.key) {
                                             <label class="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer">
@@ -67,7 +64,6 @@
                                         }
                                     </div>
 
-                                    <!-- Footer -->
                                     <div class="mt-3 flex justify-end gap-2">
                                         <button type="button"
                                                 class="px-3 py-2 text-sm rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10"
@@ -149,8 +145,7 @@
                                     </td>
                                     <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
                                         <div class="flex items-center gap-2">
-                                            <!-- Edit -->
-                                            <button (click)="onDetail(item.id, item.carModelId, item.numOfKm, item.technicianId)"
+                                            <button (click)="onDetail(item.id, item.carModelId, item.numOfKm, item.technicianId, item.scheduleId)"
                                                     type="button"
                                                     class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.06]"
                                             >
@@ -159,7 +154,6 @@
                                                 </svg>
                                             </button>
 
-                                            <!-- Delete -->
                                             <button
                                                     type="button"
                                                     class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 hover:text-red-800 shadow-theme-xs dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
