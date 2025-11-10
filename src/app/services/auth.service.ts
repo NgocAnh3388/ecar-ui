@@ -8,7 +8,23 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔹 Đăng nhập Google
+    register(userData: any): Observable<any> {
+        return this.http.post(`${this.api}/api/auth/register`, userData);
+    }
+
+    loginWithPassword(email: string, password: string): Observable<any> {
+        const loginData = { email, password };
+        // withCredentials: true là BẮT BUỘC để trình duyệt gửi và nhận cookie
+        return this.http.post(`${this.api}/api/auth/login`, loginData, { withCredentials: true }).pipe(
+            tap((user: any) => {
+                // Sau khi đăng nhập thành công, lưu thông tin user vào localStorage
+                // để các component khác có thể sử dụng
+                localStorage.setItem('user', JSON.stringify(user));
+            })
+        );
+    }
+
+    // 🔹 Đăng nhập Google
   loginWithGoogle() {
     window.location.href = `${this.api}/oauth2/authorization/google`;
   }
@@ -43,4 +59,10 @@ export class AuthService {
   hasRole(role: string): boolean {
     return this.getRoles().includes(role);
   }
+    isLoggedIn(): boolean {
+        const user = this.getUser();
+        // Kiểm tra xem đối tượng user có tồn tại và có thuộc tính 'email' không rỗng hay không.
+        return !!user && !!user.email;
+    }
+
 }

@@ -25,10 +25,45 @@ import { PaypalSuccessComponent } from './pages/paypal-success/paypal-success.co
 import { ServiceDashboardComponent } from './pages/dashboard/service-dashboard/service-dashboard.component';
 import { CustomerScheduleComponent } from './pages/dashboard/customer-schedule/customer-schedule.component';
 import { CustomerMaintenanceComponent } from './pages/dashboard/customer-maintenance/customer-maintenance.component';
+import { LandingComponent } from './pages/landing/landing.component';
+import { LoginComponent } from './pages/login/login.component';
+import { SignupComponent } from './pages/signup/signup.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 export const routes: Routes = [
   // ✅ Protected routes (login required)
-  {
+    // 1. Đường dẫn cho trang chủ (Landing Page)
+    {
+        path: '',
+        component: LandingComponent
+    },
+
+    // 2. Đường dẫn cho trang đăng nhập
+    {
+        path: 'login',
+        component: LoginComponent
+    },
+
+    // 3. Đường dẫn cho trang đăng ký
+    {
+        path: 'signup',
+        component: SignupComponent
+    },
+
+    // 4. Đường dẫn cho trang dashboard (sau khi đăng nhập)
+    {
+        path: 'dashboard',
+        component: DashboardComponent
+    },
+
+    // 5. Chuyển hướng nếu không tìm thấy trang (luôn đặt cuối cùng)
+    {
+        path: '**',
+        redirectTo: '',
+        pathMatch: 'full'
+    },
+
+    {
     path: '',
     component: AppLayoutComponent,
     canActivate: [AuthGuard],
