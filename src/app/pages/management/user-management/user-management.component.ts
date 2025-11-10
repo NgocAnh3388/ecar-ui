@@ -151,4 +151,38 @@ export class UserManagementComponent implements OnInit, AfterViewInit {
       this.router.navigate(['/profile', userId]);
     }
 
+    toggleActiveUser(user: User) {
+      const action = user.active ? 'Disable' : 'Active';
+      const ref = this.modal.open(ConfirmDialogComponent, {
+        data: { title: `${action} User`, message: `Are you sure you want to ${action.toLowerCase()} this account?` },
+        panelClass: ['modal-panel', 'p-0'],
+        backdropClass: 'modal-backdrop',
+        disableClose: false,
+      });
+
+      ref.afterClosed$.subscribe(confirmed => {
+        if (confirmed) {
+          this.userService.toggleActive(user.id).pipe(
+            finalize(() => this.onSearchUsers(this.pageIndex)),
+            catchError(err => {
+              console.error(err);
+              this.toast.error('An error occurred while updating the status.', {
+                title: 'Error',
+                duration: 2500,
+                position: 'top-right'
+              });
+              return EMPTY;
+            })
+          ).subscribe(() => {
+            const msg = user.active ? 'User disabled' : 'User activated';
+            this.toast.success(msg, {
+              title: 'Success',
+              duration: 2500,
+              position: 'top-right'
+            });
+          });
+        }
+      });
+    }
+
 }

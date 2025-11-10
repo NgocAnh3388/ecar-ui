@@ -11,10 +11,9 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // API /me
   me(): Observable<User> {
     return this.http.get<User>(`${this.api}/api/users/me`).pipe(
-      map(res => new User(res)) // chuyển res JSON sang class User, đảm bảo vehicles có
+      map(res => new User(res))
     );
   }
 
@@ -35,21 +34,21 @@ export class UserService {
     return this.http.post<any>(`${this.api}/api/users`, user);
   }
 
-  updateUser(user: UserDto): Observable<any> {
-    return this.http.put<any>(`${this.api}/api/users`, user);
+  updateUser(id: number, user: UserDto): Observable<any> {
+    return this.http.put<any>(`${this.api}/api/users/${id}`, user);
   }
 
   getUsersByRole(role: string): Observable<any> {
     return this.http.get<any>(`${this.api}/api/users/get-by-role/${role}`);
   }
 
-
-  // API /users/{id}
   getUserById(id: string | number): Observable<User> {
     return this.http.get<User>(`${this.api}/api/users/${id}`).pipe(
-      map(res => new User(res)) // ép dữ liệu backend sang User class
+      map(res => new User(res))
     );
   }
 
-
+  toggleActive(id: number): Observable<void> {
+    return this.http.put<void>(`${this.api}/api/users/${id}/toggle-active`, {});
+  }
 }

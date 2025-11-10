@@ -69,8 +69,8 @@ export class UserDialogComponent implements OnInit {
     );
 
     if (this.data?.isEdit && this.data?.user) {
-      this.userService
-        .updateUser(userDto)
+       this.userService
+          .updateUser(this.data.user.id, userDto)
         .pipe(
           finalize(() => {}),
           catchError((err) => {
