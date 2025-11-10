@@ -4,13 +4,12 @@ import { SignupFormComponent } from '../../../shared/components/auth/signup-form
 
 @Component({
   selector: 'app-sign-up',
+  standalone: true,
+  // ✅ thêm CommonModule nếu HTML có các thẻ *ngIf, *ngFor
   imports: [
     AuthPageLayoutComponent,
     SignupFormComponent,
   ],
   templateUrl: './sign-up.component.html',
-  styles: ``
 })
-export class SignUpComponent {
-
-}
+export class SignUpComponent {}
