@@ -12,88 +12,92 @@ import { UserMetaCardComponent } from '../../shared/components/user-profile/user
 import { UserInfoCardComponent } from '../../shared/components/user-profile/user-info-card/user-info-card.component';
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    PageBreadcrumbComponent,
-    UserMetaCardComponent,
-    UserInfoCardComponent,
-  ],
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+    selector: 'app-profile',
+    standalone: true,
+    // ✅ Đã import đầy đủ các component và module cần thiết
+    imports: [
+        CommonModule,
+        FormsModule,
+        PageBreadcrumbComponent,
+        UserMetaCardComponent,
+        UserInfoCardComponent,
+    ],
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  userId!: string;
-  userData: User = new User({ vehicles: [] });
-  isLoading = true;
+    userId!: string;
+    userData: User = new User({ vehicles: [] });
+    isLoading = true;
 
-  constructor(
-    private route: ActivatedRoute,
-    private userService: UserService,
-    private authService: AuthService,
-    private modal: ModalService
-  ) {}
+    constructor(
+        private route: ActivatedRoute,
+        private userService: UserService,
+        private authService: AuthService, // ✅ Cần thiết cho phân quyền
+        private modal: ModalService       // ✅ Cần thiết cho dialog
+    ) {}
 
 
-  ngOnInit(): void {
-    const roles = this.authService.getRoles();
+    ngOnInit(): void {
+        const roles = this.authService.getRoles();
 
-    if (roles.includes('ROLE_ADMIN')) {
-      // Admin: lấy id từ URL
-      this.route.paramMap.subscribe(params => {
-        const id = params.get('id');
-        if (id) {
-          this.userId = id;
-          this.loadUser(this.userId);
+        // ✅ Logic phân quyền quan trọng
+        if (roles.includes('ROLE_ADMIN')) {
+            // Admin: lấy id từ URL
+            this.route.paramMap.subscribe(params => {
+                const id = params.get('id');
+                if (id) {
+                    this.userId = id;
+                    this.loadUser(this.userId);
+                }
+            });
+        } else {
+            // Customer: gọi API /me
+            this.userService.me().subscribe({
+                next: (user) => {
+                    console.log('Customer profile user object:', user);
+                    this.userData = user;
+                    this.isLoading = false;
+                    localStorage.setItem('user', JSON.stringify(user));
+                },
+                error: (err) => {
+                    console.error('Không thể tải thông tin người dùng:', err);
+                    this.isLoading = false;
+                }
+            });
         }
-      });
-    } else {
-      // Customer: gọi API /me
-      this.userService.me().subscribe({
-        next: (user) => {
-          console.log('Customer profile user object:', user);
-          this.userData = user;
-          this.isLoading = false;
-          localStorage.setItem('user', JSON.stringify(user));
-        },
-        error: (err) => {
-          console.error('Không thể tải thông tin người dùng:', err);
-          this.isLoading = false;
-        }
-      });
     }
-  }
 
-  // Chỉ giữ 1 method loadUser
-  loadUser(id: string) {
-    this.isLoading = true;
-    this.userService.getUserById(id).subscribe({
-      next: (user: User) => {
-        this.userData = user;
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.isLoading = false;
-      }
-    });
-  }
+    // Chỉ giữ 1 method loadUser
+    loadUser(id: string) {
+        this.isLoading = true;
+        this.userService.getUserById(id).subscribe({
+            next: (user: User) => {
+                this.userData = user;
+                this.isLoading = false;
+            },
+            error: (err: any) => {
+                console.error(err);
+                this.isLoading = false;
+            }
+        });
+    }
 
+    // ✅ Chức năng thêm xe
     addVehicle() {
-      const ref = this.modal.open(CreateCarDialogComponent, {
-        data: { title: 'Thêm xe', message: '' },
-        panelClass: ['modal-panel', 'p-0'],
-        backdropClass: 'modal-backdrop',
-        disableClose: false,
-      });
+        const ref = this.modal.open(CreateCarDialogComponent, {
+            data: { title: 'Thêm xe', message: '' },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+            disableClose: false,
+        });
 
-      ref.afterClosed$.subscribe(confirmed => {
-        if (confirmed) {
-          this.userService.me().subscribe(user => (this.userData = user));
-        }
-      });
+        ref.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                // Tải lại thông tin user sau khi thêm xe
+                this.userService.me().subscribe(user => (this.userData = user));
+            }
+        });
     }
 
 }

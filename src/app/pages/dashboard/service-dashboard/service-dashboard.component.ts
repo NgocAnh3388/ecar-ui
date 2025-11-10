@@ -4,7 +4,7 @@ import {MaintenanceTicket} from "../../../models/maintenance-ticket";
 import {ModalService} from "../../modal/modal.service";
 import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.component";
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
-import {DatePipe} from "@angular/common";
+import {DatePipe} from "@angular/common"; // DatePipe đã được import
 
 type OptionKey =
     | 'see_all'
@@ -21,13 +21,13 @@ interface OptionItem {
 }
 
 @Component({
-  selector: 'app-service-dashboard',
+    selector: 'app-service-dashboard',
+    standalone: true, // <--- ⚠️ BẮT BUỘC THÊM DÒNG NÀY
     imports: [
-        DatePipe
-
+        DatePipe      // Vì bạn dùng 'DatePipe' ở đây
     ],
-  templateUrl: './service-dashboard.component.html',
-  styleUrl: './service-dashboard.component.css'
+    templateUrl: './service-dashboard.component.html',
+    styleUrl: './service-dashboard.component.css'
 })
 export class ServiceDashboardComponent implements OnInit {
 
@@ -160,9 +160,10 @@ export class ServiceDashboardComponent implements OnInit {
         return undefined;
     }
 
-    onDetail(ticketId:number, carModelId: number, numOfKm: number, technicianId: number,) {
+    // ✅ ĐÂY LÀ HÀM ĐÃ ĐƯỢC CẬP NHẬT CỦA BẠN
+    onDetail(ticketId:number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number) {
         const ref = this.modal.open(ServiceDetailDialogComponent, {
-            data: { title: 'Đặt lịch', message: '', carModelId:  carModelId, numOfKm: numOfKm, ticketId: ticketId, technicianId: technicianId },
+            data: { title: 'Đặt lịch', message: '', carModelId:  carModelId, numOfKm: numOfKm, ticketId: ticketId, technicianId: technicianId, milestoneId: milestoneId },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
             disableClose: false,

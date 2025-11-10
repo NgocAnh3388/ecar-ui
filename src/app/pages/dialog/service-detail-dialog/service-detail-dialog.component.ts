@@ -1,4 +1,4 @@
-import {Component, HostListener, inject, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, OnInit} from '@angular/core';
 import {SelectComponent} from "../../../shared/components/form/select/select.component";
 import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
 import {MODAL_DATA} from "../../modal/modal.token";
@@ -10,33 +10,29 @@ import {User} from "../../../models/user";
 import {UserService} from "../../../services/user.service";
 import {ServiceCreateRequest} from "../../../models/service-create-request";
 
-
-type CheckboxItem = { key: string; label: string; checked: boolean };
-type Group = { id: string; title: string; open: boolean; items: CheckboxItem[] };
 @Component({
-  selector: 'app-service-detail-dialog',
+    selector: 'app-service-detail-dialog',
     imports: [
         SelectComponent,
         ButtonComponent
     ],
-  templateUrl: './service-detail-dialog.component.html',
-  styleUrl: './service-detail-dialog.component.css'
+    templateUrl: './service-detail-dialog.component.html',
+    styleUrl: './service-detail-dialog.component.css'
 })
-export class ServiceDetailDialogComponent implements OnInit {
+export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
 
     numOfKm: number = 0;
     carModelId: number = 0;
     ticketId: number = 0;
 
-    formTitle = 'Chi tiết dịch vụ';
-    leftTitle = 'Nhóm dịch vụ bảo dưỡng';
-    rightTitle = 'Nhóm dịch vụ sửa chữa';
+    formTitle = 'Service Details';
+    leftTitle = 'Maintenance Service Groups';
+    rightTitle = 'Repair Service Groups';
 
     milestoneOptions: { value: string, label: string }[] = []
     technicianOptions: { value: string, label: string }[] = []
     selectedMilestone: string = '1';
     value: string | null = null;
-
 
     // ====== Splitter logic ======
     leftFlex = '1 1 50%';
@@ -46,11 +42,17 @@ export class ServiceDetailDialogComponent implements OnInit {
     private startLeftWidth = 0;
     private containerWidth = 0;
 
-    private data = inject(MODAL_DATA, { optional: true }) as { title?: string;
-        message?: string, carModelId: number,
-        numOfKm: number, ticketId: number, technicianId: number } | null;
-    private modalRef = inject<ModalRef<boolean>>(ModalRef);
+    private data = inject(MODAL_DATA, { optional: true }) as {
+        title?: string;
+        message?: string,
+        carModelId: number,
+        numOfKm: number,
+        ticketId: number,
+        technicianId: number,
+        milestoneId: number // Updated: Added milestoneId
+    } | null;
 
+    private modalRef = inject<ModalRef<boolean>>(ModalRef);
 
     maintenanceGroup: ServiceGroup[] = []
     serviceGroup: ServiceGroup[] = []
@@ -59,15 +61,22 @@ export class ServiceDetailDialogComponent implements OnInit {
     selectedTechnician: string = ''
 
     constructor(private maintenanceService: MaintenanceService,
-                private userService: UserService,) {
+                private userService: UserService,
+                private cdr: ChangeDetectorRef) { // Updated: Added ChangeDetectorRef
     }
 
     ngOnInit(): void {
+        // Logic moved to ngAfterViewInit
+    }
+
+    ngAfterViewInit() {
+        // Updated: Logic moved from ngOnInit to ngAfterViewInit
         this.numOfKm = this.data?.numOfKm ?? 0;
         this.carModelId = this.data?.carModelId ?? 0;
         this.ticketId = this.data?.ticketId ?? 0;
         this.selectedTechnician = this.data?.technicianId ? this.data?.technicianId.toString() : '1'
-        this.initMaintenanceServiceGroup(this.selectedMilestone);
+
+        // Initialize data loaders
         this.initMilestoneData();
         this.initServiceGroup();
         this.initTechnician();
@@ -123,13 +132,23 @@ export class ServiceDetailDialogComponent implements OnInit {
     initMilestoneData() {
         this.maintenanceService.getMilestone(this.carModelId).pipe().subscribe(res => {
             this.milestoneOptions = this.toOptions(res, 'id', 'kilometerAt', 'yearAt');
+
+            // Updated: Pre-select milestone based on injected data or default to first
+            this.selectedMilestone = this.data?.milestoneId
+                ? this.data?.milestoneId.toString()
+                : (this.milestoneOptions[0]?.value || '1'); // Fallback to '1' if list is empty
+
+            this.initMaintenanceServiceGroup(this.selectedMilestone);
+
+            // Updated: Notify Angular of the change
+            this.cdr.markForCheck();
         })
     }
 
     toOptions(list: any[], valueKey: string, labelKey1: string, labelKey2: string) {
         return list.map(item => ({
             value: item[valueKey],
-            label: 'Cấp ' + item[labelKey2] + ' / ' + item[labelKey1] + ' km'
+            label: 'Level ' + item[labelKey2] + ' / ' + item[labelKey1] + ' km' // Translated
         }));
     }
 
@@ -142,6 +161,7 @@ export class ServiceDetailDialogComponent implements OnInit {
 
     handleMilestoneChange(value: string) {
         this.initMaintenanceServiceGroup(value);
+        this.selectedMilestone = value; // Updated: Ensure state is updated
     }
 
     initMaintenanceServiceGroup(value: string) {
@@ -162,26 +182,27 @@ export class ServiceDetailDialogComponent implements OnInit {
         })
     }
 
+    // Translated all categories
     getTitle(category: string) {
         switch (category){
             case "general":
-                return "Hạng mục chung"
+                return "General Items"
             case "replace":
-                return "Thay thế hoặc bảo dưỡng"
+                return "Replacement or Maintenance"
             case "cooling":
-                return "Hệ thống làm mát"
+                return "Cooling System"
             case "other":
-                return "Khác"
+                return "Other"
             case "electric":
-                return "Hệ thống điện, điều hoà"
+                return "Electrical & A/C System"
             case "steering":
-                return "Hệ thống lái"
+                return "Steering System"
             case "suspension":
-                return "Hệ thống treo, gầm"
+                return "Suspension/Chassis System"
             case "interior":
-                return "Hệ thống nội thất"
+                return "Interior System"
             case "brake":
-                return "Hệ thống phanh"
+                return "Brake System"
         }
         return undefined;
     }
