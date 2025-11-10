@@ -4,7 +4,9 @@ import {MaintenanceTicket} from "../../../models/maintenance-ticket";
 import {ModalService} from "../../modal/modal.service";
 import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.component";
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
-import {DatePipe} from "@angular/common"; // DatePipe đã được import
+import {DatePipe, CommonModule} from "@angular/common"; // DatePipe đã được import
+import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog.component';
+
 
 type OptionKey =
     | 'see_all'
@@ -176,4 +178,48 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
+    onComplete(orderId: number): void {
+        // 1. Mở dialog xác nhận
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: {
+                message: 'Are you sure you want to mark this task as completed?',
+                isConfirm: true
+            },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+        });
+
+        // 2. Lắng nghe kết quả từ dialog
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            // Chỉ thực hiện nếu người dùng nhấn "Confirm" (confirmed === true)
+            if (confirmed) {
+                this.maintenanceService.completeTechnicianTask(orderId).subscribe({
+                    next: (updatedOrder) => {
+                        // Cập nhật giao diện bằng cách lọc bỏ mục đã hoàn thành
+                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
+
+                        // Mở dialog thông báo thành công
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: {
+                                message: 'Status updated successfully!',
+                                isConfirm: false // Chỉ có nút OK
+                            }
+                        });
+                    },
+                    error: (err) => {
+                        // SỬA LẠI DÒNG NÀY
+                        console.error('Error updating status:', err);
+
+                        // Mở dialog thông báo lỗi
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: {
+                                message: 'An error occurred. Please try again.',
+                                isConfirm: false // Chỉ có nút OK
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
 }
