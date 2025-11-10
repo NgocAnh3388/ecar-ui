@@ -1,16 +1,24 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BadgeComponent } from "../../../shared/components/ui/badge/badge.component";
-import { DatePipe, NgIf, NgForOf } from "@angular/common";
+import { DatePipe, CommonModule } from "@angular/common";
 import { SubscriptionService } from "../../../services/subscription.service";
 import { SubscriptionInfo } from "../../../models/subscription-info";
 import { RenewDialogComponent } from "../../dialog/renew-dialog/renew-dialog.component";
 import { ModalService } from "../../modal/modal.service";
 import { PaymentHistory } from "../../../models/payment-history";
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component'; // <-- THÊM IMPORT NÀY
+import { forkJoin } from 'rxjs'; // <-- THÊM IMPORT NÀY
+import { finalize } from 'rxjs/operators'; // <-- THÊM IMPORT NÀY
 
 @Component({
   selector: 'app-customer-payment-dashboard',
   standalone: true,
-  imports: [BadgeComponent, DatePipe, NgIf, NgForOf],
+    imports: [
+        CommonModule,
+        DatePipe,
+        BadgeComponent,
+        LoadingSpinnerComponent // Cần để hiển thị spinner
+    ],
   templateUrl: './customer-payment-dashboard.component.html',
   styleUrl: './customer-payment-dashboard.component.css'
 })
@@ -18,7 +26,7 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
 
   paymentHistory: PaymentHistory[] = [];
   subscription: SubscriptionInfo | undefined;
-  isLoading = true;
+  isLoading = false;
 
   constructor(
     private subscriptionService: SubscriptionService,
@@ -26,9 +34,36 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
   ) {}
 
   ngOnInit(): void {
-    this.initSubscription();
-    this.initPaymentHistory();
+      this.loadInitialData(); // Gọi một hàm duy nhất để tải dữ liệu
   }
+
+  loadInitialData() {
+      this.isLoading = true; // 1. Bật spinner
+
+      forkJoin({
+          subscription: this.subscriptionService.get(),
+          history: this.subscriptionService.getHistory()
+      })
+          .pipe(
+              // 2. Tắt spinner sau khi CẢ HAI API hoàn thành
+              finalize(() => this.isLoading = false)
+          )
+          .subscribe({
+              next: (results) => {
+                  // 3. Gán dữ liệu khi cả hai đều thành công
+                  this.subscription = results.subscription || undefined;
+                  this.paymentHistory = results.history || [];
+                  console.log('All initial data loaded successfully');
+              },
+              error: (err) => {
+                  // 4. Xử lý lỗi nếu một trong hai API thất bại
+                  console.error('Failed to load initial data:', err);
+                  this.subscription = undefined;
+                  this.paymentHistory = [];
+              }
+          });
+  }
+
 
   ngAfterViewInit(): void {}
 
@@ -102,18 +137,22 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
 
   /** ✅ Mở modal gia hạn / đăng ký */
   renew() {
-    const ref = this.modal.open(RenewDialogComponent, {
-      data: { title: 'Gia hạn / Đăng ký gói dịch vụ', message: '' },
-      panelClass: ['modal-panel', 'p-0'],
-      backdropClass: 'modal-backdrop',
-      disableClose: false,
-    });
+      const ref = this.modal.open(RenewDialogComponent, {
+          data: { title: 'Renew / Register Service Package', message: '' },
+          panelClass: ['modal-panel', 'p-0'],
+          backdropClass: 'modal-backdrop',
+          disableClose: false,
+      });
 
-    ref.afterClosed$.subscribe(confirmed => {
-      if (confirmed) {
-        this.initSubscription();
-      }
-    });
+      ref.afterClosed$.subscribe(confirmed => {
+          // Logic này không đúng, vì dialog 'renew' không trả về 'confirmed'.
+          // Nó sẽ chuyển trang. Hàm này chỉ hữu ích nếu dialog có nút OK/Cancel.
+          // Tuy nhiên, để sửa lỗi biên dịch, chúng ta cứ giữ nó.
+          // Nếu sau khi thanh toán bạn quay về trang này, ngOnInit sẽ chạy lại loadInitialData.
+          if (confirmed) {
+              this.loadInitialData();
+          }
+      });
   }
 
   /** ✅ Lịch sử thanh toán */

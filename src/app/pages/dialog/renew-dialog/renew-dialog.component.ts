@@ -8,19 +8,25 @@ import {ModalRef} from "../../modal/modal-ref";
 import {SubscriptionService} from "../../../services/subscription.service";
 import {RenewRequest} from "../../../models/renew-request";
 import {Router} from "@angular/router";
+import { CommonModule } from '@angular/common';
+import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-renew-dialog',
+    standalone: true,
     imports: [
         ButtonComponent,
         InputFieldComponent,
-        LabelComponent
+        LabelComponent,
+        CommonModule,
+        LoadingSpinnerComponent,
     ],
   templateUrl: './renew-dialog.component.html',
   styleUrl: './renew-dialog.component.css'
 })
 export class RenewDialogComponent {
     numOfYears = 1;
+    public isLoading = false;
 
     constructor(private subscriptionService: SubscriptionService,
                 private router: Router) {
@@ -33,11 +39,33 @@ export class RenewDialogComponent {
     message = signal(this.data?.message ?? 'Bạn chắc chắn?');
 
     ok() {
-        const request = new RenewRequest(this.numOfYears);
-        this.subscriptionService.renew(request).pipe().subscribe(res => {
-            window.location.href = res.url;
+        if (this.isLoading) {
+            return;
+        }
+        this.isLoading = true; // Bật spinner
 
-        })
+        const request = new RenewRequest(this.numOfYears);
+        this.subscriptionService.renew(request).subscribe({
+            next: (res) => {
+                // Giữ nguyên logic chuyển trang
+                window.location.href = res.url;
+            },
+            error: (err) => {
+                console.error('Failed to create payment link:', err);
+                this.isLoading = false; // Tắt spinner khi có lỗi
+                alert('Failed to create payment. Please try again.'); // Thông báo lỗi
+            }
+        });
     }
-    cancel() { this.modalRef.close(false); }
+
+    cancel() {
+        if (this.isLoading) return;
+        this.modalRef.close(false);
+    }
+
+    // Hàm để xử lý input
+    onYearsChange(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
+        this.numOfYears = parseInt(value, 10) || 1;
+    }
 }

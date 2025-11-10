@@ -1,0 +1,24 @@
+.spinner {
+    /* Kích thước của spinner */
+    width: 50px;
+    height: 50px;
+
+    /* Bo tròn thành hình tròn */
+    border-radius: 50%;
+
+    /* Độ dày và màu sắc của đường viền */
+    border: 5px solid rgba(255, 255, 255, 0.3); /* Màu nền mờ */
+
+    /* Màu sắc của phần quay */
+    border-top-color: #ffffff; /* Màu trắng nổi bật */
+
+    /* Hiệu ứng animation */
+    animation: spin 1s linear infinite;
+}
+
+/* Định nghĩa animation 'spin' */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
