@@ -45,4 +45,13 @@ export class MaintenanceService {
         // Gửi một yêu cầu POST đến endpoint `/api/maintenance/{id}/technician-complete`
         return this.http.post<any>(`${this.api}/api/maintenance/${id}/technician-complete`, {});
     }
+
+    cancelOrder(id: number) {
+      return this.http.put(`${this.api}/api/maintenance/${id}/cancel`, {});
+    }
+
+    reopenOrder(id: number) {
+      return this.http.put(`${this.api}/api/maintenance/${id}/reopen`, {});
+    }
+
 }
