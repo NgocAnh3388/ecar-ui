@@ -26,6 +26,9 @@ export class User {
   createdAt: Date | null = null;
   vehicles: any[] = [];
 
+  maintenanceHistories: any[] = [];
+  subscriptionInfos: any[] = [];
+
   constructor(init?: Partial<User>) {
     Object.assign(this, init);
   }

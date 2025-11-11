@@ -8,18 +8,18 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔹 Đăng nhập Google
+  //Đăng nhập Google
   loginWithGoogle() {
     window.location.href = `${this.api}/oauth2/authorization/google`;
   }
 
-  // 🔹 Đăng xuất
+  //Đăng xuất
   logout() {
     localStorage.removeItem('user');
     window.location.href = `${this.api}/logout`;
   }
 
-  // 🔹 Lấy thông tin user hiện tại
+  //Lấy thông tin user hiện tại
   getCurrentUser(): Observable<any> {
     return this.http.get(`${this.api}/api/me`, { withCredentials: true }).pipe(
       tap((user: any) => {
@@ -28,18 +28,18 @@ export class AuthService {
     );
   }
 
-  // 🔹 Lấy user từ localStorage
+  //Lấy user từ localStorage
   getUser(): any {
     return JSON.parse(localStorage.getItem('user') || '{}');
   }
 
-  // 🔹 Lấy danh sách roles (mảng)
+  //Lấy danh sách roles (mảng)
   getRoles(): string[] {
     const user = this.getUser();
     return user?.roles || [];
   }
 
-  // 🔹 Kiểm tra role có tồn tại không
+  //Kiểm tra role có tồn tại không
   hasRole(role: string): boolean {
     return this.getRoles().includes(role);
   }
