@@ -14,7 +14,7 @@ import { UserInfoCardComponent } from '../../shared/components/user-profile/user
 @Component({
     selector: 'app-profile',
     standalone: true,
-    // ✅ Đã import đầy đủ các component và module cần thiết
+
     imports: [
         CommonModule,
         FormsModule,
@@ -33,8 +33,8 @@ export class ProfileComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private userService: UserService,
-        private authService: AuthService, // ✅ Cần thiết cho phân quyền
-        private modal: ModalService       // ✅ Cần thiết cho dialog
+        private authService: AuthService,
+        private modal: ModalService
     ) {}
 
 
@@ -83,7 +83,7 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // ✅ Chức năng thêm xe
+    // Chức năng thêm xe
     addVehicle() {
         const ref = this.modal.open(CreateCarDialogComponent, {
             data: { title: 'Thêm xe', message: '' },
