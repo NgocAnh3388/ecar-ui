@@ -1,12 +1,11 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ChangeDetectorRef} from '@angular/core';
 import {MaintenanceService} from "../../../services/maintenance.service";
 import {MaintenanceTicket} from "../../../models/maintenance-ticket";
 import {ModalService} from "../../modal/modal.service";
 import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.component";
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
-import {DatePipe, CommonModule} from "@angular/common"; // DatePipe đã được import
-import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog.component';
-
+import {DatePipe, CommonModule} from "@angular/common";
+import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog.component";
 
 type OptionKey =
     | 'see_all'
@@ -26,6 +25,7 @@ interface OptionItem {
     selector: 'app-service-dashboard',
     standalone: true,
     imports: [
+        CommonModule,
         DatePipe
     ],
     templateUrl: './service-dashboard.component.html',
@@ -33,52 +33,47 @@ interface OptionItem {
 })
 export class ServiceDashboardComponent implements OnInit {
 
-    tickets: MaintenanceTicket[] = []
+    tickets: MaintenanceTicket[] = [];
     open = false;
 
     options: OptionItem[] = [
-        { key: 'see_all',         label: 'See all' },
-        { key: 'category_A',      label: 'Category: A' },
-        { key: 'category_B',      label: 'Category: B' },
-        { key: 'newest',          label: 'Sort by: Newest first' },
+        { key: 'see_all', label: 'See all' },
+        { key: 'category_A', label: 'Category: A' },
+        { key: 'category_B', label: 'Category: B' },
+        { key: 'newest', label: 'Sort by: Newest first' },
     ];
 
-    constructor(private maintenanceService: MaintenanceService,
-                private modal: ModalService,) {
-    }
+    constructor(
+        private maintenanceService: MaintenanceService,
+        private modal: ModalService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     ngOnInit(): void {
         this.initTicket();
     }
 
-    initTicket() {
-        this.maintenanceService.getAll().pipe().subscribe(
-            rs => {
-                this.tickets = rs;
-            }
-        );
+    initTicket(): void {
+      this.maintenanceService.getAll().subscribe({
+        next: (rs) => {
+          this.tickets = [...rs]; // clone lại mảng -> trigger change detection
+          this.cdr.detectChanges(); // ép render lại
+        },
+        error: (err) => console.error('Error loading tickets:', err)
+      });
     }
 
-    handleFilter() {
-        console.log('Filter clicked');
-        // Add your filter logic here
-    }
+    // ----------------------- Filter Dropdown -----------------------
 
-    handleSeeAll() {
-        console.log('See all clicked');
-        // Add your see all logic here
-    }
-
-    /** Tập các option đang chọn */
     selected = new Set<OptionKey>();
 
-    toggleDropdown(e: MouseEvent) {
+    toggleDropdown(e: MouseEvent): void {
         e.stopPropagation();
         this.open = !this.open;
     }
 
     @HostListener('document:click')
-    onDocClick() {
+    onDocClick(): void {
         this.open = false;
     }
 
@@ -86,140 +81,147 @@ export class ServiceDashboardComponent implements OnInit {
         return this.selected.has(key);
     }
 
-    toggle(key: OptionKey, ev: Event) {
+    toggle(key: OptionKey, ev: Event): void {
         const input = ev.target as HTMLInputElement;
         if (input.checked) this.selected.add(key);
         else this.selected.delete(key);
     }
 
-    selectAll() {
+    selectAll(): void {
         this.options.forEach(o => this.selected.add(o.key));
     }
 
-    clearAll() {
+    clearAll(): void {
         this.selected.clear();
     }
 
-    /** Map các lựa chọn sang hành vi nghiệp vụ của bạn */
-    apply() {
-        // Ví dụ: ưu tiên See all nếu được chọn
+    apply(): void {
         if (this.selected.has('see_all')) {
             this.handleSeeAll();
         }
-
-        // Lọc theo category
         const cats = ['category_A', 'category_B'].filter(k => this.selected.has(k as OptionKey));
         if (cats.length) {
             this.handleFilterByCategories(cats as OptionKey[]);
         }
-
-        // Sắp xếp
         if (this.selected.has('newest')) this.sortByDate('desc');
         else if (this.selected.has('oldest')) this.sortByDate('asc');
-
         if (this.selected.has('price_low_high')) this.sortByPrice('asc');
         else if (this.selected.has('price_high_low')) this.sortByPrice('desc');
-
         this.open = false;
     }
 
+    handleSeeAll(): void {}
+    handleFilterByCategories(keys: OptionKey[]): void {}
+    sortByDate(dir: 'asc' | 'desc'): void {}
+    sortByPrice(dir: 'asc' | 'desc'): void {}
 
-    handleFilterByCategories(keys: OptionKey[]) {
-        // ... lọc theo nhiều category (A/B) tuỳ app của bạn
-        // gợi ý: emit ra store/service hoặc set state rồi reload list
-    }
+    // ----------------------- Business Logic -----------------------
 
-    sortByDate(dir: 'asc' | 'desc') {
-        // ... sắp xếp theo ngày
-    }
-
-    sortByPrice(dir: 'asc' | 'desc') {
-        // ... sắp xếp theo giá
-    }
-
-    getService(item: MaintenanceTicket): 'Bảo dưỡng & Sửa chữa' | 'Bảo dưỡng' | 'Sửa chữa' | undefined {
-        if (item.isMaintenance && item.isRepair) {
-            return 'Bảo dưỡng & Sửa chữa'
-        } else if (item.isMaintenance) {
-            return 'Bảo dưỡng'
-        } else if (item.isRepair) {
-            return 'Sửa chữa'
-        }
+    getService(item: MaintenanceTicket):
+        'Bảo dưỡng & Sửa chữa' | 'Bảo dưỡng' | 'Sửa chữa' | undefined {
+        if (item.isMaintenance && item.isRepair) return 'Bảo dưỡng & Sửa chữa';
+        if (item.isMaintenance) return 'Bảo dưỡng';
+        if (item.isRepair) return 'Sửa chữa';
         return undefined;
     }
 
-    getStatus(status: string): 'Mới' | 'Đang thực hện' | 'Thực hiện xong' | 'Hoàn thành' | undefined {
+    getStatus(status: string):
+        'Mới' | 'Đang thực hện' | 'Thực hiện xong' | 'Hoàn thành' | undefined {
         switch (status) {
-            case 'CUSTOMER_SUBMITTED':
-                return 'Mới';
-            case 'TECHNICIAN_RECEIVED':
-                return 'Đang thực hện';
-            case 'TECHNICIAN_COMPLETED':
-                return 'Thực hiện xong';
-            case 'DONE':
-                return 'Hoàn thành'
+            case 'CUSTOMER_SUBMITTED': return 'Mới';
+            case 'TECHNICIAN_RECEIVED': return 'Đang thực hện';
+            case 'TECHNICIAN_COMPLETED': return 'Thực hiện xong';
+            case 'DONE': return 'Hoàn thành';
         }
         return undefined;
     }
 
-
-    onDetail(ticketId:number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number) {
+    onDetail(ticketId: number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number): void {
         const ref = this.modal.open(ServiceDetailDialogComponent, {
-            data: { title: 'Đặt lịch', message: '', carModelId:  carModelId, numOfKm: numOfKm, ticketId: ticketId, technicianId: technicianId, milestoneId: milestoneId },
+            data: { title: 'Đặt lịch', message: '', carModelId, numOfKm, ticketId, technicianId, milestoneId },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
             disableClose: false,
         });
 
         ref.afterClosed$.subscribe(confirmed => {
-            if (confirmed) {
-                this.initTicket();
-            }
+            if (confirmed) this.initTicket();
         });
     }
 
     onComplete(orderId: number): void {
-        // 1. Mở dialog xác nhận
         const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: {
-                message: 'Are you sure you want to mark this task as completed?',
-                isConfirm: true
-            },
+            data: { message: 'Bạn có chắc muốn đánh dấu phiếu này là Hoàn thành?', isConfirm: true },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
         });
 
-        // 2. Lắng nghe kết quả từ dialog
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
-            // Chỉ thực hiện nếu người dùng nhấn "Confirm" (confirmed === true)
             if (confirmed) {
                 this.maintenanceService.completeTechnicianTask(orderId).subscribe({
-                    next: (updatedOrder) => {
-                        // Cập nhật giao diện bằng cách lọc bỏ mục đã hoàn thành
-                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
-
-                        // Mở dialog thông báo thành công
+                    next: () => {
                         this.modal.open(ConfirmDialogComponent, {
-                            data: {
-                                message: 'Status updated successfully!',
-                                isConfirm: false // Chỉ có nút OK
-                            }
+                            data: { message: 'Phiếu đã được đánh dấu Hoàn thành.', isConfirm: false }
                         });
+                        this.initTicket(); // load lại danh sách
                     },
-                    error: (err) => {
-                        // SỬA LẠI DÒNG NÀY
-                        console.error('Error updating status:', err);
-
-                        // Mở dialog thông báo lỗi
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: {
-                                message: 'An error occurred. Please try again.',
-                                isConfirm: false // Chỉ có nút OK
-                            }
-                        });
-                    }
+                    error: (err) => console.error('Error updating status:', err)
                 });
             }
         });
     }
+
+    onCancel(orderId: number): void {
+      const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+        data: { message: 'Are you sure you want to cancel this order?', isConfirm: true },
+      });
+
+      confirmDialogRef.afterClosed$.subscribe(confirmed => {
+        if (confirmed) {
+          this.maintenanceService.cancelOrder(orderId).subscribe({
+            next: () => {
+              this.modal.open(ConfirmDialogComponent, {
+                data: { message: 'The order has been successfully cancelled.', isConfirm: false }
+              });
+              // ⏳ chờ modal đóng xong mới reload list
+              setTimeout(() => {
+                this.initTicket();
+                this.cdr.markForCheck(); // ép render lại
+              }, 250);
+            },
+            error: (err) => console.error('Cancel error:', err)
+          });
+        }
+      });
+    }
+
+    onReopen(orderId: number): void {
+      const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+        data: { message: 'Are you sure you want to reactivate this order?', isConfirm: true },
+      });
+
+      confirmDialogRef.afterClosed$.subscribe(confirmed => {
+        if (confirmed) {
+          this.maintenanceService.reopenOrder(orderId).subscribe({
+            next: () => {
+              this.modal.open(ConfirmDialogComponent, {
+                data: { message: 'The order has been successfully reactivated.', isConfirm: false }
+              });
+              // ⏳ chờ modal dispose rồi reload list
+              setTimeout(() => {
+                this.initTicket();
+                this.cdr.markForCheck();
+              }, 250);
+            },
+            error: (err) => console.error('Reopen error:', err)
+          });
+        }
+      });
+    }
+
+
+    trackByKey(index: number, item: any): string {
+      return item.key;
+    }
+
 }

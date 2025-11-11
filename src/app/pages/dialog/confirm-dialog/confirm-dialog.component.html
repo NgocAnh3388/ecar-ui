@@ -1,8 +1,18 @@
 <div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+    <h2 class="text-xl font-semibold mb-2">Confirmation</h2>
     <p class="text-gray-600 mb-6">{{ message() }}</p>
     <div class="flex gap-3 justify-end">
-        <button class="px-4 py-2 rounded border" (click)="cancel()">Cạncel</button>
-        <button class="px-4 py-2 rounded bg-black text-white" (click)="ok()">Accept</button>
+        <button
+                class="px-4 py-2 rounded border hover:bg-gray-100"
+                (click)="cancel()"
+        >
+            Cancel
+        </button>
+        <button
+                class="px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
+                (click)="ok()"
+        >
+            Accept
+        </button>
     </div>
 </div>

@@ -150,7 +150,7 @@
             <!-- Textbox: số km, chiều rộng cố định -->
             <div class="w-full md:w-40 shrink-0">
                 <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Số km trên xe
+                    Number of km on the vehicle
                 </div>
                 <input
                         type="number"
@@ -166,7 +166,7 @@
             <!-- Dropdown 1 -->
             <div class="w-full md:w-72 shrink-0">
                 <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Cấp bảo dưỡng
+                    Maintenance level
                 </div>
                 <app-select
                         [options]="milestoneOptions"
@@ -179,7 +179,7 @@
             <!-- Dropdown 2 -->
             <div class="w-full md:w-72 shrink-0">
                 <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nhân viên kỹ thuật
+                    Technical staff
                 </div>
                 <app-select
                         [options]="technicianOptions"
@@ -192,8 +192,8 @@
 
             <!-- Buttons -->
             <div class="md:ml-auto self-end flex gap-2 shrink-0">
-                <app-button size="sm" variant="outline" (btnClick)="onCancel()">Huỷ</app-button>
-                <app-button size="sm" variant="outline" (btnClick)="onSubmit()">Xác nhận</app-button>
+                <app-button size="sm" variant="outline" (btnClick)="onCancel()">Cancel</app-button>
+                <app-button size="sm" variant="outline" (btnClick)="onSubmit()">Accept</app-button>
             </div>
         </div>
 
