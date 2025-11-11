@@ -5,37 +5,57 @@
     </h2>
 
     <!-- USER INFO -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 mb-10 border border-gray-200 dark:border-gray-700">
-        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100 mb-5 border-b pb-3">
+    <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 mb-10 border border-gray-200 dark:border-gray-700"
+    >
+        <h3
+                class="text-xl font-semibold text-gray-700 dark:text-gray-100 mb-5 border-b pb-3"
+        >
             Personal information
         </h3>
 
         <div class="grid sm:grid-cols-2 gap-6 text-gray-700 dark:text-gray-300">
             <div>
                 <p class="font-medium text-gray-600 dark:text-gray-400">Full name</p>
-                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.fullName }}</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ userData.fullName }}
+                </p>
             </div>
             <div>
                 <p class="font-medium text-gray-600 dark:text-gray-400">Email</p>
-                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.email }}</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ userData.email }}
+                </p>
             </div>
             <div>
                 <p class="font-medium text-gray-600 dark:text-gray-400">Phone Number</p>
-                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ userData.phoneNo || '-' }}</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ userData.phoneNo || '-' }}
+                </p>
             </div>
         </div>
     </div>
 
     <!-- VEHICLES -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+    <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700"
+    >
         <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100">Your Vehicle</h3>
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100">
+                Your Vehicle
+            </h3>
             <button
                     (click)="addVehicle()"
                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow hover:bg-brand-600 focus:ring-2 focus:ring-brand-400 transition"
             >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Add Vehicle
             </button>
@@ -48,22 +68,98 @@
                         class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition"
                 >
                     <div class="mb-3">
-                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ vehicle.carModel?.carName }}</h4>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ vehicle.carModel?.carType }}</p>
+                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            {{ vehicle.carModel?.carName }}
+                        </h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ vehicle.carModel?.carType }}
+                        </p>
                     </div>
 
                     <div class="space-y-1 text-sm text-gray-700 dark:text-gray-300">
                         <p><strong>Number plate:</strong> {{ vehicle.licensePlate }}</p>
                         <p><strong>VIN:</strong> {{ vehicle.vinNumber || '-' }}</p>
                         <p><strong>Next kilometer:</strong> {{ vehicle.nextKm || '-' }}</p>
-                        <p><strong>Next maintenance date:</strong> {{ (vehicle.nextDate | date: 'dd-MM-yyyy') || '-' }}</p>
+                        <p>
+                            <strong>Next maintenance date:</strong>
+                            {{ (vehicle.nextDate | date: 'dd-MM-yyyy') || '-' }}
+                        </p>
                     </div>
                 </div>
             </div>
         </ng-container>
 
         <ng-template #noVehicle>
-            <p class="text-gray-500 dark:text-gray-400 text-center py-6">No vehicle added yet.</p>
+            <p class="text-gray-500 dark:text-gray-400 text-center py-6">
+                No vehicle added yet.
+            </p>
         </ng-template>
+    </div>
+
+    <!-- ADMIN-ONLY SECTIONS -->
+    <div *ngIf="authService.getRoles().includes('ROLE_ADMIN')" class="mt-10 space-y-10">
+        <!-- MAINTENANCE HISTORY -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100 mb-5 border-b pb-3">
+                Maintenance History
+            </h3>
+
+            <div *ngIf="userData.maintenanceHistories?.length; else noHistory">
+                <table class="min-w-full border border-gray-200 dark:border-gray-700 text-sm">
+                    <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700 text-left text-gray-600 dark:text-gray-300">
+                        <th class="py-2 px-3">Car Name</th>
+                        <th class="py-2 px-3">Type</th>
+                        <th class="py-2 px-3">License Plate</th>
+                        <th class="py-2 px-3">Submitted At</th>
+                        <th class="py-2 px-3">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let mh of userData.maintenanceHistories" class="border-t hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <td class="py-2 px-3">{{ mh.carName }}</td>
+                        <td class="py-2 px-3">{{ mh.carType }}</td>
+                        <td class="py-2 px-3">{{ mh.licensePlate }}</td>
+                        <td class="py-2 px-3">{{ mh.submittedAt | date: 'medium' }}</td>
+                        <td class="py-2 px-3">{{ mh.status }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <ng-template #noHistory>
+                <p class="text-gray-500 dark:text-gray-400 italic">No maintenance history available.</p>
+            </ng-template>
+        </div>
+
+        <!-- SUBSCRIPTION INFO -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-100 mb-5 border-b pb-3">
+                Subscription Info
+            </h3>
+
+            <div *ngIf="userData.subscriptionInfos?.length; else noSub">
+                <table class="min-w-full border border-gray-200 dark:border-gray-700 text-sm">
+                    <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700 text-left text-gray-600 dark:text-gray-300">
+                        <th class="py-2 px-3">Start Date</th>
+                        <th class="py-2 px-3">End Date</th>
+                        <th class="py-2 px-3">Payment Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let sub of userData.subscriptionInfos" class="border-t hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <td class="py-2 px-3">{{ sub.startDate | date: 'mediumDate' }}</td>
+                        <td class="py-2 px-3">{{ sub.endDate | date: 'mediumDate' }}</td>
+                        <td class="py-2 px-3">{{ sub.paymentDate | date: 'medium' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <ng-template #noSub>
+                <p class="text-gray-500 dark:text-gray-400 italic">No subscription found.</p>
+            </ng-template>
+        </div>
     </div>
 </div>

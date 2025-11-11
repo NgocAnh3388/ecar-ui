@@ -33,7 +33,7 @@ export class ProfileComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private userService: UserService,
-        private authService: AuthService,
+        public authService: AuthService,
         private modal: ModalService
     ) {}
 
@@ -41,7 +41,7 @@ export class ProfileComponent implements OnInit {
     ngOnInit(): void {
         const roles = this.authService.getRoles();
 
-        // ✅ Logic phân quyền quan trọng
+        //Logic phân quyền quan trọng
         if (roles.includes('ROLE_ADMIN')) {
             // Admin: lấy id từ URL
             this.route.paramMap.subscribe(params => {
@@ -83,7 +83,7 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // Chức năng thêm xe
+    //Chức năng thêm xe
     addVehicle() {
         const ref = this.modal.open(CreateCarDialogComponent, {
             data: { title: 'Thêm xe', message: '' },
