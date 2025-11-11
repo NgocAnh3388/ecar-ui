@@ -24,9 +24,9 @@ interface OptionItem {
 
 @Component({
     selector: 'app-service-dashboard',
-    standalone: true, // <--- ⚠️ BẮT BUỘC THÊM DÒNG NÀY
+    standalone: true,
     imports: [
-        DatePipe      // Vì bạn dùng 'DatePipe' ở đây
+        DatePipe
     ],
     templateUrl: './service-dashboard.component.html',
     styleUrl: './service-dashboard.component.css'
@@ -162,7 +162,7 @@ export class ServiceDashboardComponent implements OnInit {
         return undefined;
     }
 
-    // ✅ ĐÂY LÀ HÀM ĐÃ ĐƯỢC CẬP NHẬT CỦA BẠN
+
     onDetail(ticketId:number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number) {
         const ref = this.modal.open(ServiceDetailDialogComponent, {
             data: { title: 'Đặt lịch', message: '', carModelId:  carModelId, numOfKm: numOfKm, ticketId: ticketId, technicianId: technicianId, milestoneId: milestoneId },
