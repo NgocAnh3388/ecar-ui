@@ -54,13 +54,13 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     initTicket(): void {
-      this.maintenanceService.getAll().subscribe({
-        next: (rs) => {
-          this.tickets = [...rs]; // clone lại mảng -> trigger change detection
-          this.cdr.detectChanges(); // ép render lại
-        },
-        error: (err) => console.error('Error loading tickets:', err)
-      });
+        this.maintenanceService.getAll().subscribe({
+            next: (rs) => {
+                this.tickets = [...rs]; // clone lại mảng -> trigger change detection
+                this.cdr.detectChanges(); // ép render lại
+            },
+            error: (err) => console.error('Error loading tickets:', err)
+        });
     }
 
     // ----------------------- Filter Dropdown -----------------------
@@ -150,78 +150,104 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     onComplete(orderId: number): void {
+        // 1. Mở dialog xác nhận
         const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: { message: 'Bạn có chắc muốn đánh dấu phiếu này là Hoàn thành?', isConfirm: true },
+            data: {
+                message: 'Are you sure you want to mark this task as completed?',
+                isConfirm: true
+            },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
         });
 
+        // 2. Lắng nghe kết quả từ dialog
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            // Chỉ thực hiện nếu người dùng nhấn "Confirm" (confirmed === true)
             if (confirmed) {
                 this.maintenanceService.completeTechnicianTask(orderId).subscribe({
-                    next: () => {
+                    next: (updatedOrder) => {
+                        // Cập nhật giao diện bằng cách lọc bỏ mục đã hoàn thành
+                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
+
+                        // Mở dialog thông báo thành công
                         this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'Phiếu đã được đánh dấu Hoàn thành.', isConfirm: false }
+                            data: {
+                                message: 'Status updated successfully!',
+                                isConfirm: false // Chỉ có nút OK
+                            }
                         });
-                        this.initTicket(); // load lại danh sách
+                        this.initTicket();
                     },
-                    error: (err) => console.error('Error updating status:', err)
+                    error: (err) => {
+                        // SỬA LẠI DÒNG NÀY
+                        console.error('Error updating status:', err);
+
+                        // Mở dialog thông báo lỗi
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: {
+                                message: 'An error occurred. Please try again.',
+                                isConfirm: false // Chỉ có nút OK
+                            }
+                        });
+                    }
                 });
             }
         });
     }
 
-    onCancel(orderId: number): void {
-      const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-        data: { message: 'Are you sure you want to cancel this order?', isConfirm: true },
-      });
 
-      confirmDialogRef.afterClosed$.subscribe(confirmed => {
-        if (confirmed) {
-          this.maintenanceService.cancelOrder(orderId).subscribe({
-            next: () => {
-              this.modal.open(ConfirmDialogComponent, {
-                data: { message: 'The order has been successfully cancelled.', isConfirm: false }
-              });
-              // ⏳ chờ modal đóng xong mới reload list
-              setTimeout(() => {
-                this.initTicket();
-                this.cdr.markForCheck(); // ép render lại
-              }, 250);
-            },
-            error: (err) => console.error('Cancel error:', err)
-          });
-        }
-      });
+
+    onCancel(orderId: number): void {
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: { message: 'Are you sure you want to cancel this order?', isConfirm: true },
+        });
+
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.cancelOrder(orderId).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'The order has been successfully cancelled.', isConfirm: false }
+                        });
+                        // ⏳ chờ modal đóng xong mới reload list
+                        setTimeout(() => {
+                            this.initTicket();
+                            this.cdr.markForCheck(); // ép render lại
+                        }, 250);
+                    },
+                    error: (err) => console.error('Cancel error:', err)
+                });
+            }
+        });
     }
 
     onReopen(orderId: number): void {
-      const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-        data: { message: 'Are you sure you want to reactivate this order?', isConfirm: true },
-      });
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: { message: 'Are you sure you want to reactivate this order?', isConfirm: true },
+        });
 
-      confirmDialogRef.afterClosed$.subscribe(confirmed => {
-        if (confirmed) {
-          this.maintenanceService.reopenOrder(orderId).subscribe({
-            next: () => {
-              this.modal.open(ConfirmDialogComponent, {
-                data: { message: 'The order has been successfully reactivated.', isConfirm: false }
-              });
-              // ⏳ chờ modal dispose rồi reload list
-              setTimeout(() => {
-                this.initTicket();
-                this.cdr.markForCheck();
-              }, 250);
-            },
-            error: (err) => console.error('Reopen error:', err)
-          });
-        }
-      });
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.reopenOrder(orderId).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'The order has been successfully reactivated.', isConfirm: false }
+                        });
+                        // ⏳ chờ modal dispose rồi reload list
+                        setTimeout(() => {
+                            this.initTicket();
+                            this.cdr.markForCheck();
+                        }, 250);
+                    },
+                    error: (err) => console.error('Reopen error:', err)
+                });
+            }
+        });
     }
 
 
     trackByKey(index: number, item: any): string {
-      return item.key;
+        return item.key;
     }
 
 }
