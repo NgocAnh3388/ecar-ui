@@ -144,7 +144,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
       'Booking': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
       'Maintenance information': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
-      'Service package management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER', 'ROLE_TECHNICIAN'],
+      'Service package management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER'],
       'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
       'Overview': ['ROLE_ADMIN'],
       'User Profile': ['ROLE_CUSTOMER'],
