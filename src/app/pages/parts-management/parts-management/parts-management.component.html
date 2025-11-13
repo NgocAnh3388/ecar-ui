@@ -176,11 +176,11 @@
           }"
                 >
                     {{
-                    item.stockQuantity === 0
-                    ? 'Hết hàng'
-                    : item.stockQuantity <= item.minStockLevel
-                    ? 'Sắp hết hàng'
-                    : 'Đủ hàng'
+                        item.stockQuantity === 0
+                            ? 'Hết hàng'
+                            : item.stockQuantity <= item.minStockLevel
+                                ? 'Sắp hết hàng'
+                                : 'Đủ hàng'
                     }}
                 </td>
                 <td class="p-3 text-center space-x-2">

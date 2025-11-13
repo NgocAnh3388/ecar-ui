@@ -26,59 +26,59 @@
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @for (v of vehicleData; track $index) {
-                    <tr>
-                        <td class="py-3">
-                            <div class="flex items-center gap-3">
-                                <div>
-                                    <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                        {{ v.carModel.carName }}
-                                    </p>
-                                    <span class="text-gray-500 text-theme-xs dark:text-gray-400">
+                        @for (v of vehicleData; track $index) {
+                            <tr>
+                                <td class="py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                                {{ v.carModel.carName }}
+                                            </p>
+                                            <span class="text-gray-500 text-theme-xs dark:text-gray-400">
                         {{ v.carModel.carType }}
                       </span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.licensePlate }}</td>
-                        <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.vinNumber }}</td>
-                        <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {{ v.oldKm | number:'1.0-0' }} km / {{ v.oldDate | date:'dd-MM-yyyy' }}
-                        </td>
-                        <td class="px-4 py-4 text-theme-sm">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.licensePlate }}</td>
+                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.vinNumber }}</td>
+                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {{ v.oldKm | number:'1.0-0' }} km / {{ v.oldDate | date:'dd-MM-yyyy' }}
+                                </td>
+                                <td class="px-4 py-4 text-theme-sm">
   <span
           class="px-3 py-1 rounded-full font-medium"
           [ngClass]="getBadgeClass(v.nextDate)"
   >
     {{ v.nextKm | number: '1.0-0' }} km /
-    {{ v.nextDate ? (v.nextDate | date: 'dd-MM-yyyy') : '-' }}
+      {{ v.nextDate ? (v.nextDate | date: 'dd-MM-yyyy') : '-' }}
   </span>
-                        </td>
+                                </td>
 
-                        <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center align-middle">
-                            <button
-                                    (click)="schedule(v.id)"
-                                    type="button"
-                                    aria-label="Schedule maintenance"
-                                    title="Schedule maintenance"
-                                    class="inline-flex items-center justify-center rounded text-gray-700 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 transition-colors duration-200"
-                            >
-                                <svg
-                                        class="size-5"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                >
-                                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                                    <path d="M16 2v4M8 2v4M3 10h18"></path>
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    }
+                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center align-middle">
+                                    <button
+                                            (click)="schedule(v.id)"
+                                            type="button"
+                                            aria-label="Schedule maintenance"
+                                            title="Schedule maintenance"
+                                            class="inline-flex items-center justify-center rounded text-gray-700 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 transition-colors duration-200"
+                                    >
+                                        <svg
+                                                class="size-5"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                        >
+                                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                            <path d="M16 2v4M8 2v4M3 10h18"></path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

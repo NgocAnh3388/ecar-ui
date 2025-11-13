@@ -27,53 +27,53 @@ import { PaymentCancelComponent } from './pages/payment-cancel/payment-cancel.co
 
 
 export const routes: Routes = [
-  // ✅ Protected routes (login required)
-  {
-    path: '',
-    component: AppLayoutComponent,
-    canActivate: [AuthGuard],
-    children: [
-      {
+    // ✅ Protected routes (login required)
+    {
         path: '',
-        component: EcommerceComponent,
-        pathMatch: 'full',
-        title: 'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
-      },
+        component: AppLayoutComponent,
+        canActivate: [AuthGuard],
+        children: [
+            {
+                path: '',
+                component: EcommerceComponent,
+                pathMatch: 'full',
+                title: 'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+            },
 
-      // ✅ Profile
-      { path: 'profile/me', component: ProfileComponent, title: 'Thông tin cá nhân' },
-      { path: 'profile/:id', component: ProfileComponent, title: 'Hồ sơ người dùng' },
+            // ✅ Profile
+            { path: 'profile/me', component: ProfileComponent, title: 'Thông tin cá nhân' },
+            { path: 'profile/:id', component: ProfileComponent, title: 'Hồ sơ người dùng' },
 
-      // ✅ Customer area
-      { path: 'customer-schedule', component: CustomerScheduleComponent, title: 'Đặt lịch' },
-      { path: 'customer-maintenance', component: CustomerMaintenanceComponent, title: 'Lịch sử bảo dưỡng' },
-      { path: 'customer-payment-dashboard', component: CustomerPaymentDashboardComponent, title: 'Quản lý gói dịch vụ' },
+            // ✅ Customer area
+            { path: 'customer-schedule', component: CustomerScheduleComponent, title: 'Đặt lịch' },
+            { path: 'customer-maintenance', component: CustomerMaintenanceComponent, title: 'Lịch sử bảo dưỡng' },
+            { path: 'customer-payment-dashboard', component: CustomerPaymentDashboardComponent, title: 'Quản lý gói dịch vụ' },
 
-      // ✅ Service & admin area
-      { path: 'service-dashboard', component: ServiceDashboardComponent, title: 'Service Dashboard' },
-      {
-        path: 'admin/parts-management',
-        loadChildren: () =>
-          import('./pages/parts-management/parts-management.module').then(
-            (m) => m.PartsManagementModule
-          ),
-        title: 'Quản lý phụ tùng & tồn kho',
-      },
-      { path: 'users', component: UserManagementComponent, title: 'Quản lý người dùng' },
+            // ✅ Service & admin area
+            { path: 'service-dashboard', component: ServiceDashboardComponent, title: 'Service Dashboard' },
+            {
+                path: 'admin/parts-management',
+                loadChildren: () =>
+                    import('./pages/parts-management/parts-management.module').then(
+                        (m) => m.PartsManagementModule
+                    ),
+                title: 'Quản lý phụ tùng & tồn kho',
+            },
+            { path: 'users', component: UserManagementComponent, title: 'Quản lý người dùng' },
 
-      // ✅ UI Samples (giữ nguyên của template)
-      { path: 'form-elements', component: FormElementsComponent, title: 'Form Elements' },
-      { path: 'basic-tables', component: BasicTablesComponent, title: 'Basic Tables' },
-      { path: 'blank', component: BlankComponent, title: 'Blank Page' },
-      { path: 'invoice', component: InvoicesComponent, title: 'Invoice' },
-      { path: 'alerts', component: AlertsComponent, title: 'Alerts' },
-      { path: 'avatars', component: AvatarElementComponent, title: 'Avatars' },
-      { path: 'badge', component: BadgesComponent, title: 'Badges' },
-      { path: 'buttons', component: ButtonsComponent, title: 'Buttons' },
-      { path: 'images', component: ImagesComponent, title: 'Images' },
-      { path: 'videos', component: VideosComponent, title: 'Videos' },
-    ],
-  },
+            // ✅ UI Samples (giữ nguyên của template)
+            { path: 'form-elements', component: FormElementsComponent, title: 'Form Elements' },
+            { path: 'basic-tables', component: BasicTablesComponent, title: 'Basic Tables' },
+            { path: 'blank', component: BlankComponent, title: 'Blank Page' },
+            { path: 'invoice', component: InvoicesComponent, title: 'Invoice' },
+            { path: 'alerts', component: AlertsComponent, title: 'Alerts' },
+            { path: 'avatars', component: AvatarElementComponent, title: 'Avatars' },
+            { path: 'badge', component: BadgesComponent, title: 'Badges' },
+            { path: 'buttons', component: ButtonsComponent, title: 'Buttons' },
+            { path: 'images', component: ImagesComponent, title: 'Images' },
+            { path: 'videos', component: VideosComponent, title: 'Videos' },
+        ],
+    },
 
     {
         path: 'paypal/cancel',
@@ -82,15 +82,15 @@ export const routes: Routes = [
     },
 
 
-  // ✅ PayPal callback
-  { path: 'paypal/success', component: PaypalSuccessComponent, title: 'Thanh toán thành công' },
-  { path: 'paypal/cancel', component: PaypalSuccessComponent, title: 'Thanh toán bị hủy' },
+    // ✅ PayPal callback
+    { path: 'paypal/success', component: PaypalSuccessComponent, title: 'Thanh toán thành công' },
+    { path: 'paypal/cancel', component: PaypalSuccessComponent, title: 'Thanh toán bị hủy' },
 
-  // ✅ Auth pages
-  { path: 'signin', component: SignInComponent, title: 'Đăng nhập' },
-  { path: 'signup', component: SignUpComponent, title: 'Đăng ký' },
-  { path: 'index', component: LandingShellComponent, title: 'Trang chủ' },
+    // ✅ Auth pages
+    { path: 'signin', component: SignInComponent, title: 'Đăng nhập' },
+    { path: 'signup', component: SignUpComponent, title: 'Đăng ký' },
+    { path: 'index', component: LandingShellComponent, title: 'Trang chủ' },
 
-  // ✅ Error page
-  { path: '**', component: NotFoundComponent, title: 'Không tìm thấy trang' },
+    // ✅ Error page
+    { path: '**', component: NotFoundComponent, title: 'Không tìm thấy trang' },
 ];

@@ -11,15 +11,15 @@ import {VehicleService} from "../../../services/vehicle.service";
 import {VehicleCreate} from "../../../models/vehicle-create";
 
 @Component({
-  selector: 'app-create-car-dialog',
+    selector: 'app-create-car-dialog',
     imports: [
         ButtonComponent,
         InputFieldComponent,
         LabelComponent,
         SelectComponent
     ],
-  templateUrl: './create-car-dialog.component.html',
-  styleUrl: './create-car-dialog.component.css'
+    templateUrl: './create-car-dialog.component.html',
+    styleUrl: './create-car-dialog.component.css'
 })
 export class CreateCarDialogComponent implements OnInit, AfterViewInit {
     carModels: { value: string, label: string }[] = []

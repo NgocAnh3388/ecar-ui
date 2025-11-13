@@ -6,14 +6,14 @@ import { PartsManagementComponent } from './parts-management/parts-management.co
 import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTabsModule,
-    PartsManagementRoutingModule,
-    PartsManagementComponent
-  ],
+    declarations: [],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatTabsModule,
+        PartsManagementRoutingModule,
+        PartsManagementComponent
+    ],
 })
 export class PartsManagementModule {}

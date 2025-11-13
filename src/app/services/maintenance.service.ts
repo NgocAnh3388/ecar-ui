@@ -47,11 +47,11 @@ export class MaintenanceService {
     }
 
     cancelOrder(id: number) {
-      return this.http.put(`${this.api}/api/maintenance/${id}/cancel`, {});
+        return this.http.put(`${this.api}/api/maintenance/${id}/cancel`, {});
     }
 
     reopenOrder(id: number) {
-      return this.http.put(`${this.api}/api/maintenance/${id}/reopen`, {});
+        return this.http.put(`${this.api}/api/maintenance/${id}/reopen`, {});
     }
 
 }

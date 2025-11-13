@@ -1,17 +1,17 @@
 table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 th, td {
-  padding: 0.75rem;
-  text-align: left;
+    padding: 0.75rem;
+    text-align: left;
 }
 
 th {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 button {
-  transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
