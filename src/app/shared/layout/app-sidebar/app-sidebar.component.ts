@@ -108,7 +108,11 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     this.setActiveMenuFromRoute(this.router.url);
   }
 
-  ngOnDestroy() {
+    onLogout() {
+        this.authService.logout();
+    }
+
+    ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 

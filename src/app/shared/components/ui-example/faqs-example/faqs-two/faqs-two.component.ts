@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+// @ts-ignore
 import { FaqItemTwoComponent } from "../../../faqs/faq-item-two/faq-item-two.component";
 
 @Component({

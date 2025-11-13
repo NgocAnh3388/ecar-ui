@@ -1,10 +1,179 @@
-/* Fonts & Icons qua CDN vẫn OK trong Shadow DOM */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@100..900&display=swap');
-@import url('https://use.fontawesome.com/releases/v5.15.4/css/all.css');
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css');
+/* ===== BACKGROUND ===== */
+.landing-container {
+    position: relative;
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 20%, #00d4ff33, transparent 60%),
+    linear-gradient(135deg, #020c1b, #0a192f, #1b263b);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+}
 
-/* Lib CSS & template CSS — dùng relative path từ component CSS */
-@import url('../../../../assets/landing/lib/animate/animate.min.css');
-@import url('../../../../assets/landing/lib/owlcarousel/assets/owl.carousel.min.css');
-@import url('../../../../assets/landing/css/bootstrap.min.css');
-@import url('../../../../assets/landing/css/style.css');
+/* moving light effect */
+.overlay::before {
+    content: "";
+    position: absolute;
+    width: 250%;
+    height: 250%;
+    top: -75%;
+    left: -75%;
+    background: radial-gradient(circle, rgba(0,212,255,0.1) 2%, transparent 60%);
+    animation: rotate-bg 25s linear infinite;
+    z-index: 0;
+}
+
+/* ===== LOGIN CARD ===== */
+.login-card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    backdrop-filter: blur(18px);
+    border-radius: 24px;
+    padding: 45px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+    transition: all 0.4s ease;
+}
+.login-card:hover {
+    box-shadow: 0 0 60px rgba(0, 212, 255, 0.4);
+}
+
+/* ===== LOGO ===== */
+.logo-section {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.logo-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.logo {
+    width: 100px;
+    filter: drop-shadow(0 0 8px #00d4ff);
+    transition: transform 0.4s ease;
+}
+.logo:hover {
+    transform: scale(1.1);
+}
+
+/* subtle reflection under logo */
+.reflection {
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background: linear-gradient(to bottom, rgba(0, 212, 255, 0.3), transparent);
+    filter: blur(8px);
+    border-radius: 50%;
+}
+
+/* glowing electric pulse around logo */
+.pulse-glow {
+    animation: pulse-glow 2.8s infinite ease-in-out;
+}
+
+/* text with soft glow */
+.glow-text {
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px #00d4ff88, 0 0 20px #00aaff55;
+}
+
+.tagline {
+    font-size: 0.9rem;
+    color: #b0c4de;
+    margin-top: 5px;
+}
+
+/* ===== BUTTONS ===== */
+.neon-btn {
+    background: linear-gradient(90deg, #00d4ff, #00aaff);
+    border: none;
+    color: #0a192f;
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.4s;
+    box-shadow: 0 0 10px #00d4ff66, 0 0 20px #00d4ff33;
+}
+.neon-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00d4ff, 0 0 50px #00aaff;
+}
+
+.neon-outline-btn {
+    background: transparent;
+    border: 2px solid #00d4ff;
+    color: #00d4ff;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.4s;
+}
+.neon-outline-btn:hover {
+    background: #00d4ff;
+    color: #0a192f;
+    box-shadow: 0 0 20px #00d4ff;
+}
+
+/* ===== USER INFO ===== */
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.avatar {
+    border-radius: 50%;
+    border: 3px solid #00d4ff;
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    box-shadow: 0 0 25px #00d4ff66;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: 50px;
+    font-size: 13px;
+    color: #8fa3b0;
+    z-index: 2;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes rotate-bg {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 8px #00d4ff); }
+    50% { filter: drop-shadow(0 0 18px #00d4ff); }
+}
+
+@keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadein {
+    animation: fadein 1.2s ease forwards;
+}
+
+.animate-slidein {
+    animation: fadein 1.5s ease forwards;
+}

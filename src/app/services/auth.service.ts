@@ -14,12 +14,24 @@ export class AuthService {
   }
 
   //Đăng xuất
-  logout() {
-    localStorage.removeItem('user');
-    window.location.href = `${this.api}/logout`;
-  }
+    logout() {
+        this.http.post(`${this.api}/logout`, {}, { withCredentials: true }).subscribe({
+            next: () => {
+                localStorage.removeItem('user');
+                sessionStorage.clear();
+                window.location.href = '/index';  //Chuyển về trang index
+            },
+            error: () => {
+                localStorage.removeItem('user');
+                sessionStorage.clear();
+                window.location.href = '/index';
+            }
+        });
+    }
 
-  //Lấy thông tin user hiện tại
+
+
+    //Lấy thông tin user hiện tại
   getCurrentUser(): Observable<any> {
     return this.http.get(`${this.api}/api/me`, { withCredentials: true }).pipe(
       tap((user: any) => {

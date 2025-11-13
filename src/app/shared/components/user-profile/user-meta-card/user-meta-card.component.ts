@@ -8,16 +8,17 @@ import { User } from '../../../../models/user';
 import { ModalService } from '../../../services/modal.service';
 
 @Component({
-  selector: 'app-user-meta-card',
-  imports: [
-    CommonModule,
-    ModalComponent,
-    InputFieldComponent,
-    ButtonComponent,
-    FormsModule,
-  ],
-  templateUrl: './user-meta-card.component.html',
-  styles: ``
+    selector: 'app-user-meta-card',
+    imports: [
+        CommonModule,
+        ModalComponent,
+        InputFieldComponent,
+        ButtonComponent,
+        FormsModule,
+    ],
+    templateUrl: './user-meta-card.component.html',
+    standalone: true,
+    styles: ``
 })
 export class UserMetaCardComponent {
   @Input() user!: User;

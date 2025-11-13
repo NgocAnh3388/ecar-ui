@@ -24,6 +24,20 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         (blur)="onTouched()"
       />
 
+            @if (hint) {
+                <p class="mt-1.5 text-xs"
+                   [ngClass]="{
+          'text-error-500': error,
+          'text-success-500': success,
+          'text-gray-500': !error && !success
+        }">
+                    {{ hint }}
+                </p>
+            }
+        </div>
+    `,
+    standalone: true
+
       @if (hint) {
         <p class="mt-1.5 text-xs"
            [ngClass]="{
