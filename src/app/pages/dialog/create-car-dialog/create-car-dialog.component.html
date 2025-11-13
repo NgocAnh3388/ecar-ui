@@ -3,10 +3,10 @@
     <div class="flex flex-col gap-4 min-h-[20vh]">
 
         <div>
-            <app-label>Loại xe</app-label>
+            <app-label>Car Model</app-label>
             <app-select
                     [options]="carModels"
-                    placeholder="Chọn loại xe"
+                    placeholder="Select Car Model"
                     [value]="selectedCarModel"
                     (valueChange)="handleSelectChange($event)"
                     class="dark:bg-dark-900"
@@ -14,32 +14,32 @@
         </div>
 
         <div>
-            <app-label>Biển số</app-label>
+            <app-label>Number plate</app-label>
             <app-input-field
                     id="licensePlate"
                     type="text"
                     [value]="licensePlate"
                     [error]="licensePlateError"
                     (input)="licensePlate = $any($event.target).value"
-                    placeholder="Nhập biển số xe của bạn"
+                    placeholder="Enter your license plate number"
             ></app-input-field>
         </div>
 
         <div>
-            <app-label>Số VIN</app-label>
+            <app-label>VIN number</app-label>
             <app-input-field
                     id="vinNumber"
                     type="text"
                     [value]="vinNumber"
                     (input)="vinNumber = $any($event.target).value"
-                    placeholder="Nhập số VIN của bạn"
+                    placeholder="Enter your VIN number"
             ></app-input-field>
         </div>
 
         <!-- Nút ở góc phải dưới -->
         <div class="mt-auto flex justify-end gap-2">
             <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
         </div>
     </div>
 </div>

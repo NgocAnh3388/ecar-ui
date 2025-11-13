@@ -1,0 +1,77 @@
+<div class="p-6 min-w-[320px]">
+    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+
+    <div class="flex flex-col gap-4 min-h-[20vh]">
+        <div>
+            <app-label>Part Number</app-label>
+            <app-input-field
+                    placeholder="Enter part number"
+                    [value]="partNumber"
+                    (input)="partNumber = $any($event.target).value"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Part Name</app-label>
+            <app-input-field
+                    placeholder="Enter part name"
+                    [value]="partName"
+                    (input)="partName = $any($event.target).value"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Category</app-label>
+            <app-input-field
+                    placeholder="Enter category"
+                    [value]="category"
+                    (input)="category = $any($event.target).value"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Unit Price</app-label>
+            <app-input-field
+                    type="number"
+                    [value]="unitPrice"
+                    (input)="unitPrice = $any($event.target).value"
+                    placeholder="Enter price"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Stock Quantity</app-label>
+            <app-input-field
+                    type="number"
+                    [value]="stockQuantity"
+                    (input)="stockQuantity = $any($event.target).value"
+                    placeholder="Enter stock quantity"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Min Stock Level</app-label>
+            <app-input-field
+                    type="number"
+                    [value]="minStockLevel"
+                    (input)="minStockLevel = $any($event.target).value"
+                    placeholder="Enter minimum stock level"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>Car Model</app-label>
+            <app-select
+                    [options]="carModels"
+                    placeholder="Select car model"
+                    [value]="selectedCarModel"
+                    (valueChange)="handleSelectChange($event)"
+            ></app-select>
+        </div>
+
+        <div class="mt-auto flex justify-end gap-2">
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="save()">Save</app-button>
+        </div>
+    </div>
+</div>
