@@ -5,10 +5,10 @@ import {ModalRef} from "../../modal/modal-ref";
 
 
 @Component({
-  selector: 'app-confirm-dialog',
-  imports: [],
-  templateUrl: './confirm-dialog.component.html',
-  styleUrl: './confirm-dialog.component.css'
+    selector: 'app-confirm-dialog',
+    imports: [],
+    templateUrl: './confirm-dialog.component.html',
+    styleUrl: './confirm-dialog.component.css'
 })
 export class ConfirmDialogComponent {
     private data = inject(MODAL_DATA, { optional: true }) as { title?: string; message?: string } | null;

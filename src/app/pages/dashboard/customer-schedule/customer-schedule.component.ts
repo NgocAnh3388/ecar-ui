@@ -10,38 +10,38 @@ import { MaintenanceDialogComponent } from '../../dialog/maintenance-dialog/main
 import { CreateCarDialogComponent } from '../../dialog/create-car-dialog/create-car-dialog.component';
 
 @Component({
-  selector: 'app-customer-schedule',
-  standalone: true,
-  imports: [BadgeComponent, ButtonComponent, DatePipe, DecimalPipe, NgClass],
-  templateUrl: './customer-schedule.component.html',
-  styleUrls: ['./customer-schedule.component.css'],
+    selector: 'app-customer-schedule',
+    standalone: true,
+    imports: [BadgeComponent, ButtonComponent, DatePipe, DecimalPipe, NgClass],
+    templateUrl: './customer-schedule.component.html',
+    styleUrls: ['./customer-schedule.component.css'],
 })
 export class CustomerScheduleComponent implements AfterViewInit {
-  vehicleData: Vehicle[] = [];
+    vehicleData: Vehicle[] = [];
 
-  constructor(
-    private vehicleService: VehicleService,
-    private modal: ModalService
-  ) {}
+    constructor(
+        private vehicleService: VehicleService,
+        private modal: ModalService
+    ) {}
 
-  ngAfterViewInit() {
-    this.getVehicleData();
-  }
+    ngAfterViewInit() {
+        this.getVehicleData();
+    }
 
-  getVehicleData() {
-      this.vehicleService
-          .getVehicles()
-          .pipe(
-            finalize(() => {}),
-            catchError((err) => {
-              console.error(err);
-              return EMPTY;
-            })
-          )
-          .subscribe((res) => {
-            this.vehicleData = res;
-          });
-      //mock test màu
+    getVehicleData() {
+        this.vehicleService
+            .getVehicles()
+            .pipe(
+                finalize(() => {}),
+                catchError((err) => {
+                    console.error(err);
+                    return EMPTY;
+                })
+            )
+            .subscribe((res) => {
+                this.vehicleData = res;
+            });
+        //mock test màu
 //     this.vehicleData = [
 //       new Vehicle({
 //         id: 1,
@@ -74,41 +74,41 @@ export class CustomerScheduleComponent implements AfterViewInit {
 //         oldKm: 12000
 //       })
 //     ];
-  }
+    }
 
 
-  getBadgeColor(_: string): 'success' | 'warning' | 'error' {
-    return 'success';
-  }
+    getBadgeColor(_: string): 'success' | 'warning' | 'error' {
+        return 'success';
+    }
 
-  schedule(id: number) {
-    const ref = this.modal.open(MaintenanceDialogComponent, {
-      data: {
-        title: 'Schedule maintenance',
-        message: '',
-        vehicle: this.vehicleData.find((v) => v.id === id),
-      },
-      panelClass: ['modal-panel', 'p-0'],
-      backdropClass: 'modal-backdrop',
-      disableClose: false,
-    });
+    schedule(id: number) {
+        const ref = this.modal.open(MaintenanceDialogComponent, {
+            data: {
+                title: 'Schedule maintenance',
+                message: '',
+                vehicle: this.vehicleData.find((v) => v.id === id),
+            },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+            disableClose: false,
+        });
 
-    ref.afterClosed$.subscribe((confirmed) => {
-      if (confirmed) this.getVehicleData();
-    });
-  }
+        ref.afterClosed$.subscribe((confirmed) => {
+            if (confirmed) this.getVehicleData();
+        });
+    }
 
 
     getBadgeClass(nextDate: string | Date | null): string {
-      if (!nextDate) return 'bg-gray-100 text-gray-600';
+        if (!nextDate) return 'bg-gray-100 text-gray-600';
 
-      const today = new Date();
-      const target = nextDate instanceof Date ? nextDate : new Date(nextDate);
-      const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 3600 * 24));
+        const today = new Date();
+        const target = nextDate instanceof Date ? nextDate : new Date(nextDate);
+        const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 3600 * 24));
 
-      if (diffDays < 0) return 'bg-red-100 text-red-700';
-      if (diffDays <= 30) return 'bg-yellow-100 text-yellow-700';
-      return 'bg-green-100 text-green-700';
+        if (diffDays < 0) return 'bg-red-100 text-red-700';
+        if (diffDays <= 30) return 'bg-yellow-100 text-yellow-700';
+        return 'bg-green-100 text-green-700';
     }
 
 

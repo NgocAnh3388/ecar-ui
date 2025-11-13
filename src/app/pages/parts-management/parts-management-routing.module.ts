@@ -3,14 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { PartsManagementComponent } from './parts-management/parts-management.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: PartsManagementComponent,
-  },
+    {
+        path: '',
+        component: PartsManagementComponent,
+    },
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class PartsManagementRoutingModule {}
