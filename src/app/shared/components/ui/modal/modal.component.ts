@@ -11,12 +11,13 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-modal',
-  imports: [
-    CommonModule,
-  ],
-  templateUrl: './modal.component.html',
-  styles: ``
+    selector: 'app-modal',
+    imports: [
+        CommonModule,
+    ],
+    templateUrl: './modal.component.html',
+    standalone: true,
+    styles: ``
 })
 export class ModalComponent {
 

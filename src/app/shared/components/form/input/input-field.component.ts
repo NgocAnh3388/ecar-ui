@@ -34,6 +34,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
             }
         </div>
     `,
+    standalone: true
 })
 export class InputFieldComponent {
 

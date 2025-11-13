@@ -3,16 +3,15 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { SafeHtmlPipe } from '../../../pipe/safe-html.pipe';
 
 @Component({
-  selector: 'app-button',
-  imports: [
-    CommonModule,
-    SafeHtmlPipe,
-  ],
-  templateUrl: './button.component.html',
-  styles: ``,
-  host: {
-
-  },
+    selector: 'app-button',
+    imports: [
+        CommonModule,
+        SafeHtmlPipe,
+    ],
+    templateUrl: './button.component.html',
+    styles: ``,
+    host: {},
+    standalone: true
 })
 export class ButtonComponent {
 
