@@ -1,23 +1,32 @@
 export class CarModel {
-    carName: string = '';
-    carType: string = '';
+  id: number = 0;
+  modelName: string = '';
+  carType: string = '';
 
-    constructor(init?: Partial<CarModel>) {
-        Object.assign(this, init);
-    }
+  constructor(init?: Partial<CarModel>) {
+    Object.assign(this, init);
+  }
 
-    static fromJSON(jsonStr: string): CarModel {
-        let obj: unknown;
-        try {
-            obj = JSON.parse(jsonStr);
-        } catch {
-            throw new Error('Invalid JSON');
-        }
-        // ép kiểu an toàn: chỉ nhận các field hợp lệ
-        const { carName, carType } = (obj as any) ?? {};
-        return new CarModel({
-            carName: typeof carName === 'string' ? carName : '',
-            carType: typeof carType === 'string' ? carType : '',
-        });
+  static fromJSON(jsonStr: string): CarModel {
+    let obj: unknown;
+    try {
+      obj = JSON.parse(jsonStr);
+    } catch {
+      throw new Error('Invalid JSON');
     }
+    const { id, modelName, carType } = (obj as any) ?? {};
+    return new CarModel({
+      id: typeof id === 'number' ? id : 0,
+      modelName: typeof modelName === 'string' ? modelName : '',
+      carType: typeof carType === 'string' ? carType : '',
+    });
+  }
+
+  get carName(): string {
+    return this.modelName;
+  }
+
+  set carName(value: string) {
+    this.modelName = value;
+  }
 }
