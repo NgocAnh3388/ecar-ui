@@ -9,6 +9,7 @@ import {ServiceGroup} from "../../../models/service-group";
 import {User} from "../../../models/user";
 import {UserService} from "../../../services/user.service";
 import {ServiceCreateRequest} from "../../../models/service-create-request";
+import { finalize } from 'rxjs'; // Thêm finalize
 
 @Component({
     selector: 'app-service-detail-dialog',
@@ -21,6 +22,7 @@ import {ServiceCreateRequest} from "../../../models/service-create-request";
 })
 export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
 
+    isLoading = false;
     numOfKm: number = 0;
     carModelId: number = 0;
     ticketId: number = 0;
@@ -117,6 +119,12 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
     }
 
     onSubmit() {
+
+        if(this.isLoading){
+            return;
+        }
+        this.isLoading = true;
+
         const request: ServiceCreateRequest = new ServiceCreateRequest(
             this.ticketId,
             this.numOfKm,
@@ -124,6 +132,7 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
             Number(this.selectedTechnician),
             this.checkedServiceIds
         )
+
         this.maintenanceService.createService(request).pipe().subscribe(res => {
             this.modalRef.close(true);
         })
