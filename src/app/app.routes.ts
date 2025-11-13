@@ -51,6 +51,14 @@ export const routes: Routes = [
 
       // ✅ Service & admin area
       { path: 'service-dashboard', component: ServiceDashboardComponent, title: 'Service Dashboard' },
+      {
+        path: 'admin/parts-management',
+        loadChildren: () =>
+          import('./pages/parts-management/parts-management.module').then(
+            (m) => m.PartsManagementModule
+          ),
+        title: 'Quản lý phụ tùng & tồn kho',
+      },
       { path: 'users', component: UserManagementComponent, title: 'Quản lý người dùng' },
 
       // ✅ UI Samples (giữ nguyên của template)

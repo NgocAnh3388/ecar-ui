@@ -36,6 +36,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     { name: 'Maintenance information', icon: '🧾', path: '/customer-maintenance' },
     { name: 'Service package management', icon: '📦', path: '/customer-payment-dashboard' },
     { name: 'Service management', icon: '🧰', path: '/service-dashboard' },
+    { name: 'Parts & Inventory', icon: '🧩', path: '/admin/parts-management' },
     { name: 'Overview', icon: '📊', path: '/' },
     { name: 'User Profile', icon: '👥', path: '/profile' },
   ];
@@ -123,7 +124,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     this.sidebarService.setHovered(false);
   }
 
-  // ✅ Toggle submenu
+  //Toggle submenu
   toggleSubmenu(prefix: string, index: number) {
     const key = `${prefix}-${index}`;
     this.openSubmenu = this.openSubmenu === key ? null : key;
@@ -152,6 +153,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
       'Overview': ['ROLE_ADMIN'],
       'User Profile': ['ROLE_CUSTOMER'],
+      'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
     };
     this.navItems = this.navItems.filter((item) => {
       const allowed = roleAccess[item.name];

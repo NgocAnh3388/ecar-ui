@@ -1,0 +1,204 @@
+<div class="p-6 bg-white rounded-2xl shadow-sm">
+    <h2 class="text-2xl font-semibold mb-6">Parts & Inventory Management</h2>
+
+    <!-- Tabs -->
+    <div class="flex border-b mb-4">
+        <button
+                class="px-4 py-2 text-sm font-medium"
+                [class.border-b-2]="activeTab === 'parts'"
+                [class.border-blue-600]="activeTab === 'parts'"
+                (click)="activeTab = 'parts'"
+        >
+            🧩 Spare Parts
+        </button>
+        <button
+                class="px-4 py-2 text-sm font-medium"
+                [class.border-b-2]="activeTab === 'inventory'"
+                [class.border-blue-600]="activeTab === 'inventory'"
+                (click)="activeTab = 'inventory'"
+        >
+            🏭 Inventory
+        </button>
+        <button
+                class="px-4 py-2 text-sm font-medium"
+                [class.border-b-2]="activeTab === 'used'"
+                [class.border-blue-600]="activeTab === 'used'"
+                (click)="activeTab = 'used'"
+        >
+            🔧 Used Parts
+        </button>
+    </div>
+
+    <!-- Tab: Spare Parts -->
+    <div *ngIf="activeTab === 'parts'">
+        <!-- Search + Add -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-4">
+                <input
+                        type="text"
+                        placeholder="🔍 Search by name or part number..."
+                        class="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring focus:ring-blue-100"
+                        (input)="onSearchChange($event)"
+                />
+
+                <select
+                        class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-blue-100"
+                        (change)="onCarModelChange($event)"
+                >
+                    <option value="">🚘 Car Model</option>
+                    <option *ngFor="let model of carModels" [value]="model.carName">
+                        {{ model.carName }} - {{ model.carType }}
+                    </option>
+                </select>
+            </div>
+
+            <button
+                    (click)="openAddDialog()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow hover:bg-brand-600 focus:ring-2 focus:ring-brand-400 transition"
+            >
+                <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Part
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div *ngIf="loading" class="text-gray-500">Loading...</div>
+        <div *ngIf="errorMessage" class="text-red-500">{{ errorMessage }}</div>
+
+        <table
+                *ngIf="!loading && !errorMessage"
+                class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden mt-4"
+        >
+            <thead class="bg-gray-50 text-left">
+            <tr>
+                <th class="p-3 font-semibold">Part Number</th>
+                <th class="p-3 font-semibold">Part Name</th>
+                <th class="p-3 font-semibold">Category</th>
+                <th class="p-3 font-semibold">Car Model</th>
+                <th class="p-3 font-semibold text-right">Unit Price</th>
+                <th class="p-3 font-semibold text-right">Stock</th>
+                <th class="p-3 font-semibold text-right">Min Level</th>
+                <th class="p-3 font-semibold text-center">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr
+                    *ngFor="let part of filteredParts"
+                    class="border-t hover:bg-gray-50 transition"
+            >
+                <td class="p-3">{{ part.partNumber }}</td>
+                <td class="p-3">{{ part.partName }}</td>
+                <td class="p-3">{{ part.category }}</td>
+                <td class="p-3">{{ part.carModelName || '—' }}</td>
+                <td class="p-3 text-right">{{ part.unitPrice | number : '1.0-0' }} ₫</td>
+
+                <!-- ✅ THÊM 2 CỘT NÀY -->
+                <td class="p-3 text-right">{{ part.stockQuantity ?? 0 }}</td>
+                <td class="p-3 text-right">{{ part.minStockLevel ?? 0 }}</td>
+
+                <td class="p-3 text-center flex justify-center gap-2">
+                    <button
+                            (click)="openEditDialog(part)"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                        Edit
+                    </button>
+                    <button
+                            (click)="confirmDelete(part)"
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                    >
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Inventory -->
+    <div *ngIf="activeTab === 'inventory'" class="p-4">
+        <div class="flex items-center gap-4 mb-4">
+            <select
+                    class="border border-gray-300 rounded-lg px-3 py-2"
+                    [(ngModel)]="selectedCenterId"
+                    (change)="onCenterChange()"
+            >
+                <option value="">🏢 Chọn Trung tâm</option>
+                <option *ngFor="let c of centers" [value]="c.id">
+                    {{ c.centerName }}
+                </option>
+            </select>
+
+            <select
+                    class="border border-gray-300 rounded-lg px-3 py-2"
+                    [(ngModel)]="filterStatus"
+                    (change)="applyInventoryFilter()"
+            >
+                <option value="">Tất cả</option>
+                <option value="low">Sắp hết hàng</option>
+                <option value="out">Hết hàng</option>
+            </select>
+        </div>
+
+        <table
+                *ngIf="filteredInventory.length"
+                class="min-w-full border border-gray-200 rounded-lg text-sm"
+        >
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="p-3">Part Name</th>
+                <th class="p-3 text-right">Stock</th>
+                <th class="p-3 text-right">Min Level</th>
+                <th class="p-3 text-center">Status</th>
+                <th class="p-3 text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of filteredInventory" class="border-t">
+                <td class="p-3">{{ item.partName }}</td>
+                <td class="p-3 text-right">{{ item.stockQuantity }}</td>
+                <td class="p-3 text-right">{{ item.minStockLevel }}</td>
+                <td
+                        class="p-3 text-center font-medium"
+                        [ngClass]="{
+            'text-red-600': item.stockQuantity === 0,
+            'text-yellow-500': item.stockQuantity <= item.minStockLevel && item.stockQuantity > 0,
+            'text-green-600': item.stockQuantity > item.minStockLevel
+          }"
+                >
+                    {{
+                    item.stockQuantity === 0
+                    ? 'Hết hàng'
+                    : item.stockQuantity <= item.minStockLevel
+                    ? 'Sắp hết hàng'
+                    : 'Đủ hàng'
+                    }}
+                </td>
+                <td class="p-3 text-center space-x-2">
+                    <button
+                            class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            (click)="openRestockDialog(item)"
+                    >
+                        Restock
+                    </button>
+                    <button
+                            class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            (click)="openAdjustDialog(item)"
+                    >
+                        Adjust
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
