@@ -17,7 +17,7 @@
         </div>
 
         <div>
-            <app-label>Tên</app-label>
+            <app-label>Name</app-label>
             <app-input-field
                     id="fullName"
                     type="text"
@@ -30,7 +30,7 @@
         </div>
 
         <div>
-            <app-label>Số Điện Thoại</app-label>
+            <app-label>Phone Number</app-label>
             <app-input-field
                     id="phoneNo"
                     type="tel"
@@ -43,7 +43,7 @@
         </div>
 
         <div>
-            <app-label>Vai trò</app-label>
+            <app-label>Role</app-label>
             <app-select
                     [options]="options"
                     placeholder="Chọn vai trò"
@@ -55,7 +55,7 @@
 
         <div class="mt-auto flex justify-end gap-2">
             <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Huỷ</app-button>
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
         </div>
 
     </div>
