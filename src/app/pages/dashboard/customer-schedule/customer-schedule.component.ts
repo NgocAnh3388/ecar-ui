@@ -87,6 +87,12 @@ export class CustomerScheduleComponent implements AfterViewInit {
                 title: 'Schedule maintenance',
                 message: '',
                 vehicle: this.vehicleData.find((v) => v.id === id),
+                //  Thêm user info ở đây
+                user: {
+                    fullName: 'Nguyen Van A',  // hoặc lấy từ userService
+                    email: 'nguyenvana@email.com',
+                    phoneNo: '0123456789'
+                }
             },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
@@ -97,6 +103,7 @@ export class CustomerScheduleComponent implements AfterViewInit {
             if (confirmed) this.getVehicleData();
         });
     }
+
 
 
     getBadgeClass(nextDate: string | Date | null): string {

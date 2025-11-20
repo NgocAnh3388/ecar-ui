@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <!-- 🔹 Loading -->
+            <!-- Loading -->
             <div *ngIf="isLoading" class="flex justify-center items-center py-6">
                 <svg
                         class="animate-spin h-6 w-6 text-gray-600 dark:text-gray-400 mr-2"
@@ -70,7 +70,7 @@
                 >
             </div>
 
-            <!-- 🔹 Empty State -->
+            <!-- Empty State -->
             <div
                     *ngIf="!isLoading && maintenanceHistory.length === 0"
                     class="flex flex-col items-center justify-center py-16 text-center"

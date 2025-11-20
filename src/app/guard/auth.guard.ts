@@ -1,75 +1,39 @@
 import {
-    CanActivate,
+    CanActivateFn,
     Router,
     UrlTree,
     ActivatedRouteSnapshot,
     RouterStateSnapshot,
 } from '@angular/router';
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { UserService } from '../services/user.service';
-import { TokenStorageService } from '../services/token-storage.service';
+import { catchError, map } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
 
-@Injectable({
-    providedIn: 'root',
-})
-export class AuthGuard implements CanActivate {
-    constructor(
-        private router: Router,
-        private userService: UserService,
-        private tokenStorageService: TokenStorageService
-    ) {}
+export const AuthGuard: CanActivateFn = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+): Observable<boolean | UrlTree> | boolean | UrlTree => {
 
-    canActivate(
-        route: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot
-    ): Observable<boolean | UrlTree> {
-        const currentUrl = state.url;
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    const currentUrl = state.url;
 
-        if (
-            currentUrl.includes('paypal/success') ||
-            currentUrl.includes('paypal/cancel')
-        ) {
-            return of(true);
-        }
-
-        return this.userService.me().pipe(
-            tap((resp) => this.tokenStorageService.saveUser(resp)),
-            map((user) => {
-                if (!user || !user.roles) {
-                    return this.router.createUrlTree(['/index']);
-                }
-
-                const roles: string[] = user.roles;
-
-                if (roles.includes('ROLE_CUSTOMER')) {
-                    if (currentUrl === '/' || currentUrl === '/profile') {
-                        this.router.navigate(['/profile/me']);
-                        return false;
-                    }
-                    return true;
-                }
-
-                if (roles.includes('ROLE_ADMIN')) {
-                    if (currentUrl === '/' || currentUrl === '/profile') {
-                        this.router.navigate(['/users']);
-                        return false;
-                    }
-                    return true;
-                }
-
-                if (roles.includes('ROLE_STAFF') || roles.includes('ROLE_TECHNICIAN')) {
-                    if (currentUrl === '/' || currentUrl === '/profile') {
-                        this.router.navigate(['/service-dashboard']);
-                        return false;
-                    }
-                    return true;
-                }
-
-                return true;
-            }),
-            catchError(() => of(this.router.createUrlTree(['/index'])))
-        );
+    // 1. Kiểm tra user cache
+    const user = authService.getUser();
+    if (user && user.roles) {
+        return true; // Đã login → cho phép vào bất kỳ route nào
     }
-}
+
+    // 2. Nếu chưa có cache, gọi API để lấy user
+    return authService.getCurrentUser().pipe(
+        map((userFromApi) => {
+            if (!userFromApi || !userFromApi.roles) {
+                // Chưa login → redirect về /index
+                return router.createUrlTree(['/index']);
+            }
+            return true; // Đã login → cho phép vào bất kỳ route nào
+        }),
+        catchError(() => of(router.createUrlTree(['/index']))) // Nếu API lỗi → redirect về /index
+    );
+};
