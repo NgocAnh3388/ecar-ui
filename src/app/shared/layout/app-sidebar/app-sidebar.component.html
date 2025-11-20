@@ -17,18 +17,31 @@
 >
     <!-- Logo Section -->
     <div
-            class="py-8 flex"
+            class="py-8 flex items-center"
             [ngClass]="{
       'xl:justify-center': !((isExpanded$ | async) || (isHovered$ | async)),
       'justify-start': (isExpanded$ | async) || (isHovered$ | async)
     }"
     >
-        <a routerLink="/" class="sidebar-logo">
-            @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
-            <span>Ecar Service</span>
-            } @else {
-            <img src="/images/favicon1.ico" alt="Logo" width="32" height="32" />
-            }
+        <a routerLink="/" class="sidebar-logo flex items-center gap-3">
+            <!-- Logo luôn hiển thị -->
+            <img
+                    src="assets/landing/img/logo.png"
+                    alt="Ecar Service Logo"
+                    width="40"
+                    height="40"
+                    class="flex-shrink-0 object-contain"
+            />
+            <!-- Text chỉ hiện khi expanded -->
+            <span
+                    class="whitespace-nowrap transition-all duration-300 overflow-hidden"
+                    [ngClass]="{
+                    'w-0 opacity-0': !((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)),
+                    'w-auto opacity-100': (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)
+                }"
+            >
+                Ecar Service
+            </span>
         </a>
     </div>
 
