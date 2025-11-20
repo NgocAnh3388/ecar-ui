@@ -40,7 +40,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         { name: 'Service package management', icon: '📦', path: '/customer-payment-dashboard' },
         { name: 'Service management', icon: '🧰', path: '/service-dashboard' },
         { name: 'Parts & Inventory', icon: '🧩', path: '/admin/parts-management' },
-        { name: 'Overview', icon: '📊', path: '/' },
+        { name: 'Overview', icon: '📊', path: '/overview' },
         { name: 'User Profile', icon: '👥', path: '/profile' },
 =======
         {

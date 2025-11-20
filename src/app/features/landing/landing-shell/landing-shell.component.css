@@ -1,10 +1,104 @@
-/* Fonts & Icons qua CDN vẫn OK trong Shadow DOM */
+/* Fonts & Icons (Cần thiết cho Bootstrap và Navbar) */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@100..900&display=swap');
-@import url('https://use.fontawesome.com/releases/v5.15.4/css/all.css');
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css');
 
-/* Lib CSS & template CSS — dùng relative path từ component CSS */
-@import url('../../../../assets/landing/lib/animate/animate.min.css');
-@import url('../../../../assets/landing/lib/owlcarousel/assets/owl.carousel.min.css');
+
+/* Bootstrap (Cần thiết cho Navbar và layout) */
 @import url('../../../../assets/landing/css/bootstrap.min.css');
-@import url('../../../../assets/landing/css/style.css');
+
+/* Xóa CSS cũ của "Cental" - KHÔNG import style.css, owl.carousel.min.css, animate.min.css nữa */
+
+/* === CSS MỚI CHO HERO SECTION === */
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.hero-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Chiều cao 100% viewport trừ đi chiều cao của topbar và navbar */
+    min-height: calc(100vh - 130px);
+    width: 100%;
+
+    /* === THAY ẢNH NỀN CỦA BẠN VÀO ĐÂY === */
+    background-image: url('../../../../assets/landing/img/car.png');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    padding: 2rem;
+}
+
+/* Lớp phủ màu tối để làm nổi bật chữ */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px; /* Giới hạn chiều rộng của nội dung */
+}
+
+/* Các hiệu ứng (Nếu bạn muốn giữ lại) */
+.animated {
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale3d(0.3, 0.3, 0.3);
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.zoomIn {
+    animation-name: zoomIn;
+}
+
+/* Giữ lại Spinner CSS (từ code cũ) */
+#spinner {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .5s ease-out, visibility 0s linear .5s;
+    z-index: 99999;
+}
+
+#spinner.show {
+    transition: opacity .5s ease-out, visibility 0s linear 0s;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Giữ lại Topbar và Navbar CSS (từ code cũ) */
+.topbar {
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.nav-bar {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid rgba(0, 0, 0, .08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Giữ lại Footer CSS (từ code cũ) */
+.copyright {
+    background: #111111;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
