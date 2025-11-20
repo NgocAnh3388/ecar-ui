@@ -33,16 +33,6 @@ type NavItem = {
 export class AppSidebarComponent implements OnInit, OnDestroy {
 
     navItems: NavItem[] = [
-<<<<<<< Updated upstream
-        { name: 'User management', icon: '👤', path: '/users' },
-        { name: 'Booking', icon: '🚗', path: '/customer-schedule' },
-        { name: 'Maintenance information', icon: '🧾', path: '/customer-maintenance' },
-        { name: 'Service package management', icon: '📦', path: '/customer-payment-dashboard' },
-        { name: 'Service management', icon: '🧰', path: '/service-dashboard' },
-        { name: 'Parts & Inventory', icon: '🧩', path: '/admin/parts-management' },
-        { name: 'Overview', icon: '📊', path: '/overview' },
-        { name: 'User Profile', icon: '👥', path: '/profile' },
-=======
         {
             name: 'User management',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
@@ -83,7 +73,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
             path: '/profile'
         },
->>>>>>> Stashed changes
     ];
 
     othersItems: NavItem[] = [];
