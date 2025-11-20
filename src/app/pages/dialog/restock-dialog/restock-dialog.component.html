@@ -1,0 +1,40 @@
+<div class="w-full max-w-md">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+            </svg>
+            Restock Inventory
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Add quantity to existing stock</p>
+    </div>
+
+    <div class="p-6">
+        <div>
+            <app-label>
+                Quantity to Add
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
+            <app-input-field
+                    type="number"
+                    [(ngModel)]="quantity"
+                    placeholder="Enter quantity to add"
+            ></app-input-field>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                This amount will be added to the current stock
+            </p>
+        </div>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+        <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+        <app-button size="sm" (btnClick)="save()" class="bg-emerald-600 hover:bg-emerald-700">
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Confirm Restock
+            </span>
+        </app-button>
+    </div>
+</div>

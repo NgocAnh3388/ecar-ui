@@ -1,62 +1,85 @@
-<div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
-    <div class="flex flex-col gap-4 min-h-[20vh]">
+<!-- ========== USER DIALOG ========== -->
+<div class="w-full max-w-md">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ title() }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage user information</p>
+    </div>
 
+    <div class="p-6 space-y-4">
         <div>
-            <app-label>Email</app-label>
+            <app-label>
+                Email
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-input-field
                     id="email"
                     type="email"
                     [value]="email"
                     [error]="error"
                     (valueChange)="handleEmailChange($event)"
-                    placeholder="Nhập email của bạn"
-                    [hint]="error ? 'Email không hợp lệ' : ''"
+                    placeholder="Enter email address"
+                    [hint]="error ? 'Invalid email format' : ''"
                     [readonly]="isEdit"
             ></app-input-field>
         </div>
 
         <div>
+            <app-label>
+                Full Name
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
+
             <app-label>Name</app-label>
+
             <app-input-field
                     id="fullName"
                     type="text"
                     [value]="fullName"
                     [error]="fullNameError"
                     (valueChange)="handleFullNameChange($event)"
-                    placeholder="Nhập tên của bạn"
-                    [hint]="fullNameError ? 'Tên không thể trống' : ''"
+                    placeholder="Enter full name"
+                    [hint]="fullNameError ? 'Name cannot be empty' : ''"
             ></app-input-field>
         </div>
 
         <div>
+            <app-label>
+                Phone Number
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
+
             <app-label>Phone Number</app-label>
+
             <app-input-field
                     id="phoneNo"
                     type="tel"
                     [value]="phoneNo"
                     [error]="phoneError"
                     (valueChange)="handlePhoneChange($event)"
-                    placeholder="Nhập số điện thoại của bạn"
-                    [hint]="phoneError ? 'Số điện thoại không đúng' : ''"
+                    placeholder="Enter phone number"
+                    [hint]="phoneError ? 'Invalid phone number' : ''"
             ></app-input-field>
         </div>
 
         <div>
+            <app-label>
+                Role
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-label>Role</app-label>
             <app-select
                     [options]="options"
-                    placeholder="Chọn vai trò"
+                    placeholder="Select user role"
                     [value]="selectedValue"
                     (valueChange)="handleSelectChange($event)"
-                    class="dark:bg-dark-900"
             ></app-select>
         </div>
+    </div>
 
-        <div class="mt-auto flex justify-end gap-2">
-            <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
-        </div>
-
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+        <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+        <app-button size="sm" (btnClick)="ok()" class="bg-emerald-600 hover:bg-emerald-700">
+            Save User
+        </app-button>
     </div>
 </div>

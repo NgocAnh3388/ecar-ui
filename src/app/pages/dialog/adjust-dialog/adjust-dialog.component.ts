@@ -11,36 +11,7 @@ import { InventoryService } from '../../../services/inventory.service';
     selector: 'app-adjust-dialog',
     standalone: true,
     imports: [ButtonComponent, InputFieldComponent, LabelComponent, FormsModule],
-    template: `
-        <div class="p-6 min-w-[320px]">
-            <h2 class="text-lg font-semibold mb-4">⚙️ Adjust Inventory</h2>
-
-            <div class="flex flex-col gap-3">
-                <div>
-                    <app-label>Số lượng tồn (stockQuantity)</app-label>
-                    <app-input-field
-                            type="number"
-                            [(ngModel)]="stockQuantity"
-                            placeholder="Nhập số lượng tồn"
-                    ></app-input-field>
-                </div>
-
-                <div>
-                    <app-label>Mức tồn tối thiểu (minStockLevel)</app-label>
-                    <app-input-field
-                            type="number"
-                            [(ngModel)]="minStockLevel"
-                            placeholder="Nhập mức tối thiểu"
-                    ></app-input-field>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-2">
-                <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
-                <app-button size="sm" (btnClick)="save()">Save</app-button>
-            </div>
-        </div>
-    `,
+    templateUrl: './adjust-dialog.component.html',
 })
 export class AdjustDialogComponent {
     stockQuantity = 0;
