@@ -19,58 +19,21 @@ export const AuthGuard: CanActivateFn = (
     const router = inject(Router);
     const currentUrl = state.url;
 
-    // 1. Kiểm tra user trong localStorage (nhanh)
+    // 1. Kiểm tra user cache
     const user = authService.getUser();
-
     if (user && user.roles) {
-        // Nếu có user, kiểm tra điều hướng
-        return checkRoleAndRedirect(user.roles, currentUrl, router);
+        return true; // Đã login → cho phép vào bất kỳ route nào
     }
 
-    // 2. Nếu không có user, gọi API /api/me
+    // 2. Nếu chưa có cache, gọi API để lấy user
     return authService.getCurrentUser().pipe(
         map((userFromApi) => {
             if (!userFromApi || !userFromApi.roles) {
-                return router.createUrlTree(['/index']); // Không có user, ở lại index
+                // Chưa login → redirect về /index
+                return router.createUrlTree(['/index']);
             }
-            return checkRoleAndRedirect(userFromApi.roles, currentUrl, router);
+            return true; // Đã login → cho phép vào bất kỳ route nào
         }),
-        catchError(() => {
-            // Lỗi (chưa đăng nhập), ở lại index
-            // Quan trọng: Trả về TRUE vì trang index cho phép người lạ
-            if (currentUrl === '/index' || currentUrl === '/about' || currentUrl === '/service') {
-                return of(true);
-            }
-            return of(router.createUrlTree(['/index']));
-        })
+        catchError(() => of(router.createUrlTree(['/index']))) // Nếu API lỗi → redirect về /index
     );
 };
-
-/**
- * Hàm helper để xử lý logic điều hướng
- */
-function checkRoleAndRedirect(roles: string[], currentUrl: string, router: Router): boolean | UrlTree {
-
-    // Landing page gồm '/' và '/index'
-    const isAtLandingPage = currentUrl === '/index' || currentUrl === '/';
-
-    if (roles.includes('ROLE_ADMIN')) {
-        return true;
-    }
-
-    if (roles.includes('ROLE_STAFF') || roles.includes('ROLE_TECHNICIAN')) {
-        if (isAtLandingPage) {
-            return router.createUrlTree(['/service-dashboard']);
-        }
-        return true;
-    }
-
-    if (roles.includes('ROLE_CUSTOMER')) {
-        if (isAtLandingPage) {
-            return router.createUrlTree(['/profile/me']);
-        }
-        return true;
-    }
-
-    return router.createUrlTree(['/index']);
-}

@@ -39,6 +39,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         { name: 'Parts & Inventory', icon: '🧩', path: '/admin/parts-management' },
         { name: 'Overview', icon: '📊', path: '/overview' },
         { name: 'User Profile', icon: '👥', path: '/profile' },
+        { name: 'Profit Report', icon: '📈', path: '/admin/profit-report' },
+
     ];
 
     othersItems: NavItem[] = [];
@@ -150,7 +152,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             'Overview': ['ROLE_ADMIN'],
             'User Profile': ['ROLE_CUSTOMER'],
             'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
-        };
+            'Profit Report': ['ROLE_ADMIN'],        };
         this.navItems = this.navItems.filter((item) => {
             const allowed = roleAccess[item.name];
             return !allowed || allowed.some((r) => this.userRoles.includes(r));

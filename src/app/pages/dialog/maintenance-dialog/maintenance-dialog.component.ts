@@ -59,12 +59,11 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
 
     @Input() timeId!: string;
     @Input() timeLabel: string = 'Time Select Input';
-    @Input() timePlaceholder: string = 'Select time'; // ✅ fixed typo
+    @Input() timePlaceholder: string = 'Select time';
     @Input() defaultTime?: string | Date;
     @Output() timeChange = new EventEmitter<string>();
     @ViewChild('timeInput', { static: false }) timeInput!: ElementRef<HTMLInputElement>;
 
-    // ✅ Manage two flatpickr instances separately
     private datePickerInstance: flatpickr.Instance | undefined;
     private timePickerInstance: flatpickr.Instance | undefined;
 
@@ -89,7 +88,13 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
     timeStr: string = '';
 
     centers: { value: string, label: string }[] = [];
-    private data = inject(MODAL_DATA, { optional: true }) as { title?: string; message?: string; vehicle: Vehicle } | null;
+
+    private data = inject(MODAL_DATA, { optional: true }) as {
+        title?: string;
+        message?: string;
+        vehicle: Vehicle;
+        user?: { fullName: string; email: string; phoneNo?: string };
+    } | null;
     private modalRef = inject<ModalRef<boolean>>(ModalRef);
 
     constructor(
@@ -100,8 +105,8 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
 
     ngOnInit(): void {
         this.getCenters();
-        this.getUserInfo();
         this.initVehicleData();
+        this.initUserData();
     }
 
     getCenters() {
@@ -138,8 +143,17 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
+    initUserData() {
+        if (this.data?.user) {
+            this.fullName = this.data.user.fullName;
+            this.email = this.data.user.email;
+            this.phoneNo = this.data.user.phoneNo ?? '';
+        } else {
+            this.getUserInfo();
+        }
+    }
+
     ngAfterViewInit() {
-        // ✅ Initialize flatpickr for date selection
         if (this.dateInput) {
             this.datePickerInstance = flatpickr(this.dateInput.nativeElement, {
                 mode: this.mode,
@@ -147,7 +161,7 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
                 monthSelectorType: 'static',
                 dateFormat: 'd-m-Y',
                 defaultDate: this.defaultDate,
-                minDate: 'today', // prevent past dates
+                minDate: 'today',
                 onChange: (selectedDates, dateStr, instance) => {
                     this.dateChange.emit({ selectedDates, dateStr, instance });
                     this.dateStr = dateStr;
@@ -155,12 +169,11 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
             });
         }
 
-        // ✅ Initialize flatpickr for time selection
         if (this.timeInput) {
             this.timePickerInstance = flatpickr(this.timeInput.nativeElement, {
                 enableTime: true,
                 noCalendar: true,
-                dateFormat: 'H:i', // format HH:mm
+                dateFormat: 'H:i',
                 time_24hr: true,
                 minuteIncrement: 1,
                 defaultDate: this.defaultTime,
@@ -176,14 +189,9 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
         }
     }
 
-    // ✅ Destroy both flatpickr instances on component destroy
     ngOnDestroy() {
-        if (this.datePickerInstance) {
-            this.datePickerInstance.destroy();
-        }
-        if (this.timePickerInstance) {
-            this.timePickerInstance.destroy();
-        }
+        if (this.datePickerInstance) this.datePickerInstance.destroy();
+        if (this.timePickerInstance) this.timePickerInstance.destroy();
     }
 
     title = signal(this.data?.title ?? 'Confirmation');
@@ -212,11 +220,9 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
 
     handleCenterChange(value: string) {
         this.selectedCenter = value;
-        console.log(this.selectedCenter);
     }
 
     ok() {
-        // ✅ Combine date and time into a single Date object
         const selectedDate = this.dateInput.nativeElement.value;
         const selectedTime = this.timeInput.nativeElement.value;
 
@@ -245,8 +251,6 @@ export class MaintenanceDialogComponent implements OnInit, AfterViewInit, OnDest
             this.isRepair,
             this.remark
         );
-
-        console.log('Sending booking request:', request);
 
         this.maintenanceService.createSchedule(request).pipe(
             finalize(() => {}),

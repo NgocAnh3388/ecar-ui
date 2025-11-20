@@ -40,6 +40,7 @@ import { PaymentCancelComponent } from './pages/payment-cancel/payment-cancel.co
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 import { AuthGuard } from './guard/auth.guard';
 
+import { ProfitReportComponent } from './pages/admin/profit-report/profit-report.component';
 
 //ROUTES CONFIG
 export const routes: Routes = [
@@ -91,6 +92,12 @@ export const routes: Routes = [
             { path: 'buttons', component: ButtonsComponent, title: 'Buttons' },
             { path: 'images', component: ImagesComponent, title: 'Images' },
             { path: 'videos', component: VideosComponent, title: 'Videos' },
+            {
+                path: 'admin/profit-report',
+                component: ProfitReportComponent,
+                title: 'Ecar - Profit Report'
+            }
+
         ],
     },
 
@@ -100,5 +107,7 @@ export const routes: Routes = [
 
     //Not found
     { path: '**', component: NotFoundComponent, title: 'Page Not Found' },
+
+
 
 ];
