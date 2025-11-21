@@ -4,6 +4,8 @@ import {Observable} from "rxjs";
 import {MaintenanceHistorySearch} from "../models/maintenance-history-search";
 import {ScheduleRequest} from "../models/schedule-request";
 import {ServiceCreateRequest} from "../models/service-create-request";
+import { MaintenanceTicket } from "../models/maintenance-ticket";
+
 
 @Injectable({providedIn: 'root'})
 export class MaintenanceService {
@@ -52,6 +54,12 @@ export class MaintenanceService {
 
     reopenOrder(id: number) {
         return this.http.put(`${this.api}/api/maintenance/${id}/reopen`, {});
+    }
+
+    getMyTasks(): Observable<MaintenanceTicket[]> {
+        return this.http.get<MaintenanceTicket[]>(
+            `${this.api}/api/maintenance/technician/my-tasks`  // ← Sửa từ apiUrl thành api
+        );
     }
 
 }
