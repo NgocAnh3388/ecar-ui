@@ -6,6 +6,7 @@ import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.compo
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
 import {DatePipe, CommonModule} from "@angular/common";
 import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog.component";
+import { AuthService } from '../../../services/auth.service';
 
 type OptionKey =
     | 'STATUS_SUBMITTED'
@@ -47,7 +48,8 @@ export class ServiceDashboardComponent implements OnInit {
     constructor(
         private maintenanceService: MaintenanceService,
         private modal: ModalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private authService: AuthService  // ← Inject AuthService
     ) {}
 
     ngOnInit(): void {
@@ -55,10 +57,15 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     initTicket(): void {
-        this.maintenanceService.getAll().subscribe({
+        // Sử dụng hasRole() thay vì so sánh trực tiếp
+        const apiCall = this.authService.hasRole('ROLE_TECHNICIAN')
+            ? this.maintenanceService.getMyTasks()
+            : this.maintenanceService.getAll();
+
+        apiCall.subscribe({
             next: (rs) => {
-                this.allTickets = [...rs]; // Lưu dữ liệu gốc
-                this.tickets = [...rs];    // Hiển thị dữ liệu
+                this.allTickets = [...rs];
+                this.tickets = [...rs];
                 this.cdr.detectChanges();
             },
             error: (err) => console.error('Error loading tickets:', err)
