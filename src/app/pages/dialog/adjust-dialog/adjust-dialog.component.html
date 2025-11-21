@@ -1,0 +1,64 @@
+<div class="w-full max-w-md">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+            </svg>
+            Adjust Inventory
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Update stock quantity and minimum level</p>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-4">
+        <div>
+            <app-label>
+                Stock Quantity
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
+            <app-input-field
+                    type="number"
+                    [(ngModel)]="stockQuantity"
+                    placeholder="Enter current stock"
+            ></app-input-field>
+        </div>
+
+        <div>
+            <app-label>
+                Minimum Stock Level
+                <span class="text-red-500 ml-1">*</span>
+            </app-label>
+            <app-input-field
+                    type="number"
+                    [(ngModel)]="minStockLevel"
+                    placeholder="Enter minimum threshold"
+            ></app-input-field>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex gap-2">
+                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-xs text-blue-700 dark:text-blue-300">
+                    Changes will affect inventory tracking and low stock alerts
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+        <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+        <app-button size="sm" (btnClick)="save()" class="bg-emerald-600 hover:bg-emerald-700">
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Save Changes
+            </span>
+        </app-button>
+    </div>
+</div>

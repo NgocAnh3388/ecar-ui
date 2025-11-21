@@ -2,11 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MODAL_DATA} from "../../modal/modal.token";
 import {ModalRef} from "../../modal/modal-ref";
+import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
+
 
 
 @Component({
     selector: 'app-confirm-dialog',
-    imports: [],
+    imports: [CommonModule, ButtonComponent],
     templateUrl: './confirm-dialog.component.html',
     styleUrl: './confirm-dialog.component.css'
 })

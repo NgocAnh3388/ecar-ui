@@ -1,77 +1,119 @@
-<div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+<div class="w-full max-w-2xl">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ title() }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Fill in the part details below</p>
+    </div>
 
-    <div class="flex flex-col gap-4 min-h-[20vh]">
-        <div>
-            <app-label>Part Number</app-label>
-            <app-input-field
-                    placeholder="Enter part number"
-                    [value]="partNumber"
-                    (input)="partNumber = $any($event.target).value"
-            ></app-input-field>
+    <!-- Form Content -->
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Part Number -->
+            <div>
+                <app-label>
+                    Part Number
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-input-field
+                        placeholder="e.g., VF3-BRK-01"
+                        [value]="partNumber"
+                        (input)="partNumber = $any($event.target).value"
+                ></app-input-field>
+            </div>
+
+            <!-- Part Name -->
+            <div>
+                <app-label>
+                    Part Name
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-input-field
+                        placeholder="e.g., Front Brake Pads"
+                        [value]="partName"
+                        (input)="partName = $any($event.target).value"
+                ></app-input-field>
+            </div>
+
+            <!-- Category -->
+            <div>
+                <app-label>
+                    Category
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-input-field
+                        placeholder="e.g., Brake, Engine, Tire"
+                        [value]="category"
+                        (input)="category = $any($event.target).value"
+                ></app-input-field>
+            </div>
+
+            <!-- Unit Price -->
+            <div>
+                <app-label>
+                    Unit Price (₫)
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-input-field
+                        type="number"
+                        [value]="unitPrice"
+                        (input)="unitPrice = $any($event.target).value"
+                        placeholder="e.g., 750000"
+                ></app-input-field>
+            </div>
+
+            <!-- Car Model (Full Width) -->
+            <div class="md:col-span-2">
+                <app-label>
+                    Car Model
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-select
+                        [options]="carModels"
+                        placeholder="Select compatible car model"
+                        [value]="selectedCarModel"
+                        (valueChange)="handleSelectChange($event)"
+                ></app-select>
+            </div>
         </div>
 
-        <div>
-            <app-label>Part Name</app-label>
-            <app-input-field
-                    placeholder="Enter part name"
-                    [value]="partName"
-                    (input)="partName = $any($event.target).value"
-            ></app-input-field>
+        <!-- Info Banner -->
+        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex gap-3">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="flex-1">
+                    <h4 class="text-sm font-medium text-blue-900 dark:text-blue-100">Stock Management</h4>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                        Stock quantity and minimum levels are managed separately in the Inventory tab for each service center.
+                    </p>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div>
-            <app-label>Category</app-label>
-            <app-input-field
-                    placeholder="Enter category"
-                    [value]="category"
-                    (input)="category = $any($event.target).value"
-            ></app-input-field>
+    <!-- Footer Actions -->
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3">
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+            <span class="text-red-500">*</span> Required fields
         </div>
-
-        <div>
-            <app-label>Unit Price</app-label>
-            <app-input-field
-                    type="number"
-                    [value]="unitPrice"
-                    (input)="unitPrice = $any($event.target).value"
-                    placeholder="Enter price"
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Stock Quantity</app-label>
-            <app-input-field
-                    type="number"
-                    [value]="stockQuantity"
-                    (input)="stockQuantity = $any($event.target).value"
-                    placeholder="Enter stock quantity"
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Min Stock Level</app-label>
-            <app-input-field
-                    type="number"
-                    [value]="minStockLevel"
-                    (input)="minStockLevel = $any($event.target).value"
-                    placeholder="Enter minimum stock level"
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Car Model</app-label>
-            <app-select
-                    [options]="carModels"
-                    placeholder="Select car model"
-                    [value]="selectedCarModel"
-                    (valueChange)="handleSelectChange($event)"
-            ></app-select>
-        </div>
-
-        <div class="mt-auto flex justify-end gap-2">
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="save()">Save</app-button>
+        <div class="flex gap-2">
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">
+                Cancel
+            </app-button>
+            <app-button
+                    size="sm"
+                    variant="primary"
+                    (btnClick)="save()"
+                    class="bg-emerald-600 hover:bg-emerald-700"
+            >
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Save Part
+                </span>
+            </app-button>
         </div>
     </div>
 </div>
