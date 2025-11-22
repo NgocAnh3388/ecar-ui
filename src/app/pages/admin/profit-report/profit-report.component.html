@@ -1,114 +1,99 @@
-<div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+<div class="space-y-6">
 
-    <!-- Header & Filter Section -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div>
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Profit & Revenue Report
-            </h3>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Calculate revenue based on subscription packages and expenses.
-            </p>
-        </div>
+    <!-- Header Section -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <!-- Title -->
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    Profit & Revenue Report
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Calculate revenue based on subscription packages and expenses.
+                </p>
+            </div>
 
-        <!-- Date Filter -->
-        <div class="flex flex-col sm:flex-row gap-3">
-            <div class="flex flex-col">
-                <label class="text-xs text-gray-500 mb-1">Start Date</label>
-                <input
-                        type="date"
-                        [(ngModel)]="startDate"
-                        (ngModelChange)="startDate = $event"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                />
-            </div>
-            <div class="flex flex-col">
-                <label class="text-xs text-gray-500 mb-1">End Date</label>
-                <input
-                        type="date"
-                        [(ngModel)]="endDate"
-                        (ngModelChange)="endDate = $event"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                />
-            </div>
-            <div class="flex items-end">
+            <!-- Date Filter -->
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="flex flex-col min-w-[140px]">
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Start Date</label>
+                    <input
+                            type="date"
+                            [(ngModel)]="startDate"
+                            (ngModelChange)="startDate = $event"
+                            class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    />
+                </div>
+                <div class="flex flex-col min-w-[140px]">
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">End Date</label>
+                    <input
+                            type="date"
+                            [(ngModel)]="endDate"
+                            (ngModelChange)="endDate = $event"
+                            class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                    />
+                </div>
                 <button
                         (click)="fetchData()"
                         [disabled]="isLoading"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors h-[38px]">
-                    {{ isLoading ? 'Loading...' : 'Apply Filter' }}
+                        class="rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 px-6 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 disabled:cursor-not-allowed h-[38px] min-w-[120px]">
+                    <span *ngIf="!isLoading">Apply Filter</span>
+                    <span *ngIf="isLoading" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </span>
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Error Alert -->
-    <div *ngIf="errorMessage" class="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-500 dark:bg-red-900/20">
-        {{ errorMessage }}
+        <!-- Error Alert -->
+        <div *ngIf="errorMessage" class="mt-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-sm text-red-700 dark:text-red-300 font-medium">{{ errorMessage }}</p>
+        </div>
     </div>
 
     <!-- Statistics Cards Grid -->
-    <div *ngIf="reportData" class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <div *ngIf="reportData" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <!-- Card 1: Revenue -->
-        <div class="rounded-xl border border-gray-100 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400">
-                    <!-- Icon Dollar -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        <!-- Card 1: Total Revenue -->
+        <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6 hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 dark:text-green-400">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
                 </div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</span>
             </div>
-            <h4 class="text-2xl font-bold text-gray-800 dark:text-white">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Revenue</p>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {{ formatCurrency(reportData.totalRevenue) }}
-            </h4>
-            <p class="mt-1 text-xs text-green-600 flex items-center gap-1">
+            </h3>
+            <p class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
                 From subscription sales
             </p>
         </div>
 
-        <!-- Card 2: Expenses -->
-        <div class="rounded-xl border border-gray-100 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400">
-                    <!-- Icon Trending Down -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
-                </div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</span>
-            </div>
-            <h4 class="text-2xl font-bold text-gray-800 dark:text-white">
-                {{ formatCurrency(reportData.totalExpense) }}
-            </h4>
-            <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                Operational costs
-            </p>
-        </div>
 
-        <!-- Card 3: Net Profit -->
-        <div class="rounded-xl border p-5 bg-white dark:bg-gray-800 transition-all shadow-sm"
-             [ngClass]="{
-        'border-blue-500 ring-1 ring-blue-500': reportData.netProfit >= 0,
-        'border-red-500 ring-1 ring-red-500': reportData.netProfit < 0
-      }">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
-                    <!-- Icon Pie Chart -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                </div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Net Profit</span>
-            </div>
-            <h4 class="text-2xl font-bold" [ngClass]="reportData.netProfit >= 0 ? 'text-blue-600' : 'text-red-600'">
-                {{ formatCurrency(reportData.netProfit) }}
-            </h4>
-            <p class="mt-1 text-xs text-gray-500">
-                Revenue - Expenses
-            </p>
-        </div>
+
+
 
     </div>
 
-    <!-- ĐƯA BIỂU ĐỒ RA NGOÀI GRID ĐỂ FULL WIDTH -->
-    <div class="mt-6">
+    <!-- Chart Section -->
+    <div *ngIf="reportData" class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
         <app-monthly-sales-chart [chartData]="salesChartData"></app-monthly-sales-chart>
     </div>
 

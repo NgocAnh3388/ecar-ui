@@ -11,37 +11,7 @@ import { InventoryService } from '../../../services/inventory.service';
     selector: 'app-restock-dialog',
     standalone: true,
     imports: [ButtonComponent, InputFieldComponent, LabelComponent, FormsModule],
-    template: `
-        <div class="p-6 min-w-[320px]">
-            <h2 class="text-lg font-semibold mb-4">🔄Restock Inventory</h2>
-
-            <app-label>Quantity added</app-label>
-            <input
-                    type="number"
-                    [(ngModel)]="quantity"
-                    class="border border-gray-300 rounded px-3 py-2 w-full focus:ring focus:ring-blue-100"
-                    placeholder="Enter quantity"
-            />
-
-            <div class="mt-6 flex justify-end gap-2">
-                <button
-                        type="button"
-                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
-                        (click)="cancel()"
-                >
-                    Cancel
-                </button>
-                <button
-                        type="button"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        (click)="save()"
-                >
-                    Save
-                </button>
-            </div>
-
-        </div>
-    `,
+    templateUrl: './restock-dialog.component.html',
 })
 export class RestockDialogComponent {
     quantity: number = 0;

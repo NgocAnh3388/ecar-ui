@@ -1,18 +1,27 @@
-<div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">Confirmation</h2>
-    <p class="text-gray-600 mb-6">{{ message() }}</p>
-    <div class="flex gap-3 justify-end">
-        <button
-                class="px-4 py-2 rounded border hover:bg-gray-100"
-                (click)="cancel()"
-        >
-            Cancel
-        </button>
-        <button
-                class="px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
-                (click)="ok()"
-        >
-            Accept
-        </button>
+<div class="w-full max-w-md">
+    <div class="px-6 py-4">
+        <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ title() }}</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400" [innerHTML]="message()"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+        <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+        <app-button size="sm" (btnClick)="ok()" class="bg-red-600 hover:bg-red-700 text-white">
+            <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Confirm
+            </span>
+        </app-button>
     </div>
 </div>

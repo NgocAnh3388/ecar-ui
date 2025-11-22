@@ -1,0 +1,399 @@
+/* ================================
+   SIDEBAR GRADIENT BACKGROUND - GREEN THEME
+   ================================ */
+.sidebar-gradient {
+  background: linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%);
+  box-shadow: inset -2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================
+   MENU ITEMS WITH INSET EFFECT
+   ================================ */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item-active {
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  /* Hiệu ứng lõm vào trong */
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #ffffff;
+  padding-left: calc(1rem - 3px);
+}
+
+.menu-item-inactive {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ================================
+   MENU ICONS
+   ================================ */
+.menu-item-icon-size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.menu-item-icon-active {
+  color: #ffffff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.menu-item-icon-inactive {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ================================
+   MENU TEXT
+   ================================ */
+.menu-item-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+/* ================================
+   DROPDOWN MENU ITEMS WITH INSET
+   ================================ */
+.menu-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.menu-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.menu-dropdown-item-active {
+  background: rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  font-weight: 500;
+  /* Hiệu ứng lõm nhẹ */
+  box-shadow:
+    inset 1px 1px 3px rgba(0, 0, 0, 0.25),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.05);
+}
+
+.menu-dropdown-item-inactive {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ================================
+   BADGES
+   ================================ */
+.menu-dropdown-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.menu-dropdown-badge-active {
+  background: rgba(52, 211, 153, 0.25);
+  color: #6ee7b7;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.menu-dropdown-badge-inactive {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.menu-dropdown-badge-pro {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.menu-dropdown-badge-pro-active {
+  background: rgba(251, 191, 36, 0.25);
+  color: #fcd34d;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.menu-dropdown-badge-pro-inactive {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ================================
+   SECTION HEADERS
+   ================================ */
+.sidebar-section-header {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ================================
+   LOGO AREA
+   ================================ */
+.sidebar-logo {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ================================
+   SCROLLBAR CUSTOMIZATION
+   ================================ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom scrollbar cho sidebar */
+.sidebar-gradient::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-gradient::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.sidebar-gradient::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.sidebar-gradient::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ================================
+   DARK MODE ADJUSTMENTS
+   ================================ */
+.dark .sidebar-gradient {
+  background: linear-gradient(180deg, #059669 0%, #047857 50%, #065f46 100%);
+}
+
+/* ================================
+   MOBILE RESPONSIVE
+   ================================ */
+@media (max-width: 1279px) {
+  .menu-item {
+    justify-content: flex-start;
+  }
+}
+
+/* ================================
+   COLLAPSED STATE
+   ================================ */
+.sidebar-collapsed .menu-item {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar-collapsed .menu-item-text {
+  display: none;
+}
+
+/* ================================
+   HOVER EFFECTS WITH DEPTH
+   ================================ */
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: #ffffff;
+  border-radius: 0 4px 4px 0;
+  transition: height 0.2s ease-in-out;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.menu-item-active::before {
+  height: 0;
+}
+
+/* ================================
+   SUBMENU ANIMATIONS
+   ================================ */
+.submenu-enter {
+  animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   FOOTER AREA
+   ================================ */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  /* Hiệu ứng lõm nhẹ */
+  box-shadow:
+    inset 1px 1px 3px rgba(0, 0, 0, 0.2),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-user:hover {
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 2px 2px 4px rgba(0, 0, 0, 0.25),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-user-info {
+  flex: 1;
+}
+
+.sidebar-user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sidebar-user-role {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ================================
+   NEUMORPHISM ENHANCEMENT
+   ================================ */
+.menu-item-neumorphic {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    3px 3px 6px rgba(0, 0, 0, 0.2),
+    -3px -3px 6px rgba(255, 255, 255, 0.1);
+}
+
+.menu-item-neumorphic:active,
+.menu-item-neumorphic.active {
+  box-shadow:
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+}
+
+/* ================================
+   ADDITIONAL DEPTH EFFECTS
+   ================================ */
+.sidebar-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Subtle inner glow at top */
+.sidebar-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}

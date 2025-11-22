@@ -1,174 +1,210 @@
-<div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
+<div class="w-full max-w-3xl">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ title() }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Schedule a service appointment</p>
+    </div>
 
-    <!-- 2 columns on md+, 1 column on mobile -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[20vh]">
-        <!-- Trung tâm: span 2 columns -->
-        <div class="col-span-1 md:col-span-2">
-            <app-label>Center</app-label>
-            <app-select
-                    [options]="centers"
-                    placeholder="Select center"
-                    [value]="selectedCenter"
-                    (valueChange)="handleCenterChange($event)"
-                    class="dark:bg-dark-900 w-full"
-            ></app-select>
-        </div>
-
-        <div class="relative">
-            <input
-                #timeInput
-                id="timeInput"
-                placeholder="Time"
-                class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                autocomplete="off"
-            />
-            <span class="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2 dark:text-gray-400">
-        <svg
-                class="fill-current"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M3.04175 9.99984C3.04175 6.15686 6.1571 3.0415 10.0001 3.0415C13.8431 3.0415 16.9584 6.15686 16.9584 9.99984C16.9584 13.8428 13.8431 16.9582 10.0001 16.9582C6.1571 16.9582 3.04175 13.8428 3.04175 9.99984ZM10.0001 1.5415C5.32867 1.5415 1.54175 5.32843 1.54175 9.99984C1.54175 14.6712 5.32867 18.4582 10.0001 18.4582C14.6715 18.4582 18.4584 14.6712 18.4584 9.99984C18.4584 5.32843 14.6715 1.5415 10.0001 1.5415ZM9.99998 10.7498C9.58577 10.7498 9.24998 10.4141 9.24998 9.99984V5.4165C9.24998 5.00229 9.58577 4.6665 9.99998 4.6665C10.4142 4.6665 10.75 5.00229 10.75 5.4165V9.24984H13.3334C13.7476 9.24984 14.0834 9.58562 14.0834 9.99984C14.0834 10.4141 13.7476 10.7498 13.3334 10.7498H10.0001H9.99998Z"
-                  fill=""
-          />
-        </svg>
-      </span>
-        </div>
-
-        <!-- Date & Time in the same row (two columns) -->
-        <div class="relative">
-            <input
-                #dateInput
-                id="dateInput"
-                placeholder="Date"
-                class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
-                autocomplete="off"
-            />
-            <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" class="size-6"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>
-    </span>
-        </div>
-
-        <div>
-            <app-label>Name</app-label>
-            <app-input-field
-                    id="fullName"
-                    type="text"
-                    [value]="fullName"
-                    [error]="fullNameError"
-                    (valueChange)="handleFullNameChange($event)"
-                    [hint]="fullNameError ? 'Tên không thể trống' : ''"
-                    [readonly] = true
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Phone Number</app-label>
-            <app-input-field
-                    id="phoneNo"
-                    type="tel"
-                    [value]="phoneNo"
-                    [error]="phoneNoError"
-                    (valueChange)="handlePhoneNoChange($event)"
-                    placeholder="Enter your phone number"
-                    [hint]="phoneNoError ? 'Incorrect phone number' : ''"
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Email</app-label>
-            <app-input-field
-                    id="email"
-                    type="email"
-                    [value]="email"
-                    [error]="emailError"
-                    (valueChange)="handleEmailChange($event)"
-                    [readonly] = true
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Vehicle</app-label>
-            <app-input-field
-                    id="vehicle"
-                    type="text"
-                    [value]="selectedVehicle"
-                    [error]="emailError"
-                    (valueChange)="handleEmailChange($event)"
-                    [readonly] = true
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>Kilometers</app-label>
-            <app-input-field
-                    id="inputKm"
-                    type="number"
-                    [value]="inputKm"
-                    (input)="inputKm = $any($event.target).value"
-                    [error]="kmError"
-                    placeholder="Enter Km"
-                    [hint]="kmError ? 'Invalid Km Number' : ''"
-            ></app-input-field>
-        </div>
-
-        <div>
-            <app-label>License plate number</app-label>
-            <app-input-field
-                    id="licensePlate"
-                    type="text"
-                    [value]="licensePlate"
-                    [error]="licensePlateError"
-                    (valueChange)="handleEmailChange($event)"
-                    placeholder="Enter license plate number"
-                    [hint]="licensePlateError ? 'Invalid license plate' : ''"
-                    [readonly] = true
-            ></app-input-field>
-        </div>
-
-        <!-- Checkbox group spans both columns -->
-        <div class="flex items-center gap-4 col-span-1 md:col-span-2">
-            <div class="flex items-center gap-3">
-                <app-checkbox
-                        [checked]="isMaintenance"
-                        (checkedChange)="isMaintenance = $event"
-                ></app-checkbox>
-                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Maintenance</span>
+    <!-- Form Content -->
+    <div class="p-6 max-h-[calc(100vh-300px)] overflow-y-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Service Center (Full Width) -->
+            <div class="md:col-span-2">
+                <app-label>
+                    Service Center
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <app-select
+                        [options]="centers"
+                        placeholder="Select service center"
+                        [value]="selectedCenter"
+                        (valueChange)="handleCenterChange($event)"
+                        class="dark:bg-dark-900 w-full"
+                ></app-select>
             </div>
 
-            <div class="flex items-center gap-3">
-                <app-checkbox
-                        [checked]="isRepair"
-                        (checkedChange)="isRepair = $event"
-                ></app-checkbox>
-                <span class="block text-sm font-medium text-gray-700 dark:text-gray-400">Repair</span>
+            <!-- Date -->
+            <div class="relative">
+                <app-label>
+                    Date
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <input
+                        #dateInput
+                        id="dateInput"
+                        placeholder="Select date"
+                        class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 pl-4 pr-11 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-white text-gray-800 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-gray-700 dark:focus:border-emerald-600"
+                        autocomplete="off"
+                />
+                <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-[52%] dark:text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </span>
             </div>
-        </div>
 
-        <!-- Textareas span both columns -->
-        <div class="space-y-6 col-span-1 md:col-span-2">
+            <!-- Time -->
+            <div class="relative">
+                <app-label>
+                    Time
+                    <span class="text-red-500 ml-1">*</span>
+                </app-label>
+                <input
+                        #timeInput
+                        id="timeInput"
+                        placeholder="Select time"
+                        class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 pl-4 pr-11 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-white text-gray-800 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-gray-700 dark:focus:border-emerald-600"
+                        autocomplete="off"
+                />
+                <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-[52%] dark:text-gray-400">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Name -->
             <div>
-                <app-label>Note</app-label>
+                <app-label>Full Name</app-label>
+                <app-input-field
+                        id="fullName"
+                        type="text"
+                        [value]="fullName"
+                        [error]="fullNameError"
+                        (valueChange)="handleFullNameChange($event)"
+                        [hint]="fullNameError ? 'Name cannot be empty' : ''"
+                        [readonly]="true"
+                ></app-input-field>
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <app-label>Phone Number</app-label>
+                <app-input-field
+                        id="phoneNo"
+                        type="tel"
+                        [value]="phoneNo"
+                        [error]="phoneNoError"
+                        (valueChange)="handlePhoneNoChange($event)"
+                        placeholder="Enter phone number"
+                        [hint]="phoneNoError ? 'Invalid phone number' : ''"
+                ></app-input-field>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <app-label>Email</app-label>
+                <app-input-field
+                        id="email"
+                        type="email"
+                        [value]="email"
+                        [error]="emailError"
+                        (valueChange)="handleEmailChange($event)"
+                        [readonly]="true"
+                ></app-input-field>
+            </div>
+
+            <!-- Vehicle -->
+            <div>
+                <app-label>Vehicle</app-label>
+                <app-input-field
+                        id="vehicle"
+                        type="text"
+                        [value]="selectedVehicle"
+                        (valueChange)="handleEmailChange($event)"
+                        [readonly]="true"
+                ></app-input-field>
+            </div>
+
+            <!-- License Plate -->
+            <div>
+                <app-label>License Plate</app-label>
+                <app-input-field
+                        id="licensePlate"
+                        type="text"
+                        [value]="licensePlate"
+                        [error]="licensePlateError"
+                        (valueChange)="handleEmailChange($event)"
+                        placeholder="Enter license plate"
+                        [hint]="licensePlateError ? 'Invalid license plate' : ''"
+                        [readonly]="true"
+                ></app-input-field>
+            </div>
+
+            <!-- Kilometers -->
+            <div>
+                <app-label>Kilometers</app-label>
+                <app-input-field
+                        id="inputKm"
+                        type="number"
+                        [value]="inputKm"
+                        (input)="inputKm = $any($event.target).value"
+                        [error]="kmError"
+                        placeholder="Enter kilometers"
+                        [hint]="kmError ? 'Invalid kilometer value' : ''"
+                ></app-input-field>
+            </div>
+
+            <!-- Service Type (Full Width) -->
+            <div class="md:col-span-2">
+                <app-label>Service Type</app-label>
+                <div class="flex items-center gap-6 mt-2">
+                    <label class="flex items-center gap-2.5 cursor-pointer group">
+                        <app-checkbox
+                                [checked]="isMaintenance"
+                                (checkedChange)="isMaintenance = $event"
+                        ></app-checkbox>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition">
+                            Maintenance
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-2.5 cursor-pointer group">
+                        <app-checkbox
+                                [checked]="isRepair"
+                                (checkedChange)="isRepair = $event"
+                        ></app-checkbox>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition">
+                            Repair
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Notes (Full Width) -->
+            <div class="md:col-span-2">
+                <app-label>Additional Notes</app-label>
                 <app-text-area
                         [value]="remark"
                         (valueChange)="remark = $event"
-                        placeholder="Specific requirements"
-                        [rows]="6"
+                        placeholder="Enter any specific requirements or concerns..."
+                        [rows]="4"
                 ></app-text-area>
             </div>
         </div>
+    </div>
 
-        <!-- Footer buttons span both columns -->
-        <div class="mt-auto flex justify-end gap-2 col-span-1 md:col-span-2">
-            <app-button size="sm" variant="outline" (btnClick)="ok()">Book</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
+    <!-- Footer Actions -->
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+            <span class="text-red-500">*</span> Required fields
+        </div>
+        <div class="flex gap-2">
+            <app-button size="sm" variant="outline" (btnClick)="cancel()">
+                Cancel
+            </app-button>
+            <app-button
+                    size="sm"
+                    (btnClick)="ok()"
+                    class="bg-emerald-600 hover:bg-emerald-700"
+            >
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Book Appointment
+                </span>
+            </app-button>
         </div>
     </div>
 </div>
