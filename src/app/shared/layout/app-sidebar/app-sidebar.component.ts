@@ -69,6 +69,11 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             path: '/overview'
         },
         {
+            name: 'Profit Report',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+            path: '/admin/profit-report'
+        },
+        {
             name: 'User Profile',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
             path: '/profile'
@@ -181,7 +186,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             'Maintenance information': ['ROLE_CUSTOMER'],
             'Service package management': ['ROLE_CUSTOMER'],
             'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
-            'Overview': ['ROLE_ADMIN'],
+            'Overview': [],
+            'Profit Report': ['ROLE_ADMIN'],
             'User Profile': ['ROLE_CUSTOMER'],
             'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
         };
