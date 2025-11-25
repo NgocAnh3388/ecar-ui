@@ -186,9 +186,19 @@ export class ServiceDetailDialogComponent implements OnInit {
             this.checkedServiceIds
         )
 
-        this.maintenanceService.createService(request).subscribe((res: any) => {
-            this.modalRef.close(true);
-        })
+        this.maintenanceService.createService(request).subscribe({
+            next: (res: any) => {
+                this.modalRef.close(true);
+                // Có thể thêm toast success ở đây nếu muốn
+            },
+            error: (err: any) => {
+                console.error(err);
+                // Hiển thị thông báo lỗi từ Backend trả về
+                // Nếu bạn có ToastService thì dùng, không thì dùng alert
+                const message = err.error?.message || "Failed to assign technician.";
+                alert(message); // Nó sẽ hiện: "This technician has reached the daily limit of 3 tasks!"
+            }
+        });
     }
 
     initMilestoneData() {

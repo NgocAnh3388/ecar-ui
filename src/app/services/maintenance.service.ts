@@ -85,4 +85,17 @@ export class MaintenanceService {
         // Lưu ý: Đảm bảo backend có endpoint này
         return this.http.put(`${this.api}/api/maintenance/${orderId}/handover`, {});
     }
+
+    // --- THÊM MỚI CHO TÍNH NĂNG REPORT COST ---
+
+    // 1. Technician gửi yêu cầu phát sinh chi phí
+    requestAdditionalCost(request: { ticketId: number; amount: number; reason: string }): Observable<any> {
+        return this.http.post<any>(`${this.api}/api/maintenance/add-cost`, request);
+    }
+
+    // 2. Staff xử lý quyết định của khách (Duyệt / Từ chối)
+    processDecision(id: number, decision: 'APPROVE' | 'REJECT'): Observable<any> {
+        return this.http.put<any>(`${this.api}/api/maintenance/${id}/approval?decision=${decision}`, {});
+    }
+
 }

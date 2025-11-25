@@ -6,7 +6,7 @@ import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/s
 import {DatePipe, CommonModule} from "@angular/common";
 import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog.component";
 import { AuthService } from '../../../services/auth.service';
-
+import { ReportCostDialogComponent } from "../../dialog/report-cost-dialog/report-cost-dialog.component";
 type OptionKey =
     | 'STATUS_SUBMITTED'
     | 'STATUS_RECEIVED'
@@ -23,7 +23,13 @@ interface OptionItem {
 @Component({
     selector: 'app-service-dashboard',
     standalone: true,
-    imports: [CommonModule, DatePipe],
+    imports: [
+        CommonModule,
+        DatePipe
+        // Lưu ý: ReportCostDialogComponent không cần import vào đây nếu bạn dùng ModalService mở động.
+        // Nhưng nếu bạn dùng trong template thì phải import.
+        // Ở đây bạn dùng modal.open() nên không cần import vào mảng này, chỉ cần import file ở trên đầu là đủ.
+    ],
     templateUrl: './service-dashboard.component.html',
     styleUrl: './service-dashboard.component.css'
 })
@@ -69,7 +75,7 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
-    // ... Filter Logic ...
+    // --- Filter Logic ---
     selected = new Set<OptionKey>();
     toggleDropdown(e: MouseEvent): void { e.stopPropagation(); this.open = !this.open; }
     @HostListener('document:click') onDocClick(): void { this.open = false; }
@@ -94,7 +100,7 @@ export class ServiceDashboardComponent implements OnInit {
     sortByDate(dir: 'asc' | 'desc'): void {}
     sortByPrice(dir: 'asc' | 'desc'): void {}
 
-    // ... Helpers ...
+    // --- Helpers ---
     getService(item: MaintenanceTicket): 'Maintenance & Repair' | 'Maintenance' | 'Repair' | undefined {
         if (item.isMaintenance && item.isRepair) return 'Maintenance & Repair';
         if (item.isMaintenance) return 'Maintenance';
@@ -142,14 +148,12 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
-    // --- MỚI: Hàm Handover ---
     onDeliver(orderId: number): void {
         const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
             data: { message: 'Confirm vehicle handover to customer? This will mark the order as DONE.', isConfirm: true },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
         });
-
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
                 this.maintenanceService.confirmDelivery(orderId).subscribe({
@@ -197,4 +201,59 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     trackByKey(index: number, item: any): string { return item.key; }
+
+    // --- REPORT COST ---
+    onReportIssue(ticketId: number): void {
+        const ref = this.modal.open(ReportCostDialogComponent, {
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop'
+        });
+
+        ref.afterClosed$.subscribe(result => {
+            if (result) {
+                const req = { ticketId, amount: result.amount, reason: result.reason };
+                this.maintenanceService.requestAdditionalCost(req).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Request sent to Staff successfully!', isConfirm: false }
+                        });
+                        this.initTicket();
+                    },
+                    error: (err: any) => {
+                        console.error(err);
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Failed to send request.', isConfirm: false }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    onProcessApproval(ticketId: number, decision: 'APPROVE' | 'REJECT'): void {
+        const msg = decision === 'APPROVE'
+            ? 'Customer approved the additional cost? Technician will resume work.'
+            : 'Customer rejected the cost? This order will be CANCELLED.';
+
+        const ref = this.modal.open(ConfirmDialogComponent, { data: { message: msg, isConfirm: true } });
+
+        ref.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.processDecision(ticketId, decision).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Order updated successfully!', isConfirm: false }
+                        });
+                        this.initTicket();
+                    },
+                    error: (err: any) => {
+                        console.error(err);
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Error processing request.', isConfirm: false }
+                        });
+                    }
+                });
+            }
+        });
+    }
 }

@@ -16,8 +16,8 @@ export class ConfirmDialogComponent {
     private data = inject(MODAL_DATA, { optional: true }) as { title?: string; message?: string } | null;
     private modalRef = inject<ModalRef<boolean>>(ModalRef);
 
-    title = signal(this.data?.title ?? 'Xác nhận');
-    message = signal(this.data?.message ?? 'Bạn chắc chắn?');
+    title = signal(this.data?.title ?? 'Confirmation');
+    message = signal(this.data?.message ?? 'Are you sure?');
 
     ok() { this.modalRef.close(true); }
     cancel() { this.modalRef.close(false); }
