@@ -44,7 +44,8 @@ export class CustomerScheduleComponent implements OnInit {
             licensePlate: [{value: '', disabled: true}],
             carModel: [{value: '', disabled: true}],
             vinNumber: [{value: '', disabled: true}],
-            numOfKm: [0, [Validators.required, Validators.min(0)]],
+            // Bỏ validate required cho Km vì khách không cần nhập
+            numOfKm: [0],
             isMaintenance: [true],
             isRepair: [false],
             remark: ['']
@@ -110,7 +111,8 @@ export class CustomerScheduleComponent implements OnInit {
                     licensePlate: selectedCar.licensePlate,
                     carModel: selectedCar.carModel?.carName,
                     vinNumber: selectedCar.vinNumber,
-                    numOfKm: selectedCar.nextKm
+                    // Vẫn lưu tạm giá trị cũ nếu có, nhưng không hiển thị cho user sửa
+                    numOfKm: selectedCar.nextKm || 0
                 });
             }
         });
@@ -142,7 +144,6 @@ export class CustomerScheduleComponent implements OnInit {
             },
             error: (err: any) => {
                 console.error(err);
-                // Nếu check lịch sử lỗi, vẫn cho tạo (fallback)
                 this.createAppointment();
             }
         });
@@ -151,26 +152,24 @@ export class CustomerScheduleComponent implements OnInit {
     createAppointment() {
         const formData = this.scheduleForm.getRawValue();
 
-        // 1. Xử lý Giờ: HTML trả về "HH:mm" -> convert thành "HH:mm:ss"
         let timeStr = formData.scheduleTime;
         if (timeStr && timeStr.length === 5) {
             timeStr += ':00';
         }
 
-        // 2. Xử lý Ngày: HTML trả về "yyyy-MM-dd" -> convert thành "dd-MM-yyyy"
-        const rawDate = formData.scheduleDate; // "2025-11-28"
+        const rawDate = formData.scheduleDate;
         let dateStr = rawDate;
         if (rawDate && rawDate.includes('-')) {
             const [year, month, day] = rawDate.split('-');
-            dateStr = `${day}-${month}-${year}`; // "28-11-2025"
+            dateStr = `${day}-${month}-${year}`;
         }
 
         const request: MaintenanceScheduleRequest = {
             centerId: Number(formData.centerId),
-            scheduleDate: dateStr, // Format: dd-MM-yyyy
-            scheduleTime: timeStr, // Format: HH:mm:ss
+            scheduleDate: dateStr,
+            scheduleTime: timeStr,
             vehicleId: Number(formData.vehicleId),
-            numOfKm: Number(formData.numOfKm),
+            numOfKm: 0, // Mặc định gửi 0 vì khách không nhập
             isMaintenance: !!formData.isMaintenance,
             isRepair: !!formData.isRepair,
             remark: formData.remark || ''

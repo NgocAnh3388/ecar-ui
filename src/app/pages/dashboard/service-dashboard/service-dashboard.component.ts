@@ -2,7 +2,6 @@ import {Component, HostListener, OnInit, ChangeDetectorRef} from '@angular/core'
 import {MaintenanceService} from "../../../services/maintenance.service";
 import {MaintenanceTicket} from "../../../models/maintenance-ticket";
 import {ModalService} from "../../modal/modal.service";
-import {RenewDialogComponent} from "../../dialog/renew-dialog/renew-dialog.component";
 import {ServiceDetailDialogComponent} from "../../dialog/service-detail-dialog/service-detail-dialog.component";
 import {DatePipe, CommonModule} from "@angular/common";
 import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog.component";
@@ -24,10 +23,7 @@ interface OptionItem {
 @Component({
     selector: 'app-service-dashboard',
     standalone: true,
-    imports: [
-        CommonModule,
-        DatePipe
-    ],
+    imports: [CommonModule, DatePipe],
     templateUrl: './service-dashboard.component.html',
     styleUrl: './service-dashboard.component.css'
 })
@@ -36,6 +32,7 @@ export class ServiceDashboardComponent implements OnInit {
     allTickets: MaintenanceTicket[] = [];
     tickets: MaintenanceTicket[] = [];
     open = false;
+    isStaff: boolean = false;
 
     options: OptionItem[] = [
         { key: 'STATUS_SUBMITTED', label: 'Status: New' },
@@ -53,17 +50,17 @@ export class ServiceDashboardComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.isStaff = this.authService.getRoles().includes('ROLE_STAFF');
         this.initTicket();
     }
 
     initTicket(): void {
-        // Sử dụng hasRole() thay vì so sánh trực tiếp
         const apiCall = this.authService.hasRole('ROLE_TECHNICIAN')
             ? this.maintenanceService.getMyTasks()
             : this.maintenanceService.getAll();
 
         apiCall.subscribe({
-            next: (rs: any) => { // Thêm : any
+            next: (rs: any) => {
                 this.allTickets = [...rs];
                 this.tickets = [...rs];
                 this.cdr.detectChanges();
@@ -72,80 +69,40 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
-    // ----------------------- Filter Dropdown -----------------------
-
+    // ... Filter Logic ...
     selected = new Set<OptionKey>();
-
-    toggleDropdown(e: MouseEvent): void {
-        e.stopPropagation();
-        this.open = !this.open;
-    }
-
-    @HostListener('document:click')
-    onDocClick(): void {
-        this.open = false;
-    }
-
-    isChecked(key: OptionKey): boolean {
-        return this.selected.has(key);
-    }
-
-    toggle(key: OptionKey, ev: Event): void {
-        const input = ev.target as HTMLInputElement;
-        if (input.checked) this.selected.add(key);
-        else this.selected.delete(key);
-    }
-
-    selectAll(): void {
-        this.options.forEach(o => this.selected.add(o.key));
-    }
-
-    clearAll(): void {
-        this.selected.clear();
-        this.tickets = [...this.allTickets]; // Reset lại danh sách hiển thị
-    }
-
+    toggleDropdown(e: MouseEvent): void { e.stopPropagation(); this.open = !this.open; }
+    @HostListener('document:click') onDocClick(): void { this.open = false; }
+    isChecked(key: OptionKey): boolean { return this.selected.has(key); }
+    toggle(key: OptionKey, ev: Event): void { const input = ev.target as HTMLInputElement; if (input.checked) this.selected.add(key); else this.selected.delete(key); }
+    selectAll(): void { this.options.forEach(o => this.selected.add(o.key)); }
+    clearAll(): void { this.selected.clear(); this.tickets = [...this.allTickets]; }
     apply(): void {
-        let filteredTickets = [...this.allTickets]; // Luôn bắt đầu từ danh sách gốc
-
-        // 1. Lọc theo trạng thái
+        let filteredTickets = [...this.allTickets];
         const statusFilters: string[] = [];
         if (this.selected.has('STATUS_SUBMITTED')) statusFilters.push('CUSTOMER_SUBMITTED');
         if (this.selected.has('STATUS_RECEIVED')) statusFilters.push('TECHNICIAN_RECEIVED');
         if (this.selected.has('STATUS_COMPLETED')) statusFilters.push('TECHNICIAN_COMPLETED');
-
-        if (statusFilters.length > 0) {
-            filteredTickets = filteredTickets.filter(ticket => statusFilters.includes(ticket.status));
-        }
-
-        // 2. Sắp xếp theo ngày hẹn
-        if (this.selected.has('SORT_DATE_NEWEST')) {
-            filteredTickets.sort((a, b) => new Date(b.scheduleDate).getTime() - new Date(a.scheduleDate).getTime());
-        } else if (this.selected.has('SORT_DATE_OLDEST')) {
-            filteredTickets.sort((a, b) => new Date(a.scheduleDate).getTime() - new Date(b.scheduleDate).getTime());
-        }
-
-        this.tickets = filteredTickets; // Cập nhật danh sách hiển thị
+        if (statusFilters.length > 0) filteredTickets = filteredTickets.filter(ticket => statusFilters.includes(ticket.status));
+        if (this.selected.has('SORT_DATE_NEWEST')) filteredTickets.sort((a, b) => new Date(b.scheduleDate).getTime() - new Date(a.scheduleDate).getTime());
+        else if (this.selected.has('SORT_DATE_OLDEST')) filteredTickets.sort((a, b) => new Date(a.scheduleDate).getTime() - new Date(b.scheduleDate).getTime());
+        this.tickets = filteredTickets;
         this.open = false;
     }
-
     handleSeeAll(): void {}
     handleFilterByCategories(keys: OptionKey[]): void {}
     sortByDate(dir: 'asc' | 'desc'): void {}
     sortByPrice(dir: 'asc' | 'desc'): void {}
 
-    // ----------------------- Business Logic -----------------------
-
-    getService(item: MaintenanceTicket):
-        'Maintenance & Repair' | 'Maintenance' | 'Repair' | undefined {
+    // ... Helpers ...
+    getService(item: MaintenanceTicket): 'Maintenance & Repair' | 'Maintenance' | 'Repair' | undefined {
         if (item.isMaintenance && item.isRepair) return 'Maintenance & Repair';
         if (item.isMaintenance) return 'Maintenance';
         if (item.isRepair) return 'Repair';
         return undefined;
     }
 
-    getStatus(status: string):
-        'New' | 'In Progress' | 'Completed' | 'Done' | undefined {
+    getStatus(status: string): 'New' | 'In Progress' | 'Completed' | 'Done' | undefined {
         switch (status) {
             case 'CUSTOMER_SUBMITTED': return 'New';
             case 'TECHNICIAN_RECEIVED': return 'In Progress';
@@ -155,45 +112,54 @@ export class ServiceDashboardComponent implements OnInit {
         return undefined;
     }
 
-    onDetail(ticketId: number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number): void {
+    onDetail(ticketId: number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number, isMaintenance: boolean, isRepair: boolean): void {
         const ref = this.modal.open(ServiceDetailDialogComponent, {
-            data: { title: 'Schedule Service', message: '', carModelId, numOfKm, ticketId, technicianId, milestoneId },
+            data: { title: 'Schedule Service', message: '', carModelId, numOfKm, ticketId, technicianId, milestoneId, isMaintenance, isRepair },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
             disableClose: false,
         });
-
-        ref.afterClosed$.subscribe(confirmed => {
-            if (confirmed) this.initTicket();
-        });
+        ref.afterClosed$.subscribe(confirmed => { if (confirmed) this.initTicket(); });
     }
 
     onComplete(orderId: number): void {
         const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: {
-                message: 'Are you sure you want to mark this task as completed?',
-                isConfirm: true
-            },
+            data: { message: 'Are you sure you want to mark this task as completed?', isConfirm: true },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+        });
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.completeTechnicianTask(orderId).subscribe({
+                    next: () => {
+                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Status updated successfully!', isConfirm: false } });
+                        this.initTicket();
+                    },
+                    error: (err: any) => this.modal.open(ConfirmDialogComponent, { data: { message: 'Error updating status.', isConfirm: false } })
+                });
+            }
+        });
+    }
+
+    // --- MỚI: Hàm Handover ---
+    onDeliver(orderId: number): void {
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: { message: 'Confirm vehicle handover to customer? This will mark the order as DONE.', isConfirm: true },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
         });
 
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
-                // SỬA LỖI: Thêm type : any cho updatedOrder và err
-                this.maintenanceService.completeTechnicianTask(orderId).subscribe({
-                    next: (updatedOrder: any) => {
-                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'Status updated successfully!', isConfirm: false }
-                        });
+                this.maintenanceService.confirmDelivery(orderId).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Vehicle handed over successfully!', isConfirm: false } });
                         this.initTicket();
                     },
                     error: (err: any) => {
-                        console.error('Error updating status:', err);
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'An error occurred. Please try again.', isConfirm: false }
-                        });
+                        console.error('Handover error:', err);
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Error during handover.', isConfirm: false } });
                     }
                 });
             }
@@ -201,22 +167,13 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     onCancel(orderId: number): void {
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: { message: 'Are you sure you want to cancel this order?', isConfirm: true },
-        });
-
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to cancel?', isConfirm: true } });
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
-                // SỬA LỖI: Thêm type : any cho err
                 this.maintenanceService.cancelOrder(orderId).subscribe({
                     next: () => {
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'The order has been successfully cancelled.', isConfirm: false }
-                        });
-                        setTimeout(() => {
-                            this.initTicket();
-                            this.cdr.markForCheck();
-                        }, 250);
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Cancelled successfully.', isConfirm: false } });
+                        setTimeout(() => this.initTicket(), 250);
                     },
                     error: (err: any) => console.error('Cancel error:', err)
                 });
@@ -225,22 +182,13 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     onReopen(orderId: number): void {
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: { message: 'Are you sure you want to reactivate this order?', isConfirm: true },
-        });
-
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to reactivate?', isConfirm: true } });
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
-                // SỬA LỖI: Thêm type : any cho err
                 this.maintenanceService.reopenOrder(orderId).subscribe({
                     next: () => {
-                        this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'The order has been successfully reactivated.', isConfirm: false }
-                        });
-                        setTimeout(() => {
-                            this.initTicket();
-                            this.cdr.markForCheck();
-                        }, 250);
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Reactivated successfully.', isConfirm: false } });
+                        setTimeout(() => this.initTicket(), 250);
                     },
                     error: (err: any) => console.error('Reopen error:', err)
                 });
@@ -248,7 +196,5 @@ export class ServiceDashboardComponent implements OnInit {
         });
     }
 
-    trackByKey(index: number, item: any): string {
-        return item.key;
-    }
+    trackByKey(index: number, item: any): string { return item.key; }
 }

@@ -8,33 +8,33 @@ import { ServiceGroup } from "../../../models/service-group";
 import { User } from "../../../models/user";
 import { UserService } from "../../../services/user.service";
 import { ServiceCreateRequest } from "../../../models/service-create-request";
+import { AuthService } from "../../../services/auth.service";
 
 @Component({
     selector: 'app-service-detail-dialog',
-    standalone: true, // Đảm bảo component là standalone nếu dùng imports
-    imports: [
-        SelectComponent,
-        ButtonComponent
-    ],
+    standalone: true,
+    imports: [SelectComponent, ButtonComponent],
     templateUrl: './service-detail-dialog.component.html',
     styleUrl: './service-detail-dialog.component.css'
 })
-export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
+export class ServiceDetailDialogComponent implements OnInit {
 
     numOfKm: number = 0;
     carModelId: number = 0;
     ticketId: number = 0;
-
     formTitle = 'Service Details';
     leftTitle = 'Maintenance Service Groups';
     rightTitle = 'Repair Service Groups';
-
-    milestoneOptions: { value: string, label: string }[] = []
-    technicianOptions: { value: string, label: string }[] = []
+    milestoneOptions: { value: string, label: string }[] = [];
+    technicianOptions: { value: string, label: string }[] = [];
     selectedMilestone: string = '1';
-    value: string | null = null;
+    rawMilestones: any[] = [];
+    isStaff: boolean = false;
 
-    // ====== Splitter logic ======
+    // Biến control hiển thị
+    showMaintenance: boolean = true;
+    showRepair: boolean = true;
+
     leftFlex = '1 1 50%';
     rightFlex = '1 1 50%';
     private dragging = false;
@@ -49,34 +49,87 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
         numOfKm: number,
         ticketId: number,
         technicianId: number,
-        milestoneId: number
+        milestoneId: number,
+        isMaintenance: boolean,
+        isRepair: boolean
     } | null;
 
     private modalRef = inject<ModalRef<boolean>>(ModalRef);
+    maintenanceGroup: ServiceGroup[] = [];
+    serviceGroup: ServiceGroup[] = [];
+    technician: User[] = [];
+    checkedServiceIds: number[] = [];
+    selectedTechnician: string = '';
 
-    maintenanceGroup: ServiceGroup[] = []
-    serviceGroup: ServiceGroup[] = []
-    technician: User[] = []
-    checkedServiceIds: number[] = []
-    selectedTechnician: string = ''
-
-    constructor(private maintenanceService: MaintenanceService,
-                private userService: UserService,
-                private cdr: ChangeDetectorRef) {
-    }
+    constructor(
+        private maintenanceService: MaintenanceService,
+        private userService: UserService,
+        private cdr: ChangeDetectorRef,
+        private authService: AuthService
+    ) {}
 
     ngOnInit(): void {
-    }
-
-    ngAfterViewInit() {
         this.numOfKm = this.data?.numOfKm ?? 0;
         this.carModelId = this.data?.carModelId ?? 0;
         this.ticketId = this.data?.ticketId ?? 0;
-        this.selectedTechnician = this.data?.technicianId ? this.data?.technicianId.toString() : '1'
+        this.selectedTechnician = this.data?.technicianId ? this.data?.technicianId.toString() : '';
+
+        this.showMaintenance = this.data?.isMaintenance ?? true;
+        this.showRepair = this.data?.isRepair ?? true;
+
+        const roles = this.authService.getRoles();
+        this.isStaff = roles.includes('ROLE_STAFF');
+
+        if (!this.isStaff) {
+            if (this.showMaintenance && !this.showRepair) {
+                this.leftFlex = '1 1 100%';
+                this.rightFlex = '0 0 0%';
+            } else if (!this.showMaintenance && this.showRepair) {
+                this.leftFlex = '0 0 0%';
+                this.rightFlex = '1 1 100%';
+            } else {
+                this.leftFlex = '1 1 50%';
+                this.rightFlex = '1 1 50%';
+            }
+        }
 
         this.initMilestoneData();
-        this.initServiceGroup();
+
+        if (!this.isStaff) {
+            if (this.showRepair) {
+                this.initServiceGroup();
+            }
+        }
+
         this.initTechnician();
+    }
+
+    // --- MỚI: Hàm lấy tên Level để hiển thị ---
+    get milestoneLabel(): string {
+        const found = this.milestoneOptions.find(m => m.value == this.selectedMilestone);
+        return found ? found.label : '';
+    }
+
+    // ... (Các hàm còn lại GIỮ NGUYÊN không thay đổi) ...
+    onKmInput(event: Event) {
+        if (!this.isStaff) return;
+        const val = Number((event.target as HTMLInputElement).value);
+        this.numOfKm = val;
+        if (this.rawMilestones.length > 0) {
+            let closest = this.rawMilestones[0];
+            let minDiff = Math.abs(val - closest.kilometerAt);
+            for (let i = 1; i < this.rawMilestones.length; i++) {
+                const diff = Math.abs(val - this.rawMilestones[i].kilometerAt);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = this.rawMilestones[i];
+                }
+            }
+            if (this.selectedMilestone !== closest.id.toString()) {
+                this.selectedMilestone = closest.id.toString();
+                this.initMaintenanceServiceGroup(this.selectedMilestone);
+            }
+        }
     }
 
     startDrag(ev: MouseEvent) {
@@ -114,6 +167,17 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
     }
 
     onSubmit() {
+        if (this.isStaff) {
+            if (!this.numOfKm || this.numOfKm <= 0) {
+                alert("Please enter valid vehicle kilometers.");
+                return;
+            }
+            if (!this.selectedTechnician) {
+                alert("Please assign a technician.");
+                return;
+            }
+        }
+
         const request: ServiceCreateRequest = new ServiceCreateRequest(
             this.ticketId,
             this.numOfKm,
@@ -121,22 +185,32 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
             Number(this.selectedTechnician),
             this.checkedServiceIds
         )
-        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+
         this.maintenanceService.createService(request).subscribe((res: any) => {
             this.modalRef.close(true);
         })
     }
 
     initMilestoneData() {
-        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
         this.maintenanceService.getMilestone(this.carModelId).subscribe((res: any) => {
+            this.rawMilestones = res;
             this.milestoneOptions = this.toOptions(res, 'id', 'kilometerAt', 'yearAt');
 
-            this.selectedMilestone = this.data?.milestoneId
-                ? this.data?.milestoneId.toString()
-                : (this.milestoneOptions[0]?.value || '1');
-
-            this.initMaintenanceServiceGroup(this.selectedMilestone);
+            if (this.isStaff) {
+                if(this.numOfKm > 0) {
+                    this.onKmInput({ target: { value: this.numOfKm } } as any);
+                } else {
+                    this.selectedMilestone = this.milestoneOptions[0]?.value || '1';
+                    this.initMaintenanceServiceGroup(this.selectedMilestone);
+                }
+            } else {
+                this.selectedMilestone = this.data?.milestoneId
+                    ? this.data?.milestoneId.toString()
+                    : (this.milestoneOptions[0]?.value || '1');
+                if(this.showMaintenance) {
+                    this.initMaintenanceServiceGroup(this.selectedMilestone);
+                }
+            }
             this.cdr.markForCheck();
         })
     }
@@ -156,29 +230,30 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
     }
 
     handleMilestoneChange(value: string) {
+        if (this.isStaff) return;
         this.initMaintenanceServiceGroup(value);
         this.selectedMilestone = value;
     }
 
     initMaintenanceServiceGroup(value: string) {
-        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
         this.maintenanceService.getMaintenanceServiceGroup(this.carModelId, Number(value))
             .subscribe((res: any) => {
                 this.maintenanceGroup = res;
+                this.cdr.markForCheck();
             })
     }
 
     initServiceGroup() {
-        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
         this.maintenanceService.getServiceGroup(this.ticketId).subscribe((res: any) => {
             this.serviceGroup = res;
+            this.cdr.markForCheck();
         })
     }
 
     initTechnician() {
-        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
         this.userService.getUsersByRole('technician').subscribe((res: any) => {
             this.technicianOptions = this.toOptionsTwoParam(res, 'id', 'fullName');
+            this.cdr.markForCheck();
         })
     }
 
@@ -198,6 +273,7 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
     }
 
     handleCheckboxChange(id: number, event: Event) {
+        if (this.isStaff) return;
         const inputEl = event.target as HTMLInputElement;
         const checked = inputEl.checked;
         if (checked) {
@@ -209,6 +285,7 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
             }
         }
     }
+
     handleSelectChange(val: string) {
         this.selectedTechnician = val;
     }

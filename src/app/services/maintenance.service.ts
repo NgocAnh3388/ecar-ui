@@ -32,7 +32,7 @@ export class MaintenanceService {
         return this.http.post<any>(`${this.api}/api/maintenance/create`, request);
     }
 
-    // ================= ADMIN / TECHNICIAN METHODS (Bị thiếu) =================
+    // ================= ADMIN / TECHNICIAN METHODS =================
 
     // Lấy tất cả phiếu (Admin/Staff)
     getAll(): Observable<any> {
@@ -77,5 +77,12 @@ export class MaintenanceService {
     // Mở lại phiếu đã hủy
     reopenOrder(id: number): Observable<any> {
         return this.http.put<any>(`${this.api}/api/maintenance/${id}/reopen`, {});
+    }
+
+    // --- MỚI: Staff xác nhận giao xe cho khách (Handover) ---
+    confirmDelivery(orderId: number): Observable<any> {
+        // Backend endpoint: PUT /api/maintenance/{id}/handover
+        // Lưu ý: Đảm bảo backend có endpoint này
+        return this.http.put(`${this.api}/api/maintenance/${orderId}/handover`, {});
     }
 }
