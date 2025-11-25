@@ -9,8 +9,13 @@ export class CenterService {
     constructor(private http: HttpClient) {
     }
 
-    getCenter(): Observable<any> {
+    // Hàm lấy tất cả center (Dùng hàm này)
+    getAllCenters(): Observable<any> {
         return this.http.get<any>(`${this.api}/api/center`);
     }
 
+    // Hàm cũ (có thể xóa nếu không dùng ở đâu khác)
+    getCenter(): Observable<any> {
+        return this.http.get<any>(`${this.api}/api/center`);
+    }
 }

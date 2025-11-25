@@ -1,17 +1,17 @@
-import {AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, OnInit} from '@angular/core';
-import {SelectComponent} from "../../../shared/components/form/select/select.component";
-import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
-import {MODAL_DATA} from "../../modal/modal.token";
-import {Vehicle} from "../../../models/vehicle";
-import {ModalRef} from "../../modal/modal-ref";
-import {MaintenanceService} from "../../../services/maintenance.service";
-import {ServiceGroup} from "../../../models/service-group";
-import {User} from "../../../models/user";
-import {UserService} from "../../../services/user.service";
-import {ServiceCreateRequest} from "../../../models/service-create-request";
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, OnInit } from '@angular/core';
+import { SelectComponent } from "../../../shared/components/form/select/select.component";
+import { ButtonComponent } from "../../../shared/components/ui/button/button.component";
+import { MODAL_DATA } from "../../modal/modal.token";
+import { ModalRef } from "../../modal/modal-ref";
+import { MaintenanceService } from "../../../services/maintenance.service";
+import { ServiceGroup } from "../../../models/service-group";
+import { User } from "../../../models/user";
+import { UserService } from "../../../services/user.service";
+import { ServiceCreateRequest } from "../../../models/service-create-request";
 
 @Component({
     selector: 'app-service-detail-dialog',
+    standalone: true, // Đảm bảo component là standalone nếu dùng imports
     imports: [
         SelectComponent,
         ButtonComponent
@@ -49,7 +49,7 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
         numOfKm: number,
         ticketId: number,
         technicianId: number,
-        milestoneId: number // Updated: Added milestoneId
+        milestoneId: number
     } | null;
 
     private modalRef = inject<ModalRef<boolean>>(ModalRef);
@@ -62,21 +62,18 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
 
     constructor(private maintenanceService: MaintenanceService,
                 private userService: UserService,
-                private cdr: ChangeDetectorRef) { // Updated: Added ChangeDetectorRef
+                private cdr: ChangeDetectorRef) {
     }
 
     ngOnInit(): void {
-        // Logic moved to ngAfterViewInit
     }
 
     ngAfterViewInit() {
-        // Updated: Logic moved from ngOnInit to ngAfterViewInit
         this.numOfKm = this.data?.numOfKm ?? 0;
         this.carModelId = this.data?.carModelId ?? 0;
         this.ticketId = this.data?.ticketId ?? 0;
         this.selectedTechnician = this.data?.technicianId ? this.data?.technicianId.toString() : '1'
 
-        // Initialize data loaders
         this.initMilestoneData();
         this.initServiceGroup();
         this.initTechnician();
@@ -124,23 +121,22 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
             Number(this.selectedTechnician),
             this.checkedServiceIds
         )
-        this.maintenanceService.createService(request).pipe().subscribe(res => {
+        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+        this.maintenanceService.createService(request).subscribe((res: any) => {
             this.modalRef.close(true);
         })
     }
 
     initMilestoneData() {
-        this.maintenanceService.getMilestone(this.carModelId).pipe().subscribe(res => {
+        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+        this.maintenanceService.getMilestone(this.carModelId).subscribe((res: any) => {
             this.milestoneOptions = this.toOptions(res, 'id', 'kilometerAt', 'yearAt');
 
-            // Updated: Pre-select milestone based on injected data or default to first
             this.selectedMilestone = this.data?.milestoneId
                 ? this.data?.milestoneId.toString()
-                : (this.milestoneOptions[0]?.value || '1'); // Fallback to '1' if list is empty
+                : (this.milestoneOptions[0]?.value || '1');
 
             this.initMaintenanceServiceGroup(this.selectedMilestone);
-
-            // Updated: Notify Angular of the change
             this.cdr.markForCheck();
         })
     }
@@ -148,7 +144,7 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
     toOptions(list: any[], valueKey: string, labelKey1: string, labelKey2: string) {
         return list.map(item => ({
             value: item[valueKey],
-            label: 'Level ' + item[labelKey2] + ' / ' + item[labelKey1] + ' km' // Translated
+            label: 'Level ' + item[labelKey2] + ' / ' + item[labelKey1] + ' km'
         }));
     }
 
@@ -161,48 +157,42 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
 
     handleMilestoneChange(value: string) {
         this.initMaintenanceServiceGroup(value);
-        this.selectedMilestone = value; // Updated: Ensure state is updated
+        this.selectedMilestone = value;
     }
 
     initMaintenanceServiceGroup(value: string) {
-        this.maintenanceService.getMaintenanceServiceGroup(this.carModelId, Number(value)).pipe().subscribe(res => {
-            this.maintenanceGroup = res;
-        })
+        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+        this.maintenanceService.getMaintenanceServiceGroup(this.carModelId, Number(value))
+            .subscribe((res: any) => {
+                this.maintenanceGroup = res;
+            })
     }
 
     initServiceGroup() {
-        this.maintenanceService.getServiceGroup(this.ticketId).pipe().subscribe(res => {
+        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+        this.maintenanceService.getServiceGroup(this.ticketId).subscribe((res: any) => {
             this.serviceGroup = res;
         })
     }
 
     initTechnician() {
-        this.userService.getUsersByRole('technician').pipe().subscribe(res => {
+        // SỬA LỖI TYPE Ở ĐÂY: (res: any)
+        this.userService.getUsersByRole('technician').subscribe((res: any) => {
             this.technicianOptions = this.toOptionsTwoParam(res, 'id', 'fullName');
         })
     }
 
-    // Translated all categories
     getTitle(category: string) {
         switch (category){
-            case "general":
-                return "General Items"
-            case "replace":
-                return "Replacement or Maintenance"
-            case "cooling":
-                return "Cooling System"
-            case "other":
-                return "Other"
-            case "electric":
-                return "Electrical & A/C System"
-            case "steering":
-                return "Steering System"
-            case "suspension":
-                return "Suspension/Chassis System"
-            case "interior":
-                return "Interior System"
-            case "brake":
-                return "Brake System"
+            case "general": return "General Items"
+            case "replace": return "Replacement or Maintenance"
+            case "cooling": return "Cooling System"
+            case "other": return "Other"
+            case "electric": return "Electrical & A/C System"
+            case "steering": return "Steering System"
+            case "suspension": return "Suspension/Chassis System"
+            case "interior": return "Interior System"
+            case "brake": return "Brake System"
         }
         return undefined;
     }
@@ -218,5 +208,8 @@ export class ServiceDetailDialogComponent implements OnInit, AfterViewInit {
                 this.checkedServiceIds.splice(index, 1);
             }
         }
+    }
+    handleSelectChange(val: string) {
+        this.selectedTechnician = val;
     }
 }

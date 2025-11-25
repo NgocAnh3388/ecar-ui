@@ -1,89 +1,157 @@
-<div class="col-span-12">
-    <div class="col-span-12 xl:col-span-7">
-        <div
-                class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6"
-        >
-            <div
-                    class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    Booking
-                </h3>
-
-
-
-
-            </div>
-
-            <div class="max-w-full overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="border-y border-gray-100 dark:border-gray-800">
-                    <tr>
-                        <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Vehicle name</th>
-                        <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Number plate</th>
-                        <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">VIN</th>
-                        <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Number of km / Last maintenance date</th>
-                        <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Number of km / Next maintenance date</th>
-                        <th class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-center">Booking</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @for (v of vehicleData; track $index) {
-                            <tr>
-                                <td class="py-3">
-                                    <div class="flex items-center gap-3">
-                                        <div>
-                                            <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                                {{ v.carModel.carName }}
-                                            </p>
-                                            <span class="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {{ v.carModel.carType }}
-                      </span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.licensePlate }}</td>
-                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{{ v.vinNumber }}</td>
-                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    {{ v.oldKm | number:'1.0-0' }} km / {{ v.oldDate | date:'dd-MM-yyyy' }}
-                                </td>
-                                <td class="px-4 py-4 text-theme-sm">
-  <span
-          class="px-3 py-1 rounded-full font-medium"
-          [ngClass]="getBadgeClass(v.nextDate)"
-  >
-    {{ v.nextKm | number: '1.0-0' }} km /
-      {{ v.nextDate ? (v.nextDate | date: 'dd-MM-yyyy') : '-' }}
-  </span>
-                                </td>
-
-                                <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center align-middle">
-                                    <button
-                                            (click)="schedule(v.id)"
-                                            type="button"
-                                            aria-label="Schedule maintenance"
-                                            title="Schedule maintenance"
-                                            class="inline-flex items-center justify-center rounded text-gray-700 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 transition-colors duration-200"
-                                    >
-                                        <svg
-                                                class="size-5"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                        >
-                                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                                            <path d="M16 2v4M8 2v4M3 10h18"></path>
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+<div class="schedule-container">
+    <div class="schedule-card">
+        <!-- Header -->
+        <div class="card-header">
+            <h2 class="title">Schedule Service</h2>
+            <p class="subtitle">Book an appointment for maintenance or repair</p>
         </div>
+
+        <form [formGroup]="scheduleForm" (ngSubmit)="onSubmit()" class="flex flex-col h-full">
+            <!-- Body (Cuộn được) -->
+            <div class="card-body">
+
+                <!-- Section 1: Vehicle Selection -->
+                <div class="form-group">
+                    <label>Select Vehicle <span class="text-red-500">*</span></label>
+                    <select formControlName="vehicleId" class="form-control">
+                        <option [ngValue]="null" disabled>-- Choose your car --</option>
+                        <option *ngFor="let car of myVehicles" [value]="car.id">
+                            {{ car.carModel?.carName }} - {{ car.licensePlate }}
+                        </option>
+                    </select>
+                    <div *ngIf="scheduleForm.get('vehicleId')?.invalid && scheduleForm.get('vehicleId')?.touched" class="error-text">
+                        Please select a vehicle.
+                    </div>
+                </div>
+
+                <!-- Section 2: Auto-filled Info -->
+                <div class="row" *ngIf="scheduleForm.get('vehicleId')?.value">
+                    <div class="form-group">
+                        <label>License Plate</label>
+                        <input type="text" formControlName="licensePlate" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Car Model</label>
+                        <input type="text" formControlName="carModel" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <div class="row" *ngIf="scheduleForm.get('vehicleId')?.value">
+                    <div class="form-group">
+                        <label>VIN Number</label>
+                        <input type="text" formControlName="vinNumber" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Kilometers <span class="text-red-500">*</span></label>
+                        <input type="number" formControlName="numOfKm" class="form-control" placeholder="e.g. 5000">
+                        <div *ngIf="scheduleForm.get('numOfKm')?.invalid && scheduleForm.get('numOfKm')?.touched" class="error-text">
+                            Kilometer is required.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Appointment Details -->
+                <div class="form-group">
+                    <label>Service Center <span class="text-red-500">*</span></label>
+                    <select formControlName="centerId" class="form-control">
+                        <option [ngValue]="null" disabled>-- Select Center --</option>
+                        <option *ngFor="let center of centers" [value]="center.id">
+                            {{ center.centerName }} - {{ center.address }}
+                        </option>
+                    </select>
+                    <div *ngIf="scheduleForm.get('centerId')?.invalid && scheduleForm.get('centerId')?.touched" class="error-text">
+                        Please select a service center.
+                    </div>
+                </div>
+
+                <!-- DATE & TIME PICKER (Đã cập nhật icon nằm giữa) -->
+                <div class="row">
+                    <!-- Ô chọn NGÀY -->
+                    <div class="form-group">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">
+                            Date <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <!-- Icon Lịch -->
+                            <div class="input-icon" style="position: absolute; top: 50%; left: 12px; transform: translateY(-50%); pointer-events: none; color: #9ca3af;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <!-- Input Date -->
+                            <input
+                                    type="date"
+                                    formControlName="scheduleDate"
+                                    class="form-control w-full pl-icon cursor-pointer"
+                                    style="padding-left: 40px;"
+                                    onfocus="this.showPicker()"
+                                    [min]="minDate"
+                            >
+                        </div>
+
+                        <div *ngIf="scheduleForm.get('scheduleDate')?.invalid && scheduleForm.get('scheduleDate')?.touched" class="error-text">
+                            <span *ngIf="scheduleForm.get('scheduleDate')?.hasError('required')">Date is required.</span>
+                            <span *ngIf="scheduleForm.get('scheduleDate')?.hasError('pastDate')">Please select a future date.</span>
+                        </div>
+                    </div>
+
+                    <!-- Ô chọn GIỜ -->
+                    <div class="form-group">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">
+                            Time <span class="text-red-500">*</span> (08:00 - 21:00)
+                        </label>
+                        <div class="relative">
+                            <!-- Icon Đồng hồ -->
+                            <div class="input-icon" style="position: absolute; top: 50%; left: 12px; transform: translateY(-50%); pointer-events: none; color: #9ca3af;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <!-- Input Time -->
+                            <input
+                                    type="time"
+                                    formControlName="scheduleTime"
+                                    class="form-control w-full pl-icon cursor-pointer"
+                                    style="padding-left: 40px;"
+                                    onfocus="this.showPicker()"
+                            >
+                        </div>
+
+                        <div *ngIf="scheduleForm.get('scheduleTime')?.invalid && scheduleForm.get('scheduleTime')?.touched" class="error-text">
+                            <span *ngIf="scheduleForm.get('scheduleTime')?.hasError('required')">Time is required.</span>
+                            <span *ngIf="scheduleForm.get('scheduleTime')?.hasError('outOfBusinessHours')">We are open from 08:00 to 21:00.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Service Type & Remark -->
+                <div class="row">
+                    <div class="form-group flex items-center gap-2">
+                        <input type="checkbox" formControlName="isMaintenance" id="isMaintenance" class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                        <label for="isMaintenance" class="mb-0 cursor-pointer text-sm font-medium text-gray-700">Maintenance</label>
+                    </div>
+                    <div class="form-group flex items-center gap-2">
+                        <input type="checkbox" formControlName="isRepair" id="isRepair" class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                        <label for="isRepair" class="mb-0 cursor-pointer text-sm font-medium text-gray-700">Repair</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Remarks</label>
+                    <textarea formControlName="remark" class="form-control" rows="3" placeholder="Describe any specific issues..."></textarea>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer">
+                <button type="submit" [disabled]="isLoading" class="btn-submit">
+                    <span *ngIf="isLoading" class="mr-2">
+                        <svg class="animate-spin h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </span>
+                    {{ isLoading ? 'Booking...' : 'Book Appointment' }}
+                </button>
+            </div>
+        </form>
     </div>
 </div>
