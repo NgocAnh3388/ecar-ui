@@ -1,6 +1,28 @@
 <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5>User Info</h5>
+        <!-- <CHANGE> Thêm nút Edit/Save/Cancel -->
+        <div *ngIf="!isEditMode">
+            <button class="btn btn-sm btn-primary" (click)="enableEdit()">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+        </div>
+        <div *ngIf="isEditMode" class="d-flex gap-2">
+            <button
+                    class="btn btn-sm btn-success"
+                    (click)="saveChanges()"
+                    [disabled]="isSaving"
+            >
+                <i class="fas fa-check"></i> {{ isSaving ? 'Saving...' : 'Save' }}
+            </button>
+            <button
+                    class="btn btn-sm btn-secondary"
+                    (click)="cancelEdit()"
+                    [disabled]="isSaving"
+            >
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <form>
@@ -11,9 +33,10 @@
                         type="text"
                         id="fullName"
                         name="fullName"
-                        [(ngModel)]="user.fullName"
+                        [ngModel]="isEditMode ? editData.fullName : user.fullName"
+                        (ngModelChange)="isEditMode && (editData.fullName = $event)"
                         class="form-control"
-                        readonly
+                        [readonly]="!isEditMode"
                 />
             </div>
 
@@ -24,9 +47,10 @@
                         type="email"
                         id="email"
                         name="email"
-                        [(ngModel)]="user.email"
+                        [ngModel]="isEditMode ? editData.email : user.email"
+                        (ngModelChange)="isEditMode && (editData.email = $event)"
                         class="form-control"
-                        readonly
+                        [readonly]="!isEditMode"
                 />
             </div>
 
@@ -37,9 +61,10 @@
                         type="text"
                         id="phoneNo"
                         name="phoneNo"
-                        [(ngModel)]="user.phoneNo"
+                        [ngModel]="isEditMode ? editData.phoneNo : user.phoneNo"
+                        (ngModelChange)="isEditMode && (editData.phoneNo = $event)"
                         class="form-control"
-                        readonly
+                        [readonly]="!isEditMode"
                 />
             </div>
         </form>

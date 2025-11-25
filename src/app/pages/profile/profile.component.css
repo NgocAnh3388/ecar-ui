@@ -489,3 +489,52 @@ tbody tr:last-child td {
 .dark tbody tr:hover {
   background: #0f172a;
 }
+
+
+/* Edit Button Style */
+/* --- Thêm style cho nút Edit Profile --- */
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: white;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-edit:hover {
+    background: #f8fafc;
+    color: #10b981; /* Màu xanh lá khi hover giống theme */
+    border-color: #10b981;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+}
+
+.btn-edit svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Dark mode cho nút Edit (nếu app có dark mode) */
+.dark .btn-edit {
+    background: #1e293b;
+    color: #cbd5e1;
+    border-color: #475569;
+}
+
+.dark .btn-edit:hover {
+    background: #334155;
+    color: #34d399;
+    border-color: #34d399;
+}

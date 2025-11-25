@@ -51,4 +51,18 @@ export class UserService {
     toggleActive(id: number): Observable<void> {
         return this.http.put<void>(`${this.api}/api/users/${id}/toggle-active`, {});
     }
+
+    getUserByEmail(email: string): Observable<UserDto> {
+        // Gọi API search để tìm user theo email
+        const userSearch = new UserSearch(email, 0, 1);
+        return this.http.post<any>(`${this.api}/api/users/search`, userSearch).pipe(
+            map(res => {
+                if (res.content && res.content.length > 0) {
+                    return res.content[0];
+                }
+                throw new Error('User not found');
+            })
+        );
+    }
+
 }

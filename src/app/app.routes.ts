@@ -60,6 +60,8 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         children: [
             { path: '', component: EcommerceComponent, pathMatch: 'full', title: 'Dashboard' },
+            // Khi người dùng vào /profile, tự động chuyển sang /profile/me
+            { path: 'profile', redirectTo: 'profile/me', pathMatch: 'full' },
 
             //Profile
             { path: 'profile/me', component: ProfileComponent, title: 'Personal Profile' },
