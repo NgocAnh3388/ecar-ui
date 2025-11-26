@@ -129,7 +129,7 @@
                             </button>
 
                             <!-- 4. Complete -->
-                            <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && item.isMaintenance && !isStaff"
+                            <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && !isStaff"
                                     (click)="onComplete(item.id)"
                                     title="Mark as Complete"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors">

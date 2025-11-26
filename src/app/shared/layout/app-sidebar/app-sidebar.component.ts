@@ -64,24 +64,27 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
             path: '/admin/parts-management'
         },
-        {
-            name: 'Overview',
-            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-            path: '/overview'
-        },
+
+        // --- [XÓA MỤC OVERVIEW TẠI ĐÂY] ---
+        // {
+        //     name: 'Overview',
+        //     icon: `<svg ...></svg>`,
+        //     path: '/overview'
+        // },
+        // ----------------------------------
+
         {
             name: 'Profit Report',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
             path: '/admin/profit-report'
         },
 
-        // --- [MỚI] My Certificates (Dành cho Technician) ---
+        // --- My Certificates (Dành cho Technician) ---
         {
             name: 'My Certificates',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-4.418 0-8-1.79-8-4s3.582-4 8-4 8 1.79 8 4-3.582 4-8 4z"/><path d="M12 15v7"/><path d="M8 15v3.5"/><path d="M16 15v3.5"/><path d="M8.836 11.252A8.003 8.003 0 0 1 12 7a8.003 8.003 0 0 1 3.164 4.252"/></svg>`,
             path: '/technician/profile'
         },
-        // ---------------------------------------------------
 
         {
             name: 'User Profile',
@@ -121,17 +124,14 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.authService.getCurrentUser().subscribe({
             next: (user) => {
-                console.log('User object from API:', user);
                 this.userRoles = user?.roles || [];
                 localStorage.setItem('user', JSON.stringify(user));
 
-                // Logic xác định Role chính
                 if (this.userRoles.includes('ROLE_ADMIN')) this.currentUserRole = 'ADMIN';
                 else if (this.userRoles.includes('ROLE_STAFF')) this.currentUserRole = 'STAFF';
                 else if (this.userRoles.includes('ROLE_TECHNICIAN')) this.currentUserRole = 'TECHNICIAN';
                 else this.currentUserRole = 'CUSTOMER';
 
-                // Xử lý path cho User Profile
                 const userProfileItem = this.allNavItems.find(i => i.name === 'User Profile');
                 if (userProfileItem) {
                     userProfileItem.path = this.userRoles.includes('ROLE_ADMIN')
@@ -139,9 +139,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
                         : `/profile/me`;
                 }
 
-                // Lọc menu dựa trên Role
                 this.filterMenuByRole();
-
                 this.cdr.detectChanges();
             },
             error: () => {
@@ -150,7 +148,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             },
         });
 
-        // Theo dõi router
         this.subscription.add(
             this.router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
@@ -172,7 +169,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
-// --- HÀM LỌC MENU THEO ROLE ---
+    // --- HÀM LỌC MENU THEO ROLE ---
     private filterMenuByRole() {
         const roleAccess: Record<string, string[]> = {
             'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
@@ -180,31 +177,21 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             'Maintenance information': ['ROLE_CUSTOMER'],
             'Service package management': ['ROLE_CUSTOMER'],
             'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
-
-            // --- [SỬA Ở ĐÂY] ---
-            // Cũ: 'Overview': [],
-            // Mới: Chỉ Admin được xem
-            'Overview': ['ROLE_ADMIN'],
-            // ------------------
-
-            'Profit Report': ['ROLE_ADMIN'],
-            'User Profile': ['ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_TECHNICIAN', 'ROLE_STAFF'], // Cập nhật để ai cũng có profile
             'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
+            'Profit Report': ['ROLE_ADMIN'],
             'My Certificates': ['ROLE_TECHNICIAN'],
+            'User Profile': ['ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_TECHNICIAN', 'ROLE_STAFF'],
+
+            // --- [ĐÃ XÓA OVERVIEW] ---
         };
 
         this.navItems = this.allNavItems.filter((item) => {
             const allowedRoles = roleAccess[item.name];
-
-            // Nếu không định nghĩa role hoặc mảng rỗng -> Cho phép tất cả
             if (!allowedRoles || allowedRoles.length === 0) return true;
-
-            // Kiểm tra xem user có role phù hợp không
             return allowedRoles.some((r) => this.userRoles.includes(r));
         });
     }
 
-    // --- CÁC HÀM UI KHÁC ---
     onSidebarMouseEnter() { this.sidebarService.setHovered(true); }
     onSidebarMouseLeave() { this.sidebarService.setHovered(false); }
     toggleSubmenu(prefix: string, index: number) {
