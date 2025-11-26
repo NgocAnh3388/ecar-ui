@@ -95,6 +95,10 @@
             <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
+                    <!-- 1. CỘT SỐ THỨ TỰ (#) -->
+                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        #
+                    </th>
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                         Vehicle
                     </th>
@@ -110,11 +114,23 @@
                     <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                         Status
                     </th>
+                    <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Action
+                    </th>
                 </tr>
                 </thead>
 
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                <tr *ngFor="let item of maintenanceHistory" class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                <!-- Thêm let i = index để lấy số thứ tự -->
+                <tr *ngFor="let item of maintenanceHistory; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+
+                    <!-- 1. LOGIC SỐ THỨ TỰ: (Trang hiện tại * Số lượng item) + index + 1 -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {{ (pageIndex * pageSize) + i + 1 }}
+                        </span>
+                    </td>
+
                     <!-- Vehicle Info -->
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-3 vehicle-info">
@@ -125,10 +141,10 @@
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ item.carName }}
+                                    {{ item.carName || item.carModelName || item.carModel?.carName }}
                                 </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ item.carType }}
+                                    {{ item.carType || 'Car' }}
                                 </div>
                             </div>
                         </div>
@@ -147,17 +163,17 @@
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            {{ item.submittedAt | date: 'dd MMM yyyy, HH:mm' }}
+                            {{ (item.submittedAt || item.scheduleDate) | date: 'dd MMM yyyy, HH:mm' }}
                         </div>
                     </td>
 
                     <!-- Handover Date -->
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div *ngIf="item.completedAt; else noDate" class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 date-cell">
+                        <div *ngIf="item.completedAt || item.handoverDate; else noDate" class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 date-cell">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
-                            {{ item.completedAt | date: 'dd MMM yyyy, HH:mm' }}
+                            {{ (item.completedAt || item.handoverDate) | date: 'dd MMM yyyy, HH:mm' }}
                         </div>
                         <ng-template #noDate>
                             <span class="text-sm text-gray-400 dark:text-gray-500 italic">Not completed yet</span>
@@ -169,22 +185,42 @@
                         <span
                                 class="status-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
                                 [ngClass]="{
-                                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': item.status === 'Delivered',
-                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': item.status === 'Pending',
-                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': item.status !== 'Delivered' && item.status !== 'Pending'
+                                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': item.status === 'Delivered' || item.status === 'DONE' || item.status === 'COMPLETED',
+                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': item.status === 'Pending' || item.status === 'PENDING' || item.status === 'CUSTOMER_SUBMITTED',
+                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': item.status === 'CANCELLED'
                             }"
                         >
                             <span
                                     class="status-indicator w-1.5 h-1.5 rounded-full mr-1.5"
                                     [ngClass]="{
-                                    'bg-emerald-600': item.status === 'Delivered',
-                                    'bg-yellow-600': item.status === 'Pending',
-                                    'bg-red-600': item.status !== 'Delivered' && item.status !== 'Pending'
+                                    'bg-emerald-600': item.status === 'Delivered' || item.status === 'DONE',
+                                    'bg-yellow-600': item.status === 'Pending' || item.status === 'CUSTOMER_SUBMITTED',
+                                    'bg-red-600': item.status === 'CANCELLED'
                                 }"
                             ></span>
                             {{ item.status }}
                         </span>
                     </td>
+
+                    <!-- Action -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <button *ngIf="['PENDING', 'CUSTOMER_SUBMITTED'].includes(item.status)"
+                                (click)="onCancelTicket(item.bookingId || item.id)"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-lg text-xs font-medium transition-all dark:bg-gray-800 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            Cancel
+                        </button>
+
+                        <span *ngIf="item.status === 'CANCELLED'" class="text-xs text-gray-400 italic dark:text-gray-500">
+                            Cancelled
+                        </span>
+
+                        <button *ngIf="['DONE', 'COMPLETED', 'Delivered'].includes(item.status)"
+                                class="text-emerald-600 hover:text-emerald-700 text-xs font-semibold hover:underline dark:text-emerald-400">
+                            Details
+                        </button>
+                    </td>
+
                 </tr>
                 </tbody>
             </table>
@@ -193,14 +229,12 @@
         <!-- Pagination -->
         <div *ngIf="!isLoading && maintenanceHistory.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <!-- Page Info -->
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     Showing <span class="font-semibold text-gray-900 dark:text-white">{{ (currentPage - 1) * pageSize + 1 }}</span>
                     to <span class="font-semibold text-gray-900 dark:text-white">{{ Math.min(currentPage * pageSize, totalItems) }}</span>
                     of <span class="font-semibold text-gray-900 dark:text-white">{{ totalItems }}</span> results
                 </div>
 
-                <!-- Pagination Controls -->
                 <div class="flex items-center gap-2 pagination-controls">
                     <button
                             (click)="goToPage(currentPage - 1)"
@@ -213,7 +247,6 @@
                         Previous
                     </button>
 
-                    <!-- Page Numbers -->
                     <div class="hidden sm:flex items-center gap-1">
                         <button
                                 *ngFor="let page of [].constructor(totalPages); let idx = index"

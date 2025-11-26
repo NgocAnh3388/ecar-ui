@@ -101,16 +101,17 @@ export class ServiceDetailDialogComponent implements OnInit {
             }
         }
 
-        this.initTechnician();
+        // Chỉ gọi API load Technician nếu là Staff
+        if (this.isStaff) {
+            this.initTechnician();
+        }
     }
 
-    // --- MỚI: Hàm lấy tên Level để hiển thị ---
     get milestoneLabel(): string {
         const found = this.milestoneOptions.find(m => m.value == this.selectedMilestone);
         return found ? found.label : '';
     }
 
-    // ... (Các hàm còn lại GIỮ NGUYÊN không thay đổi) ...
     onKmInput(event: Event) {
         if (!this.isStaff) return;
         const val = Number((event.target as HTMLInputElement).value);
@@ -189,14 +190,11 @@ export class ServiceDetailDialogComponent implements OnInit {
         this.maintenanceService.createService(request).subscribe({
             next: (res: any) => {
                 this.modalRef.close(true);
-                // Có thể thêm toast success ở đây nếu muốn
             },
             error: (err: any) => {
                 console.error(err);
-                // Hiển thị thông báo lỗi từ Backend trả về
-                // Nếu bạn có ToastService thì dùng, không thì dùng alert
                 const message = err.error?.message || "Failed to assign technician.";
-                alert(message); // Nó sẽ hiện: "This technician has reached the daily limit of 3 tasks!"
+                alert(message);
             }
         });
     }
@@ -260,11 +258,18 @@ export class ServiceDetailDialogComponent implements OnInit {
         })
     }
 
+    // --- HÀM MỚI: LOAD TECHNICIAN THEO CENTER ---
     initTechnician() {
-        this.userService.getUsersByRole('technician').subscribe((res: any) => {
-            this.technicianOptions = this.toOptionsTwoParam(res, 'id', 'fullName');
-            this.cdr.markForCheck();
-        })
+        // Gọi hàm lấy Tech theo Center của Staff (đã thêm vào UserService)
+        this.userService.getTechniciansByMyCenter().subscribe({
+            next: (res: any) => {
+                this.technicianOptions = this.toOptionsTwoParam(res, 'id', 'fullName');
+                this.cdr.markForCheck();
+            },
+            error: (err) => {
+                console.error("Failed to load technicians for center", err);
+            }
+        });
     }
 
     getTitle(category: string) {

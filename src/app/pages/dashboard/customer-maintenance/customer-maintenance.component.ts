@@ -1,16 +1,20 @@
 import { OnInit, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
-import { MaintenanceService } from '../../../services/maintenance.service';
-import { MaintenanceHistory } from '../../../models/maintenance-history';
-import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { catchError, EMPTY, finalize, forkJoin } from 'rxjs';
-import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
-import { ModalService } from '../../modal/modal.service';
+import { catchError, EMPTY, finalize, forkJoin } from 'rxjs';
+
+// Components & Services
+import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
+import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
 import { CreateCarDialogComponent } from '../../dialog/create-car-dialog/create-car-dialog.component';
+import { MaintenanceService } from '../../../services/maintenance.service';
 import { VehicleService } from '../../../services/vehicle.service';
+import { ModalService } from '../../modal/modal.service';
+import { ToastService } from '../../toast/toast.service';
+
+// Models
+import { MaintenanceHistory } from '../../../models/maintenance-history';
 
 @Component({
     selector: 'app-customer-maintenance',
@@ -26,7 +30,6 @@ import { VehicleService } from '../../../services/vehicle.service';
     styleUrl: './customer-maintenance.component.css'
 })
 export class CustomerMaintenanceComponent implements OnInit {
-    // Expose Math object to template
     Math = Math;
 
     searchValue = '';
@@ -43,7 +46,8 @@ export class CustomerMaintenanceComponent implements OnInit {
         private maintenanceService: MaintenanceService,
         private vehicleService: VehicleService,
         private router: Router,
-        private modal: ModalService
+        private modal: ModalService,
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
@@ -70,31 +74,27 @@ export class CustomerMaintenanceComponent implements OnInit {
             .pipe(finalize(() => {
                 this.isLoading = false;
             }))
-            .subscribe(({ history, vehicles }) => {
-                console.log('History API:', history);
-                console.log('Vehicles API:', vehicles);
-
+            // Fix lỗi type bằng cách ép kiểu :any
+            .subscribe(({ history, vehicles }: any) => {
                 this.maintenanceHistory = history?.content || [];
+                // --- THÊM DÒNG NÀY ĐỂ DEBUG ---
+                console.log('Dữ liệu Maintenance History:', this.maintenanceHistory);
+                if (this.maintenanceHistory.length > 0) {
+                    console.log('Item đầu tiên:', this.maintenanceHistory[0]);
+                }
+                // -----------------------------
                 this.totalItems = history?.page?.totalElements || 0;
                 this.totalPageNum = history?.page?.totalPages || 0;
                 this.hasCars = !!(vehicles && vehicles.length > 0);
-
-                console.log('Maintenance History:', this.maintenanceHistory);
-                console.log('Total Items:', this.totalItems);
-                console.log('Has Cars:', this.hasCars);
             });
     }
 
-    // Search function - triggered when user presses Enter or clicks search
     onSearch() {
-        console.log('Searching for:', this.searchValue);
-        // Reset to first page when searching
         this.pageIndex = 0;
         this.currentPage = 1;
         this.loadData();
     }
 
-    // Clear search
     clearSearch() {
         this.searchValue = '';
         this.pageIndex = 0;
@@ -107,15 +107,41 @@ export class CustomerMaintenanceComponent implements OnInit {
             this.router.navigate(['/customer-schedule']);
         } else {
             const ref = this.modal.open(CreateCarDialogComponent, {
-                data: { title: 'Thêm xe', message: '' },
+                data: { title: 'Add Vehicle', message: '' },
                 panelClass: ['modal-panel', 'p-0'],
                 backdropClass: 'modal-backdrop',
                 disableClose: false,
             });
 
-            ref.afterClosed$.subscribe((confirmed) => {
+            ref.afterClosed$.subscribe((confirmed: any) => {
                 if (confirmed) {
                     this.loadData();
+                }
+            });
+        }
+    }
+
+    // --- XỬ LÝ HỦY ĐƠN ---
+    onCancelTicket(ticketId: number) {
+        if (confirm('Are you sure you want to cancel this booking?')) {
+            this.isLoading = true;
+
+            this.maintenanceService.cancelTicket(ticketId).subscribe({
+                next: (res: any) => {
+                    this.toastService.success('Cancelled successfully!');
+
+                    // Cập nhật trạng thái ngay lập tức trên giao diện
+                    const item = this.maintenanceHistory.find(x => x.id === ticketId);
+                    if (item) {
+                        item.status = 'CANCELLED'; // Cập nhật để ẩn nút hủy đi
+                    }
+                    this.isLoading = false;
+                },
+                error: (err: any) => {
+                    this.isLoading = false;
+                    console.error(err);
+                    const msg = err.error?.message || 'Failed to cancel appointment.';
+                    this.toastService.error(msg);
                 }
             });
         }
@@ -126,31 +152,9 @@ export class CustomerMaintenanceComponent implements OnInit {
     }
 
     goToPage(page: number) {
-        if (page < 1 || page > this.totalPages) {
-            return;
-        }
+        if (page < 1 || page > this.totalPages) return;
         this.pageIndex = page - 1;
         this.currentPage = page;
         this.loadData();
-    }
-
-    // Navigation helpers
-    goToFirstPage() {
-        this.goToPage(1);
-    }
-
-    goToLastPage() {
-        this.goToPage(this.totalPages);
-    }
-
-    // Check if page is current
-    isCurrentPage(page: number): boolean {
-        return this.currentPage === page;
-    }
-
-    getBadgeColor(status: string): 'success' | 'warning' | 'error' {
-        if (status === 'Delivered') return 'success';
-        if (status === 'Pending') return 'warning';
-        return 'error';
     }
 }

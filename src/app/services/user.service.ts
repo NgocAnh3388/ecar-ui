@@ -65,4 +65,9 @@ export class UserService {
         );
     }
 
+    // Hàm mới để lấy Tech theo Center
+    getTechniciansByMyCenter(): Observable<any[]> {
+        // Đường dẫn phải khớp với Controller Backend bạn đã tạo
+        return this.http.get<any[]>(`${this.api}/api/users/technicians/my-center`, { withCredentials: true });
+    }
 }

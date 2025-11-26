@@ -25,6 +25,10 @@ export class CustomerScheduleComponent implements OnInit {
     scheduleForm: FormGroup;
     myVehicles: Vehicle[] = [];
     centers: Center[] = [];
+
+    // Dùng any[] để tránh lỗi strict mode khi binding dữ liệu phức tạp
+    myBookings: any[] = [];
+
     isLoading = false;
     minDate: string = '';
 
@@ -44,7 +48,6 @@ export class CustomerScheduleComponent implements OnInit {
             licensePlate: [{value: '', disabled: true}],
             carModel: [{value: '', disabled: true}],
             vinNumber: [{value: '', disabled: true}],
-            // Bỏ validate required cho Km vì khách không cần nhập
             numOfKm: [0],
             isMaintenance: [true],
             isRepair: [false],
@@ -55,6 +58,7 @@ export class CustomerScheduleComponent implements OnInit {
     ngOnInit() {
         this.setMinDate();
         this.loadData();
+        this.loadMyBookings();
         this.setupFormListeners();
     }
 
@@ -111,11 +115,52 @@ export class CustomerScheduleComponent implements OnInit {
                     licensePlate: selectedCar.licensePlate,
                     carModel: selectedCar.carModel?.carName,
                     vinNumber: selectedCar.vinNumber,
-                    // Vẫn lưu tạm giá trị cũ nếu có, nhưng không hiển thị cho user sửa
                     numOfKm: selectedCar.nextKm || 0
                 });
             }
         });
+    }
+
+    // Load danh sách lịch sử (Thay cho BookingService)
+    loadMyBookings() {
+        this.maintenanceService.getMaintenanceHistory('', 100, 0).subscribe({
+            next: (res: any) => {
+                // Xử lý dữ liệu trả về (có thể là res.content hoặc res)
+                const list = res.content || res || [];
+
+                // Sort giảm dần theo ngày
+                this.myBookings = list.sort((a: any, b: any) => {
+                    const dateA = new Date(a.scheduleDate || 0).getTime();
+                    const dateB = new Date(b.scheduleDate || 0).getTime();
+                    return dateB - dateA;
+                });
+            },
+            error: (err: any) => console.error('Error loading bookings:', err)
+        });
+    }
+
+    // Xử lý hủy đơn
+    onCancelBooking(bookingId: number) {
+        if (confirm('Are you sure you want to cancel this appointment?')) {
+            this.isLoading = true;
+            this.maintenanceService.cancelTicket(bookingId).subscribe({
+                next: (res: any) => {
+                    this.toastService.success('Appointment cancelled successfully!');
+                    this.isLoading = false;
+
+                    // Cập nhật UI ngay lập tức
+                    const index = this.myBookings.findIndex(b => b.id === bookingId);
+                    if (index !== -1) {
+                        this.myBookings[index].status = 'CANCELLED';
+                    }
+                },
+                error: (err: any) => {
+                    this.isLoading = false;
+                    const msg = err.error?.message || 'Failed to cancel appointment.';
+                    this.toastService.error(msg);
+                }
+            });
+        }
     }
 
     onSubmit() {
@@ -169,18 +214,18 @@ export class CustomerScheduleComponent implements OnInit {
             scheduleDate: dateStr,
             scheduleTime: timeStr,
             vehicleId: Number(formData.vehicleId),
-            numOfKm: 0, // Mặc định gửi 0 vì khách không nhập
+            numOfKm: 0,
             isMaintenance: !!formData.isMaintenance,
             isRepair: !!formData.isRepair,
             remark: formData.remark || ''
         };
 
-        console.log('Sending Request Payload:', request);
-
         this.maintenanceService.createSchedule(request).subscribe({
             next: () => {
                 this.toastService.success('Booking successful!');
-                setTimeout(() => this.router.navigate(['/customer-maintenance']), 1500);
+                this.loadMyBookings(); // Load lại bảng bên dưới
+                this.scheduleForm.reset();
+                this.isLoading = false;
             },
             error: (err: any) => {
                 this.isLoading = false;

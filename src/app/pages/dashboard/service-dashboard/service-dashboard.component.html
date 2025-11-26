@@ -100,8 +100,12 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <!-- Edit Button -->
-                            <button (click)="onDetail(item.id, item.carModelId, item.numOfKm, item.technicianId, item.scheduleId, item.isMaintenance, item.isRepair)" title="Edit Service" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors">
+                            <!-- 1. NÚT EDIT (Assign Task / View Detail) -->
+                            <!-- THÊM ĐIỀU KIỆN: && item.status !== 'CANCELLED' -->
+                            <button *ngIf="item.status !== 'CANCELLED' && item.status !== 'DONE'"
+                                    (click)="onDetail(item.id, item.carModelId, item.numOfKm, item.technicianId, item.scheduleId, item.isMaintenance, item.isRepair)"
+                                    title="Edit Service / Assign Task"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
                             </button>
 

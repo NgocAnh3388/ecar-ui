@@ -16,14 +16,9 @@ export class MaintenanceService {
 
     // ================= CUSTOMER METHODS =================
 
-    // Hàm lấy lịch sử (cho trang Customer Maintenance)
+    // Hàm lấy lịch sử
     getMaintenanceHistory(searchValue: string, pageSize: number, pageIndex: number): Observable<any> {
         const searchRequest = new MaintenanceHistorySearch(searchValue, pageIndex, pageSize);
-        return this.http.post<any>(`${this.api}/api/maintenance/history`, searchRequest);
-    }
-
-    // Hàm kiểm tra xe bận (cho trang Booking)
-    getHistory(searchRequest: any): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/history`, searchRequest);
     }
 
@@ -32,70 +27,52 @@ export class MaintenanceService {
         return this.http.post<any>(`${this.api}/api/maintenance/create`, request);
     }
 
-    // ================= ADMIN / TECHNICIAN METHODS =================
+    // Hàm hủy đơn (Đã sửa URL trỏ về BookingController như backend bạn cung cấp)
+    cancelTicket(ticketId: number): Observable<any> {
+        // Gọi đúng vào controller Maintenance
+        return this.http.put(`${this.api}/api/maintenance/${ticketId}/cancel`, {}, {
+            withCredentials: true
+        });
+    }
 
-    // Lấy tất cả phiếu (Admin/Staff)
+    // ================= OTHER METHODS (Giữ nguyên) =================
+    getHistory(searchRequest: any): Observable<any> {
+        return this.http.post<any>(`${this.api}/api/maintenance/history`, searchRequest);
+    }
     getAll(): Observable<any> {
         return this.http.get<any>(`${this.api}/api/maintenance/all`);
     }
-
-    // Lấy danh sách task của Technician
     getMyTasks(): Observable<MaintenanceTicket[]> {
         return this.http.get<MaintenanceTicket[]>(`${this.api}/api/maintenance/technician/my-tasks`);
     }
-
-    // Lấy Milestone (mốc bảo dưỡng)
     getMilestone(id: number): Observable<any> {
         return this.http.get<any>(`${this.api}/api/maintenance/milestone/${id}`);
     }
-
-    // Lấy Service Group theo model và milestone (để chọn dịch vụ khi tạo phiếu)
     getMaintenanceServiceGroup(carModelId: number, milestoneId: number): Observable<any> {
         return this.http.get<any>(`${this.api}/api/maintenance/service-group/${carModelId}/${milestoneId}`);
     }
-
-    // Lấy Service Group của một phiếu đã tạo (để xem chi tiết)
     getServiceGroup(ticketId: number): Observable<any> {
         return this.http.get<any>(`${this.api}/api/maintenance/service-group/${ticketId}`);
     }
-
-    // Staff tạo phiếu dịch vụ (Assign Task)
     createService(request: ServiceCreateRequest): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/service-create`, request);
     }
-
-    // Technician hoàn thành công việc
     completeTechnicianTask(id: number): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/${id}/technician-complete`, {});
     }
-
-    // Hủy phiếu
     cancelOrder(id: number): Observable<any> {
         return this.http.put<any>(`${this.api}/api/maintenance/${id}/cancel`, {});
     }
-
-    // Mở lại phiếu đã hủy
     reopenOrder(id: number): Observable<any> {
         return this.http.put<any>(`${this.api}/api/maintenance/${id}/reopen`, {});
     }
-
-    // --- MỚI: Staff xác nhận giao xe cho khách (Handover) ---
     confirmDelivery(orderId: number): Observable<any> {
-        // Backend endpoint: PUT /api/maintenance/{id}/handover
-        // Lưu ý: Đảm bảo backend có endpoint này
         return this.http.put(`${this.api}/api/maintenance/${orderId}/handover`, {});
     }
-
-    // --- THÊM MỚI CHO TÍNH NĂNG REPORT COST ---
-
-    // 1. Technician gửi yêu cầu phát sinh chi phí
     requestAdditionalCost(request: { ticketId: number; amount: number; reason: string }): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/add-cost`, request);
     }
-
-    // 2. Staff xử lý quyết định của khách (Duyệt / Từ chối)
     processDecision(id: number, decision: 'APPROVE' | 'REJECT'): Observable<any> {
         return this.http.put<any>(`${this.api}/api/maintenance/${id}/approval?decision=${decision}`, {});
     }
-
 }
