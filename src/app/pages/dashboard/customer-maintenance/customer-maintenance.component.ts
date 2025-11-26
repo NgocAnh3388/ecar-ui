@@ -13,6 +13,10 @@ import { VehicleService } from '../../../services/vehicle.service';
 import { ModalService } from '../../modal/modal.service';
 import { ToastService } from '../../toast/toast.service';
 
+// --- [THÊM IMPORT NÀY] ---
+import { ServiceDetailDialogComponent } from '../../dialog/service-detail-dialog/service-detail-dialog.component';
+// -------------------------
+
 // Models
 import { MaintenanceHistory } from '../../../models/maintenance-history';
 
@@ -74,15 +78,9 @@ export class CustomerMaintenanceComponent implements OnInit {
             .pipe(finalize(() => {
                 this.isLoading = false;
             }))
-            // Fix lỗi type bằng cách ép kiểu :any
             .subscribe(({ history, vehicles }: any) => {
                 this.maintenanceHistory = history?.content || [];
-                // --- THÊM DÒNG NÀY ĐỂ DEBUG ---
                 console.log('Dữ liệu Maintenance History:', this.maintenanceHistory);
-                if (this.maintenanceHistory.length > 0) {
-                    console.log('Item đầu tiên:', this.maintenanceHistory[0]);
-                }
-                // -----------------------------
                 this.totalItems = history?.page?.totalElements || 0;
                 this.totalPageNum = history?.page?.totalPages || 0;
                 this.hasCars = !!(vehicles && vehicles.length > 0);
@@ -129,11 +127,9 @@ export class CustomerMaintenanceComponent implements OnInit {
             this.maintenanceService.cancelTicket(ticketId).subscribe({
                 next: (res: any) => {
                     this.toastService.success('Cancelled successfully!');
-
-                    // Cập nhật trạng thái ngay lập tức trên giao diện
                     const item = this.maintenanceHistory.find(x => x.id === ticketId);
                     if (item) {
-                        item.status = 'CANCELLED'; // Cập nhật để ẩn nút hủy đi
+                        item.status = 'CANCELLED';
                     }
                     this.isLoading = false;
                 },
@@ -156,5 +152,20 @@ export class CustomerMaintenanceComponent implements OnInit {
         this.pageIndex = page - 1;
         this.currentPage = page;
         this.loadData();
+    }
+
+    // --- HÀM XEM CHI TIẾT ---
+    viewDetails(item: any) {
+        const ref = this.modal.open(ServiceDetailDialogComponent, {
+            data: {
+                title: 'Maintenance Details',
+                ticketId: item.id || item.bookingId,
+                carModelId: item.carModelId,
+                numOfKm: item.numOfKm,
+                isReadOnly: true // Mode chỉ xem
+            },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+        });
     }
 }

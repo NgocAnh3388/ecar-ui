@@ -32,7 +32,8 @@ type NavItem = {
 })
 export class AppSidebarComponent implements OnInit, OnDestroy {
 
-    navItems: NavItem[] = [
+    // 1. Danh sách menu đầy đủ
+    allNavItems: NavItem[] = [
         {
             name: 'User management',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
@@ -73,6 +74,15 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
             path: '/admin/profit-report'
         },
+
+        // --- [MỚI] My Certificates (Dành cho Technician) ---
+        {
+            name: 'My Certificates',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-4.418 0-8-1.79-8-4s3.582-4 8-4 8 1.79 8 4-3.582 4-8 4z"/><path d="M12 15v7"/><path d="M8 15v3.5"/><path d="M16 15v3.5"/><path d="M8.836 11.252A8.003 8.003 0 0 1 12 7a8.003 8.003 0 0 1 3.164 4.252"/></svg>`,
+            path: '/technician/profile'
+        },
+        // ---------------------------------------------------
+
         {
             name: 'User Profile',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
@@ -80,7 +90,10 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         },
     ];
 
+    // 2. Danh sách menu thực tế hiển thị
+    navItems: NavItem[] = [];
     othersItems: NavItem[] = [];
+
     openSubmenu: string | null = null;
     subMenuHeights: { [key: string]: number } = {};
 
@@ -92,6 +105,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
 
     private subscription: Subscription = new Subscription();
     userRoles: string[] = [];
+    currentUserRole: string = '';
 
     constructor(
         public sidebarService: SidebarService,
@@ -111,24 +125,32 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
                 this.userRoles = user?.roles || [];
                 localStorage.setItem('user', JSON.stringify(user));
 
-                const googleId = user?.claims?.sub;
-                const userProfileItem = this.navItems.find(i => i.name === 'User Profile');
-                if (userProfileItem && googleId) {
+                // Logic xác định Role chính
+                if (this.userRoles.includes('ROLE_ADMIN')) this.currentUserRole = 'ADMIN';
+                else if (this.userRoles.includes('ROLE_STAFF')) this.currentUserRole = 'STAFF';
+                else if (this.userRoles.includes('ROLE_TECHNICIAN')) this.currentUserRole = 'TECHNICIAN';
+                else this.currentUserRole = 'CUSTOMER';
+
+                // Xử lý path cho User Profile
+                const userProfileItem = this.allNavItems.find(i => i.name === 'User Profile');
+                if (userProfileItem) {
                     userProfileItem.path = this.userRoles.includes('ROLE_ADMIN')
-                        ? `/profile/${user.id}`      // numeric id admin
-                        : `/profile/me`;             // customer dùng /me
+                        ? `/profile/${user.id}`
+                        : `/profile/me`;
                 }
 
+                // Lọc menu dựa trên Role
                 this.filterMenuByRole();
-                this.navItems = [...this.navItems];
+
                 this.cdr.detectChanges();
             },
             error: () => {
                 this.userRoles = [];
+                this.filterMenuByRole();
             },
         });
 
-        // Theo dõi router để highlight active menu
+        // Theo dõi router
         this.subscription.add(
             this.router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
@@ -137,7 +159,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             })
         );
 
-        // Theo dõi trạng thái sidebar
         this.subscription.add(
             combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(() => {
                 this.cdr.detectChanges();
@@ -151,19 +172,44 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
-    onSidebarMouseEnter() {
-        this.sidebarService.setHovered(true);
+// --- HÀM LỌC MENU THEO ROLE ---
+    private filterMenuByRole() {
+        const roleAccess: Record<string, string[]> = {
+            'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
+            'Booking': ['ROLE_CUSTOMER'],
+            'Maintenance information': ['ROLE_CUSTOMER'],
+            'Service package management': ['ROLE_CUSTOMER'],
+            'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
+
+            // --- [SỬA Ở ĐÂY] ---
+            // Cũ: 'Overview': [],
+            // Mới: Chỉ Admin được xem
+            'Overview': ['ROLE_ADMIN'],
+            // ------------------
+
+            'Profit Report': ['ROLE_ADMIN'],
+            'User Profile': ['ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_TECHNICIAN', 'ROLE_STAFF'], // Cập nhật để ai cũng có profile
+            'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
+            'My Certificates': ['ROLE_TECHNICIAN'],
+        };
+
+        this.navItems = this.allNavItems.filter((item) => {
+            const allowedRoles = roleAccess[item.name];
+
+            // Nếu không định nghĩa role hoặc mảng rỗng -> Cho phép tất cả
+            if (!allowedRoles || allowedRoles.length === 0) return true;
+
+            // Kiểm tra xem user có role phù hợp không
+            return allowedRoles.some((r) => this.userRoles.includes(r));
+        });
     }
 
-    onSidebarMouseLeave() {
-        this.sidebarService.setHovered(false);
-    }
-
-    //Toggle submenu
+    // --- CÁC HÀM UI KHÁC ---
+    onSidebarMouseEnter() { this.sidebarService.setHovered(true); }
+    onSidebarMouseLeave() { this.sidebarService.setHovered(false); }
     toggleSubmenu(prefix: string, index: number) {
         const key = `${prefix}-${index}`;
         this.openSubmenu = this.openSubmenu === key ? null : key;
-
         setTimeout(() => {
             const el = document.getElementById(key);
             if (el) {
@@ -172,42 +218,18 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     onSubmenuClick() {
         this.isMobileOpen$.subscribe((isMobile) => {
             if (isMobile) this.sidebarService.setMobileOpen(false);
         }).unsubscribe();
     }
-
-    private filterMenuByRole() {
-        const roleAccess: Record<string, string[]> = {
-            'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
-            'Booking': ['ROLE_CUSTOMER'],
-            'Maintenance information': ['ROLE_CUSTOMER'],
-            'Service package management': ['ROLE_CUSTOMER'],
-            'Service management': ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_TECHNICIAN'],
-            'Overview': [],
-            'Profit Report': ['ROLE_ADMIN'],
-            'User Profile': ['ROLE_CUSTOMER'],
-            'Parts & Inventory': ['ROLE_ADMIN', 'ROLE_STAFF'],
-        };
-        this.navItems = this.navItems.filter((item) => {
-            const allowed = roleAccess[item.name];
-            return !allowed || allowed.some((r) => this.userRoles.includes(r));
-        });
-    }
-
-
-    isActive(path: string): boolean {
-        return this.router.url === path;
-    }
+    isActive(path: string): boolean { return this.router.url === path; }
 
     private setActiveMenuFromRoute(currentUrl: string) {
         const menuGroups = [
             { items: this.navItems, prefix: 'main' },
             { items: this.othersItems, prefix: 'others' },
         ];
-
         menuGroups.forEach((group) => {
             group.items.forEach((nav, i) => {
                 if (nav.subItems) {

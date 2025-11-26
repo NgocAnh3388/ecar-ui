@@ -1,0 +1,20 @@
+/* Tạo hiệu ứng nền mờ (backdrop) cho card */
+.bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tạo hiệu ứng gradient đẹp cho progress bar */
+.bg-gradient-to-r {
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+/* Chỉnh lại padding cho bảng nếu cần */
+th, td {
+    vertical-align: middle;
+}
+
+/* Hiệu ứng hover cho button */
+button:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}

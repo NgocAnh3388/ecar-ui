@@ -1,0 +1,143 @@
+<div class="p-6 space-y-8">
+
+    <!-- 1. HEADER & PROFILE INFO -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+
+        <!-- Background Decoration -->
+        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+
+        <!-- Avatar -->
+        <div class="relative shrink-0">
+            <div class="w-28 h-28 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg border-4 border-white dark:border-gray-800">
+                {{ currentUser?.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'T' }}
+            </div>
+            <div class="absolute bottom-1 right-1 bg-white dark:bg-gray-800 p-1 rounded-full">
+                <div class="w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></div>
+            </div>
+        </div>
+
+        <!-- Info & Stats -->
+        <div class="text-center md:text-left flex-1 space-y-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ currentUser?.fullName || 'Technician Name' }}</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center justify-center md:justify-start gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 01 1v5m-4 0h4"/></svg>
+                    {{ currentUser?.centerName || 'Ecar Service Center' }}
+                </p>
+            </div>
+
+            <!-- Role Badges -->
+            <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">Senior Technician</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">EV Expert</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">Level 4 Certified</span>
+            </div>
+
+            <!-- Mini Stats Grid -->
+            <div class="flex justify-center md:justify-start gap-8 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <div class="text-center md:text-left">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ stats.yearsExperience }}+</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Years Exp</p>
+                </div>
+                <div class="text-center md:text-left">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ stats.completedServices }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Tasks Done</p>
+                </div>
+                <div class="text-center md:text-left">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                        {{ stats.rating }} <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Button -->
+        <div class="flex flex-col gap-3">
+            <button (click)="onUpload()" class="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Upload Certificate
+            </button>
+            <button class="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download CV
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. TOOLBAR & FILTERS -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            My Certificates
+            <span class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">{{ displayedCertificates.length }}</span>
+        </h2>
+
+        <div class="flex gap-3 w-full sm:w-auto">
+            <!-- Search -->
+            <div class="relative flex-1 sm:flex-none">
+                <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Search certificates..." class="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <!-- Filter Dropdown -->
+            <select [(ngModel)]="filterStatus" (change)="applyFilter()" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                <option value="ALL">All Status</option>
+                <option value="Valid">Valid</option>
+                <option value="Expiring Soon">Expiring Soon</option>
+                <option value="Expired">Expired</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 3. CERTIFICATES GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        <!-- Card Loop -->
+        <div *ngFor="let cert of displayedCertificates" class="cert-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md">
+            <!-- Image Preview -->
+            <div class="h-40 bg-gray-100 dark:bg-gray-900 relative overflow-hidden border-b border-gray-100 dark:border-gray-700">
+                <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                    <img *ngIf="cert.img" [src]="cert.img" alt="Cert" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500">
+                    <svg *ngIf="!cert.img" class="w-16 h-16 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <!-- Overlay -->
+                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                    <button (click)="onViewCert(cert)" class="px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-semibold hover:bg-gray-100 transform scale-95 group-hover:scale-100 transition-all">View Details</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4">
+                <div class="mb-3">
+                    <h3 class="font-bold text-gray-900 dark:text-white line-clamp-1 text-base" title="{{cert.title}}">{{ cert.title }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{{ cert.issuer }}</p>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div class="text-xs">
+                        <p class="text-gray-400">Expires</p>
+                        <p class="font-medium text-gray-700 dark:text-gray-300">{{ cert.expiryDate | date:'dd/MM/yyyy' }}</p>
+                    </div>
+
+                    <!-- Status Badge -->
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide shadow-sm"
+                          [ngClass]="{
+                            'bg-emerald-100 text-emerald-700 border border-emerald-200': cert.status === 'Valid',
+                            'bg-amber-100 text-amber-700 border border-amber-200': cert.status === 'Expiring Soon',
+                            'bg-red-100 text-red-700 border border-red-200': cert.status === 'Expired'
+                          }">
+                        {{ cert.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Placeholder Card -->
+        <button (click)="onUpload()" class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-6 text-gray-400 hover:text-emerald-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all h-full min-h-[260px] group bg-gray-50 dark:bg-gray-800/50">
+            <div class="w-14 h-14 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center mb-4 shadow-sm border border-gray-200 dark:border-gray-600 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </div>
+            <span class="font-semibold text-sm text-gray-600 dark:text-gray-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">Add New Certificate</span>
+            <span class="text-xs text-gray-400 mt-1">PDF, JPG or PNG</span>
+        </button>
+    </div>
+</div>

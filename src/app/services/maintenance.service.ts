@@ -27,15 +27,32 @@ export class MaintenanceService {
         return this.http.post<any>(`${this.api}/api/maintenance/create`, request);
     }
 
-    // Hàm hủy đơn (Đã sửa URL trỏ về BookingController như backend bạn cung cấp)
+    // Hàm hủy đơn
     cancelTicket(ticketId: number): Observable<any> {
-        // Gọi đúng vào controller Maintenance
         return this.http.put(`${this.api}/api/maintenance/${ticketId}/cancel`, {}, {
             withCredentials: true
         });
     }
 
-    // ================= OTHER METHODS (Giữ nguyên) =================
+    // ================= SPARE PARTS (MỚI THÊM ĐỂ FIX LỖI) =================
+
+    // 1. Lấy danh sách tất cả phụ tùng (để hiển thị dropdown cho Tech)
+    // Gọi vào API có sẵn trong InventoryController: /api/inventory/parts
+    getAllSpareParts(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.api}/api/inventory/parts`);
+    }
+
+    // 2. Lấy phụ tùng ĐÃ DÙNG của ticket này
+    getUsedParts(ticketId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.api}/api/maintenance/tasks/${ticketId}/used-parts`);
+    }
+
+    // 3. Cập nhật phụ tùng sử dụng (Trừ kho)
+    updateUsedParts(ticketId: number, parts: { partId: number, quantity: number }[]): Observable<any> {
+        return this.http.put(`${this.api}/api/maintenance/tasks/${ticketId}/used-parts`, { usedParts: parts });
+    }
+
+    // ================= OTHER METHODS =================
     getHistory(searchRequest: any): Observable<any> {
         return this.http.post<any>(`${this.api}/api/maintenance/history`, searchRequest);
     }
@@ -75,4 +92,11 @@ export class MaintenanceService {
     processDecision(id: number, decision: 'APPROVE' | 'REJECT'): Observable<any> {
         return this.http.put<any>(`${this.api}/api/maintenance/${id}/approval?decision=${decision}`, {});
     }
+
+    declineTask(ticketId: number): Observable<any> {
+        // Backend cần có API này: PUT /api/maintenance/{id}/decline
+        // Nếu chưa có, bạn cần tạo thêm bên Backend
+        return this.http.put(`${this.api}/api/maintenance/${ticketId}/decline`, {}, { withCredentials: true });
+    }
+
 }

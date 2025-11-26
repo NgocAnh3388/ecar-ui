@@ -11,6 +11,13 @@ export class UserService {
 
     constructor(private http: HttpClient) {}
 
+    // --- HÀM CẦN THÊM ---
+    getAllUsers(): Observable<any[]> {
+        // Gọi API lấy danh sách users
+        return this.http.get<any[]>(`${this.api}/api/users`, { withCredentials: true });
+    }
+    // --------------------
+
     me(): Observable<User> {
         return this.http.get<User>(`${this.api}/api/users/me`).pipe(
             map(res => new User(res))
@@ -70,4 +77,9 @@ export class UserService {
         // Đường dẫn phải khớp với Controller Backend bạn đã tạo
         return this.http.get<any[]>(`${this.api}/api/users/technicians/my-center`, { withCredentials: true });
     }
+
+    getCurrentUser(): Observable<any> {
+        return this.http.get<any>(`${this.api}/api/users/me`, { withCredentials: true });
+    }
+
 }

@@ -161,5 +161,27 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
             next: (res) => this.paymentHistory = res,
             error: () => this.paymentHistory = []
         });
+    }// Thêm hàm này vào trong class
+// Cho phép nhận thêm kiểu null
+    calculateProgress(startDate?: string | Date | null, endDate?: string | Date | null): number {
+        if (!startDate || !endDate) return 0;
+
+        const start = new Date(startDate).getTime();
+        const end = new Date(endDate).getTime();
+        const now = new Date().getTime();
+
+        if (isNaN(start) || isNaN(end)) return 0; // Thêm check invalid date
+
+        if (now < start) return 0;
+        if (now > end) return 100;
+
+        const totalDuration = end - start;
+        const elapsed = now - start;
+
+        // Tránh chia cho 0
+        if (totalDuration <= 0) return 100;
+
+        return Math.round((elapsed / totalDuration) * 100);
     }
+
 }

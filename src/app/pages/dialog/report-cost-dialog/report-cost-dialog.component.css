@@ -1,0 +1,22 @@
+/* Màu xám nhạt cho placeholder của input và textarea */
+::placeholder {
+    color: #9ca3af !important; /* Màu gray-400, dùng !important để chắc chắn đè */
+    opacity: 1; /* Firefox mặc định giảm opacity, set lại 1 để hiện đúng màu */
+    font-style: italic;
+}
+
+/* Hỗ trợ các trình duyệt cũ (nếu cần) */
+::-webkit-input-placeholder {
+    color: #9ca3af !important;
+    font-style: italic;
+}
+
+::-moz-placeholder {
+    color: #9ca3af !important;
+    font-style: italic;
+}
+
+:-ms-input-placeholder {
+    color: #9ca3af !important;
+    font-style: italic;
+}

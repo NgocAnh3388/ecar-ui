@@ -9,16 +9,19 @@ import { User } from "../../../models/user";
 import { UserService } from "../../../services/user.service";
 import { ServiceCreateRequest } from "../../../models/service-create-request";
 import { AuthService } from "../../../services/auth.service";
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-service-detail-dialog',
     standalone: true,
-    imports: [SelectComponent, ButtonComponent],
+    imports: [SelectComponent, ButtonComponent, FormsModule, CommonModule], // <--- Thêm FormsModule
     templateUrl: './service-detail-dialog.component.html',
     styleUrl: './service-detail-dialog.component.css'
 })
 export class ServiceDetailDialogComponent implements OnInit {
 
+    // --- BIẾN CƠ BẢN ---
     numOfKm: number = 0;
     carModelId: number = 0;
     ticketId: number = 0;
@@ -31,10 +34,15 @@ export class ServiceDetailDialogComponent implements OnInit {
     rawMilestones: any[] = [];
     isStaff: boolean = false;
 
-    // Biến control hiển thị
+    // --- BIẾN PHỤ TÙNG (SPARE PARTS) ---
+    allSpareParts: any[] = [];
+    usedParts: { partId: number, partName?: string, quantity: number }[] = [];
+    selectedPartId: number | null = null;
+    selectedQuantity: number = 1;
+
+    // --- BIẾN HIỂN THỊ ---
     showMaintenance: boolean = true;
     showRepair: boolean = true;
-
     leftFlex = '1 1 50%';
     rightFlex = '1 1 50%';
     private dragging = false;
@@ -80,6 +88,7 @@ export class ServiceDetailDialogComponent implements OnInit {
         const roles = this.authService.getRoles();
         this.isStaff = roles.includes('ROLE_STAFF');
 
+        // Layout logic
         if (!this.isStaff) {
             if (this.showMaintenance && !this.showRepair) {
                 this.leftFlex = '1 1 100%';
@@ -95,15 +104,17 @@ export class ServiceDetailDialogComponent implements OnInit {
 
         this.initMilestoneData();
 
-        if (!this.isStaff) {
-            if (this.showRepair) {
-                this.initServiceGroup();
-            }
+        if (!this.isStaff && this.showRepair) {
+            this.initServiceGroup();
         }
 
-        // Chỉ gọi API load Technician nếu là Staff
+        // Chỉ Staff mới load danh sách Technician để phân công
         if (this.isStaff) {
             this.initTechnician();
+        } else {
+            // Nếu là Technician -> Load phụ tùng
+            this.loadSpareParts();
+            this.loadUsedParts();
         }
     }
 
@@ -111,6 +122,85 @@ export class ServiceDetailDialogComponent implements OnInit {
         const found = this.milestoneOptions.find(m => m.value == this.selectedMilestone);
         return found ? found.label : '';
     }
+
+    // ================== LOGIC PHỤ TÙNG (SPARE PARTS) ==================
+
+    loadSpareParts() {
+        this.maintenanceService.getAllSpareParts().subscribe({
+            next: (res) => {
+                this.allSpareParts = res;
+                // Khi load xong list tổng, cập nhật tên cho list used nếu cần
+                this.usedParts.forEach(p => {
+                    if (!p.partName) p.partName = this.getPartName(p.partId);
+                });
+            },
+            error: (err) => console.error("Error loading spare parts", err)
+        });
+    }
+
+    loadUsedParts() {
+        this.maintenanceService.getUsedParts(this.ticketId).subscribe({
+            next: (res) => {
+                this.usedParts = res.map((item: any) => ({
+                    partId: item.partId || item.id,
+                    partName: item.partName || this.getPartName(item.partId), // Tạm thời lấy nếu có
+                    quantity: item.quantity
+                }));
+            },
+            error: (err) => console.error("Error loading used parts", err)
+        });
+    }
+
+    getPartName(id: number): string {
+        const part = this.allSpareParts.find(p => p.id === id);
+        return part ? part.partName : 'Unknown Part';
+    }
+
+    addPart() {
+        if (!this.selectedPartId || this.selectedQuantity <= 0) return;
+
+        const existing = this.usedParts.find(p => p.partId === Number(this.selectedPartId));
+        if (existing) {
+            existing.quantity += this.selectedQuantity;
+        } else {
+            this.usedParts.push({
+                partId: Number(this.selectedPartId),
+                partName: this.getPartName(Number(this.selectedPartId)),
+                quantity: this.selectedQuantity
+            });
+        }
+
+        // Tự động lưu sau khi thêm (UX tốt hơn)
+        this.saveUsedParts();
+
+        // Reset form
+        this.selectedPartId = null;
+        this.selectedQuantity = 1;
+    }
+
+    removePart(index: number) {
+        this.usedParts.splice(index, 1);
+        // Tự động lưu sau khi xóa
+        this.saveUsedParts();
+    }
+
+    saveUsedParts() {
+        const payload = this.usedParts.map(p => ({ partId: p.partId, quantity: p.quantity }));
+
+        this.maintenanceService.updateUsedParts(this.ticketId, payload).subscribe({
+            next: () => {
+                // Có thể hiện toast nhỏ hoặc không làm gì
+                console.log('Parts updated successfully');
+            },
+            error: (err) => {
+                alert(err.error?.message || 'Failed to update parts (Maybe out of stock)');
+                // Revert lại nếu lỗi (Optional)
+                this.loadUsedParts();
+            }
+        });
+    }
+
+    // ================== CÁC HÀM CŨ GIỮ NGUYÊN ==================
 
     onKmInput(event: Event) {
         if (!this.isStaff) return;
@@ -168,6 +258,7 @@ export class ServiceDetailDialogComponent implements OnInit {
     }
 
     onSubmit() {
+        // Nếu là Staff -> Submit Assign Task
         if (this.isStaff) {
             if (!this.numOfKm || this.numOfKm <= 0) {
                 alert("Please enter valid vehicle kilometers.");
@@ -177,26 +268,29 @@ export class ServiceDetailDialogComponent implements OnInit {
                 alert("Please assign a technician.");
                 return;
             }
+
+            const request: ServiceCreateRequest = new ServiceCreateRequest(
+                this.ticketId,
+                this.numOfKm,
+                Number(this.selectedMilestone),
+                Number(this.selectedTechnician),
+                this.checkedServiceIds
+            )
+
+            this.maintenanceService.createService(request).subscribe({
+                next: (res: any) => {
+                    this.modalRef.close(true);
+                },
+                error: (err: any) => {
+                    console.error(err);
+                    const message = err.error?.message || "Failed to assign technician.";
+                    alert(message);
+                }
+            });
+        } else {
+            // Nếu là Technician -> Chỉ đóng Dialog (vì Parts đã auto save)
+            this.modalRef.close(true);
         }
-
-        const request: ServiceCreateRequest = new ServiceCreateRequest(
-            this.ticketId,
-            this.numOfKm,
-            Number(this.selectedMilestone),
-            Number(this.selectedTechnician),
-            this.checkedServiceIds
-        )
-
-        this.maintenanceService.createService(request).subscribe({
-            next: (res: any) => {
-                this.modalRef.close(true);
-            },
-            error: (err: any) => {
-                console.error(err);
-                const message = err.error?.message || "Failed to assign technician.";
-                alert(message);
-            }
-        });
     }
 
     initMilestoneData() {
@@ -258,9 +352,7 @@ export class ServiceDetailDialogComponent implements OnInit {
         })
     }
 
-    // --- HÀM MỚI: LOAD TECHNICIAN THEO CENTER ---
     initTechnician() {
-        // Gọi hàm lấy Tech theo Center của Staff (đã thêm vào UserService)
         this.userService.getTechniciansByMyCenter().subscribe({
             next: (res: any) => {
                 this.technicianOptions = this.toOptionsTwoParam(res, 'id', 'fullName');

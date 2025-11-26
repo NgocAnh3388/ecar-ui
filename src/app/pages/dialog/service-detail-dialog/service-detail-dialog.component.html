@@ -17,10 +17,6 @@
                     {{ isStaff ? 'Confirm Order Info' : formTitle }}
                 </h2>
 
-                <!--
-                    CẬP NHẬT: Hiển thị Level bảo dưỡng cho Technician
-                    Chỉ hiện nếu KHÔNG phải Staff VÀ ĐANG CÓ mục Bảo dưỡng
-                -->
                 @if (!isStaff && showMaintenance && milestoneLabel) {
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800">
                         <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
@@ -30,7 +26,7 @@
             </div>
 
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {{ isStaff ? 'Enter vehicle status and assign technician' : 'Review selected services' }}
+                {{ isStaff ? 'Enter vehicle status and assign technician' : 'Review selected services and manage spare parts' }}
             </p>
         </div>
         @if(isStaff) {
@@ -41,7 +37,7 @@
     </div>
 
     <!-- 2. BODY CONTENT -->
-    <div class="flex-1 flex min-h-0 relative bg-gray-50/30 dark:bg-gray-900"
+    <div class="flex-1 flex flex-col min-h-0 relative bg-gray-50/30 dark:bg-gray-900"
          [class.overflow-hidden]="!isStaff"
          [class.overflow-visible]="isStaff">
 
@@ -77,11 +73,6 @@
                                 (valueChange)="selectedTechnician = $event"
                                 class="w-full block"
                         ></app-select>
-                        <div class="pointer-events-none absolute right-4 top-[1.2rem] text-gray-400 z-10">
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -89,93 +80,155 @@
 
         <!-- === VIEW CỦA TECHNICIAN === -->
         @if (!isStaff) {
-            <!-- LEFT PANEL (Maintenance) -->
-            @if (showMaintenance) {
-                <section class="flex flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" [style.flex]="leftFlex">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            {{ leftTitle }}
-                        </h3>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-4 pb-32">
-                        @for (group of maintenanceGroup; track $index) {
-                            <div class="mb-6 last:mb-0">
-                                <div class="flex items-center gap-2 px-2 py-2 mb-3">
-                                    <div class="w-1 h-5 bg-emerald-600 rounded-full"></div>
-                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">{{ getTitle(group.category) }}</h4>
+            <div class="flex flex-1 overflow-hidden">
+                <!-- LEFT PANEL (Maintenance) -->
+                @if (showMaintenance) {
+                    <section class="flex flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" [style.flex]="leftFlex">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                {{ leftTitle }}
+                            </h3>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4">
+                            @for (group of maintenanceGroup; track $index) {
+                                <div class="mb-6 last:mb-0">
+                                    <div class="flex items-center gap-2 px-2 py-2 mb-3">
+                                        <div class="w-1 h-5 bg-emerald-600 rounded-full"></div>
+                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">{{ getTitle(group.category) }}</h4>
+                                    </div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                                        @for (item of group.items; track $index) {
+                                            <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 cursor-pointer transition-all group">
+                                                <input [checked]="item.isChecked" (change)="handleCheckboxChange(item.id, $event)" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800" />
+                                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition leading-snug line-clamp-2">{{ item.serviceName }}</span>
+                                            </label>
+                                        }
+                                    </div>
                                 </div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                                    @for (item of group.items; track $index) {
-                                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 cursor-pointer transition-all group">
-                                            <input [checked]="item.isChecked" (change)="handleCheckboxChange(item.id, $event)" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800" />
-                                            <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition leading-snug line-clamp-2">{{ item.serviceName }}</span>
-                                        </label>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
-            }
+                            }
+                        </div>
+                    </section>
+                }
 
-            <!-- SPLITTER -->
-            @if (showMaintenance && showRepair) {
-                <div class="w-1 bg-gray-300 dark:bg-gray-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 cursor-col-resize shrink-0 transition-colors relative group" (mousedown)="startDrag($event)">
-                    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <!-- SPLITTER -->
+                @if (showMaintenance && showRepair) {
+                    <div class="w-1 bg-gray-300 dark:bg-gray-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 cursor-col-resize shrink-0 transition-colors relative group" (mousedown)="startDrag($event)">
+                        <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                }
+
+                <!-- RIGHT PANEL (Repair) -->
+                @if (showRepair) {
+                    <section class="flex flex-col bg-white dark:bg-gray-900" [style.flex]="rightFlex">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                {{ rightTitle }}
+                            </h3>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4">
+                            @for (group of serviceGroup; track $index) {
+                                <div class="mb-6 last:mb-0">
+                                    <div class="flex items-center gap-2 px-2 py-2 mb-3">
+                                        <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">{{ getTitle(group.category) }}</h4>
+                                    </div>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                                        @for (item of group.items; track $index) {
+                                            <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 cursor-pointer transition-all group">
+                                                <input type="checkbox" [checked]="item.isChecked" (change)="handleCheckboxChange(item.id, $event)" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800" />
+                                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition leading-snug line-clamp-2">{{ item.serviceName }}</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+            </div>
+
+            <!-- ================= NEW: SPARE PARTS SECTION ================= -->
+            <div class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4 shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Spare Parts Used
+                    </h3>
+                    <span class="text-xs text-gray-500 bg-white dark:bg-gray-700 px-2 py-1 rounded border border-gray-200 dark:border-gray-600">Auto-save when adding/removing</span>
                 </div>
-            }
 
-            <!-- RIGHT PANEL (Repair) -->
-            @if (showRepair) {
-                <section class="flex flex-col bg-white dark:bg-gray-900" [style.flex]="rightFlex">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            {{ rightTitle }}
-                        </h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Input Form -->
+                    <div class="flex-1 flex gap-2 items-end bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Part Name</label>
+                            <!-- Bạn cần thay select này bằng app-select hoặc select chuẩn của bạn -->
+                            <select [(ngModel)]="selectedPartId" class="w-full p-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                <option [ngValue]="null">-- Select Spare Part --</option>
+                                <option *ngFor="let p of allSpareParts" [value]="p.id" [disabled]="p.stockQuantity <= 0">
+                                    {{ p.partName }} (Stock: {{ p.stockQuantity }})
+                                </option>
+                            </select>
+                        </div>
+                        <div class="w-20">
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Qty</label>
+                            <input type="number" [(ngModel)]="selectedQuantity" min="1" class="w-full p-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-orange-500">
+                        </div>
+                        <button (click)="addPart()" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Add
+                        </button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-4 pb-32">
-                        @for (group of serviceGroup; track $index) {
-                            <div class="mb-6 last:mb-0">
-                                <div class="flex items-center gap-2 px-2 py-2 mb-3">
-                                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
-                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">{{ getTitle(group.category) }}</h4>
-                                </div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                                    @for (item of group.items; track $index) {
-                                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 cursor-pointer transition-all group">
-                                            <input type="checkbox" [checked]="item.isChecked" (change)="handleCheckboxChange(item.id, $event)" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800" />
-                                            <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition leading-snug line-clamp-2">{{ item.serviceName }}</span>
-                                        </label>
-                                    }
-                                </div>
-                            </div>
-                        }
+
+                    <!-- List Table -->
+                    <div class="flex-[2] overflow-y-auto max-h-40 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-800 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-2">Part Name</th>
+                                <th class="px-4 py-2 w-24 text-center">Qty</th>
+                                <th class="px-4 py-2 w-20 text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <tr *ngFor="let item of usedParts; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">{{ item.partName }}</td>
+                                <td class="px-4 py-2 text-center">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{ item.quantity }}</span>
+                                </td>
+                                <td class="px-4 py-2 text-center">
+                                    <button (click)="removePart(i)" class="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="usedParts.length === 0">
+                                <td colspan="3" class="text-center py-4 text-gray-400 italic text-xs">No spare parts used yet.</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
-            }
+                </div>
+            </div>
+            <!-- ============================================================ -->
         }
     </div>
 
     <!-- 3. FOOTER -->
     <div class="px-8 py-5 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] shrink-0 relative z-10 rounded-b-lg">
         <div class="flex flex-col lg:flex-row gap-4 justify-between items-center">
-
-            <!-- Spacer -->
             <div class="flex-1"></div>
-
-            <!-- Buttons -->
             <div class="flex items-center gap-3 w-full justify-end">
                 <app-button size="md" variant="outline" (btnClick)="onCancel()" class="px-6">Cancel</app-button>
-
                 <button
                         (click)="onSubmit()"
                         class="h-10 px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors shadow-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    {{ isStaff ? 'Confirm Assignment' : 'Confirm Services' }}
+                    {{ isStaff ? 'Confirm Assignment' : 'Save & Close' }}
                 </button>
             </div>
         </div>

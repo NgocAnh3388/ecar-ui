@@ -1,0 +1,4 @@
+/* Hiệu ứng hover nhẹ cho card */
+.cert-card:hover {
+    transform: translateY(-4px);
+}

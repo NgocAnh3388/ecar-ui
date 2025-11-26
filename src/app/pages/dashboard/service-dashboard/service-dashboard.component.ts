@@ -7,6 +7,7 @@ import {DatePipe, CommonModule} from "@angular/common";
 import {ConfirmDialogComponent} from "../../dialog/confirm-dialog/confirm-dialog.component";
 import { AuthService } from '../../../services/auth.service';
 import { ReportCostDialogComponent } from "../../dialog/report-cost-dialog/report-cost-dialog.component";
+
 type OptionKey =
     | 'STATUS_SUBMITTED'
     | 'STATUS_RECEIVED'
@@ -23,13 +24,7 @@ interface OptionItem {
 @Component({
     selector: 'app-service-dashboard',
     standalone: true,
-    imports: [
-        CommonModule,
-        DatePipe
-        // Lưu ý: ReportCostDialogComponent không cần import vào đây nếu bạn dùng ModalService mở động.
-        // Nhưng nếu bạn dùng trong template thì phải import.
-        // Ở đây bạn dùng modal.open() nên không cần import vào mảng này, chỉ cần import file ở trên đầu là đủ.
-    ],
+    imports: [CommonModule, DatePipe],
     templateUrl: './service-dashboard.component.html',
     styleUrl: './service-dashboard.component.css'
 })
@@ -47,6 +42,8 @@ export class ServiceDashboardComponent implements OnInit {
         { key: 'SORT_DATE_NEWEST', label: 'Sort by: Newest first', isSort: true },
         { key: 'SORT_DATE_OLDEST', label: 'Sort by: Oldest first', isSort: true },
     ];
+
+    selected = new Set<OptionKey>();
 
     constructor(
         private maintenanceService: MaintenanceService,
@@ -69,6 +66,7 @@ export class ServiceDashboardComponent implements OnInit {
             next: (rs: any) => {
                 this.allTickets = [...rs];
                 this.tickets = [...rs];
+                this.apply();
                 this.cdr.detectChanges();
             },
             error: (err: any) => console.error('Error loading tickets:', err)
@@ -76,51 +74,55 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     // --- Filter Logic ---
-    selected = new Set<OptionKey>();
     toggleDropdown(e: MouseEvent): void { e.stopPropagation(); this.open = !this.open; }
     @HostListener('document:click') onDocClick(): void { this.open = false; }
     isChecked(key: OptionKey): boolean { return this.selected.has(key); }
     toggle(key: OptionKey, ev: Event): void { const input = ev.target as HTMLInputElement; if (input.checked) this.selected.add(key); else this.selected.delete(key); }
     selectAll(): void { this.options.forEach(o => this.selected.add(o.key)); }
     clearAll(): void { this.selected.clear(); this.tickets = [...this.allTickets]; }
+
     apply(): void {
         let filteredTickets = [...this.allTickets];
         const statusFilters: string[] = [];
         if (this.selected.has('STATUS_SUBMITTED')) statusFilters.push('CUSTOMER_SUBMITTED');
         if (this.selected.has('STATUS_RECEIVED')) statusFilters.push('TECHNICIAN_RECEIVED');
         if (this.selected.has('STATUS_COMPLETED')) statusFilters.push('TECHNICIAN_COMPLETED');
+
         if (statusFilters.length > 0) filteredTickets = filteredTickets.filter(ticket => statusFilters.includes(ticket.status));
+
         if (this.selected.has('SORT_DATE_NEWEST')) filteredTickets.sort((a, b) => new Date(b.scheduleDate).getTime() - new Date(a.scheduleDate).getTime());
         else if (this.selected.has('SORT_DATE_OLDEST')) filteredTickets.sort((a, b) => new Date(a.scheduleDate).getTime() - new Date(b.scheduleDate).getTime());
+
         this.tickets = filteredTickets;
         this.open = false;
     }
-    handleSeeAll(): void {}
-    handleFilterByCategories(keys: OptionKey[]): void {}
-    sortByDate(dir: 'asc' | 'desc'): void {}
-    sortByPrice(dir: 'asc' | 'desc'): void {}
+
+    trackByKey(index: number, item: any): string { return item.key; }
 
     // --- Helpers ---
-    getService(item: MaintenanceTicket): 'Maintenance & Repair' | 'Maintenance' | 'Repair' | undefined {
+    getService(item: MaintenanceTicket): string {
         if (item.isMaintenance && item.isRepair) return 'Maintenance & Repair';
         if (item.isMaintenance) return 'Maintenance';
         if (item.isRepair) return 'Repair';
-        return undefined;
+        return 'Unknown';
     }
 
-    getStatus(status: string): 'New' | 'In Progress' | 'Completed' | 'Done' | undefined {
+    getStatus(status: string): string {
         switch (status) {
             case 'CUSTOMER_SUBMITTED': return 'New';
             case 'TECHNICIAN_RECEIVED': return 'In Progress';
+            case 'PENDING_APPROVAL': return 'Pending Approval';
             case 'TECHNICIAN_COMPLETED': return 'Completed';
             case 'DONE': return 'Done';
+            case 'CANCELLED': return 'Cancelled';
+            default: return status;
         }
-        return undefined;
     }
 
+    // --- Actions ---
     onDetail(ticketId: number, carModelId: number, numOfKm: number, technicianId: number, milestoneId: number, isMaintenance: boolean, isRepair: boolean): void {
         const ref = this.modal.open(ServiceDetailDialogComponent, {
-            data: { title: 'Schedule Service', message: '', carModelId, numOfKm, ticketId, technicianId, milestoneId, isMaintenance, isRepair },
+            data: { title: 'Service Detail', message: '', carModelId, numOfKm, ticketId, technicianId, milestoneId, isMaintenance, isRepair },
             panelClass: ['modal-panel', 'p-0'],
             backdropClass: 'modal-backdrop',
             disableClose: false,
@@ -138,7 +140,6 @@ export class ServiceDashboardComponent implements OnInit {
             if (confirmed) {
                 this.maintenanceService.completeTechnicianTask(orderId).subscribe({
                     next: () => {
-                        this.tickets = this.tickets.filter(ticket => ticket.id !== orderId);
                         this.modal.open(ConfirmDialogComponent, { data: { message: 'Status updated successfully!', isConfirm: false } });
                         this.initTicket();
                     },
@@ -149,35 +150,17 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     onDeliver(orderId: number): void {
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
-            data: { message: 'Confirm vehicle handover to customer? This will mark the order as DONE.', isConfirm: true },
-            panelClass: ['modal-panel', 'p-0'],
-            backdropClass: 'modal-backdrop',
-        });
-        confirmDialogRef.afterClosed$.subscribe(confirmed => {
-            if (confirmed) {
-                this.maintenanceService.confirmDelivery(orderId).subscribe({
-                    next: () => {
-                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Vehicle handed over successfully!', isConfirm: false } });
-                        this.initTicket();
-                    },
-                    error: (err: any) => {
-                        console.error('Handover error:', err);
-                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Error during handover.', isConfirm: false } });
-                    }
-                });
-            }
-        });
+        this.onCreateInvoice(orderId);
     }
 
     onCancel(orderId: number): void {
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to cancel?', isConfirm: true } });
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to cancel this order?', isConfirm: true } });
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
                 this.maintenanceService.cancelOrder(orderId).subscribe({
                     next: () => {
                         this.modal.open(ConfirmDialogComponent, { data: { message: 'Cancelled successfully.', isConfirm: false } });
-                        setTimeout(() => this.initTicket(), 250);
+                        this.initTicket();
                     },
                     error: (err: any) => console.error('Cancel error:', err)
                 });
@@ -186,21 +169,19 @@ export class ServiceDashboardComponent implements OnInit {
     }
 
     onReopen(orderId: number): void {
-        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to reactivate?', isConfirm: true } });
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, { data: { message: 'Are you sure to reactivate this order?', isConfirm: true } });
         confirmDialogRef.afterClosed$.subscribe(confirmed => {
             if (confirmed) {
                 this.maintenanceService.reopenOrder(orderId).subscribe({
                     next: () => {
                         this.modal.open(ConfirmDialogComponent, { data: { message: 'Reactivated successfully.', isConfirm: false } });
-                        setTimeout(() => this.initTicket(), 250);
+                        this.initTicket();
                     },
                     error: (err: any) => console.error('Reopen error:', err)
                 });
             }
         });
     }
-
-    trackByKey(index: number, item: any): string { return item.key; }
 
     // --- REPORT COST ---
     onReportIssue(ticketId: number): void {
@@ -232,8 +213,8 @@ export class ServiceDashboardComponent implements OnInit {
 
     onProcessApproval(ticketId: number, decision: 'APPROVE' | 'REJECT'): void {
         const msg = decision === 'APPROVE'
-            ? 'Customer approved the additional cost? Technician will resume work.'
-            : 'Customer rejected the cost? This order will be CANCELLED.';
+            ? 'Customer approved cost? Technician will resume work.'
+            : 'Customer rejected cost? This order will be CANCELLED.';
 
         const ref = this.modal.open(ConfirmDialogComponent, { data: { message: msg, isConfirm: true } });
 
@@ -241,15 +222,68 @@ export class ServiceDashboardComponent implements OnInit {
             if (confirmed) {
                 this.maintenanceService.processDecision(ticketId, decision).subscribe({
                     next: () => {
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Order updated successfully!', isConfirm: false } });
+                        this.initTicket();
+                    },
+                    error: (err: any) => {
+                        console.error(err);
+                        this.modal.open(ConfirmDialogComponent, { data: { message: 'Error processing request.', isConfirm: false } });
+                    }
+                });
+            }
+        });
+    }
+
+    // --- [MỚI] TẠO HÓA ĐƠN VÀ GIAO XE ---
+    onCreateInvoice(ticketId: number) {
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: { message: 'Create invoice and handover vehicle to customer?', isConfirm: true }
+        });
+
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.confirmDelivery(ticketId).subscribe({
+                    next: () => {
                         this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'Order updated successfully!', isConfirm: false }
+                            data: { message: 'Invoice created & Vehicle handed over successfully!', isConfirm: false }
                         });
                         this.initTicket();
                     },
                     error: (err: any) => {
                         console.error(err);
                         this.modal.open(ConfirmDialogComponent, {
-                            data: { message: 'Error processing request.', isConfirm: false }
+                            data: { message: 'Error: ' + (err.error?.message || 'Failed'), isConfirm: false }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // --- [MỚI] TECHNICIAN TỪ CHỐI VIỆC ---
+    onDeclineTask(ticketId: number) {
+        const confirmDialogRef = this.modal.open(ConfirmDialogComponent, {
+            data: {
+                message: 'Are you sure you want to decline this task? It will be returned to Staff for reassignment.',
+                isConfirm: true
+            },
+            panelClass: ['modal-panel', 'p-0'],
+            backdropClass: 'modal-backdrop',
+        });
+
+        confirmDialogRef.afterClosed$.subscribe(confirmed => {
+            if (confirmed) {
+                this.maintenanceService.declineTask(ticketId).subscribe({
+                    next: () => {
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Task declined successfully.', isConfirm: false }
+                        });
+                        this.initTicket();
+                    },
+                    error: (err: any) => {
+                        console.error(err);
+                        this.modal.open(ConfirmDialogComponent, {
+                            data: { message: 'Failed to decline task.', isConfirm: false }
                         });
                     }
                 });

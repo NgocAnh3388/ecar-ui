@@ -98,10 +98,12 @@
                             {{ getStatus(item.status) }}
                         </span>
                     </td>
+
+                    <!-- CỘT ACTIONS -->
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <!-- 1. NÚT EDIT (Assign Task / View Detail) -->
-                            <!-- THÊM ĐIỀU KIỆN: && item.status !== 'CANCELLED' -->
+
+                            <!-- 1. Edit -->
                             <button *ngIf="item.status !== 'CANCELLED' && item.status !== 'DONE'"
                                     (click)="onDetail(item.id, item.carModelId, item.numOfKm, item.technicianId, item.scheduleId, item.isMaintenance, item.isRepair)"
                                     title="Edit Service / Assign Task"
@@ -109,60 +111,62 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
                             </button>
 
-                            <!-- NÚT REPORT COST (Cho Technician - Khi RECEIVED) -->
+                            <!-- 2. Decline Task (MỚI) -->
+                            <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && !isStaff"
+                                    (click)="onDeclineTask(item.id)"
+                                    title="Decline Task"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+
+                            <!-- 3. Report Cost -->
                             <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && !isStaff"
                                     (click)="onReportIssue(item.id)"
                                     title="Report Additional Cost"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                                 Report Cost
                             </button>
 
-                            <!-- NÚT COMPLETE (Cho Technician - Khi RECEIVED) -->
-                            <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && item.isMaintenance && !isStaff" (click)="onComplete(item.id)" title="Mark as Complete" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors">
+                            <!-- 4. Complete -->
+                            <button *ngIf="item.status === 'TECHNICIAN_RECEIVED' && item.isMaintenance && !isStaff"
+                                    (click)="onComplete(item.id)"
+                                    title="Mark as Complete"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
                                 Complete
                             </button>
 
-                            <!-- NÚT APPROVE / REJECT (Cho Staff - Khi PENDING_APPROVAL) -->
+                            <!-- 5. Approve/Reject -->
                             <div *ngIf="item.status === 'PENDING_APPROVAL' && isStaff" class="flex gap-2">
-                                <button (click)="onProcessApproval(item.id, 'APPROVE')"
-                                        class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-colors">
-                                    Approve
-                                </button>
-                                <button (click)="onProcessApproval(item.id, 'REJECT')"
-                                        class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-colors">
-                                    Reject
-                                </button>
+                                <button (click)="onProcessApproval(item.id, 'APPROVE')" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-colors">Approve</button>
+                                <button (click)="onProcessApproval(item.id, 'REJECT')" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-colors">Reject</button>
                             </div>
 
-                            <!-- THÔNG BÁO CHỜ (Cho Technician - Khi PENDING_APPROVAL) -->
-                            <span *ngIf="item.status === 'PENDING_APPROVAL' && !isStaff"
-                                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300">
+                            <span *ngIf="item.status === 'PENDING_APPROVAL' && !isStaff" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300">
                                 <svg class="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
                                 Waiting Approval...
                             </span>
 
-                            <!-- NÚT HANDOVER (Cho Staff - Khi Tech đã Complete) -->
-                            <button *ngIf="item.status === 'TECHNICIAN_COMPLETED' && isStaff" (click)="onDeliver(item.id)" title="Handover to Customer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors border border-blue-200 dark:border-blue-800">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.464a4.335 4.335 0 00-3.232.975 3.915 3.915 0 00-1.028 2.868l-.286.86a.5.5 0 01-.95-.317l.286-.858a4.915 4.915 0 011.288-3.601 5.335 5.335 0 014.06-1.222l2.463-4.617A5.979 5.979 0 0115 7z" /></svg>
-                                Handover
+                            <!-- 6. Invoice & Handover -->
+                            <button *ngIf="item.status === 'TECHNICIAN_COMPLETED' && isStaff" (click)="onCreateInvoice(item.id)" title="Create Invoice & Handover" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Invoice & Handover
                             </button>
 
-                            <!-- Cancel -->
-                            <button *ngIf="item.isMaintenance && item.status !== 'DONE' && item.status !== 'TECHNICIAN_COMPLETED'" (click)="onCancel(item.id)" title="Cancel Order" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors">
+                            <!-- 7. Cancel -->
+                            <button *ngIf="item.isMaintenance && item.status !== 'DONE' && item.status !== 'TECHNICIAN_COMPLETED' && item.status !== 'CANCELLED' && isStaff" (click)="onCancel(item.id)" title="Cancel Order" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                 Cancel
                             </button>
 
-                            <span *ngIf="!item.isMaintenance" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                            <span *ngIf="item.status === 'CANCELLED'" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
                                 Cancelled
                             </span>
 
-                            <button *ngIf="!item.isMaintenance" (click)="onReopen(item.id)" title="Reactivate Order" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors">
+                            <!-- 8. Reopen -->
+                            <button *ngIf="item.status === 'CANCELLED' && isStaff" (click)="onReopen(item.id)" title="Reactivate Order" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
                                 Reopen
                             </button>

@@ -180,11 +180,13 @@
         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex flex-col sm:flex-row gap-3">
                 <select
-                        class="px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                        class="px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition disabled:opacity-60 disabled:cursor-not-allowed"
                         [(ngModel)]="selectedCenterId"
                         (change)="onCenterChange()"
+                        [disabled]="disableCenterSelect"
                 >
                     <option value="">Select Service Center</option>
+                    <!-- Nếu là Staff, chỉ hiện center của họ (hoặc disable để không chọn center khác) -->
                     <option *ngFor="let c of centers" [value]="c.id">
                         {{ c.centerName }}
                     </option>
