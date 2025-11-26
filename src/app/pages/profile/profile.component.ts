@@ -21,8 +21,6 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { UserMetaCardComponent } from '../../shared/components/user-profile/user-meta-card/user-meta-card.component';
 import { UserInfoCardComponent } from '../../shared/components/user-profile/user-info-card/user-info-card.component';
 
-// Import ToastService (Kiểm tra kỹ đường dẫn này)
-
 @Component({
     selector: 'app-profile',
     standalone: true,
@@ -51,26 +49,19 @@ export class ProfileComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.loadProfileData();
-    }
+        this.route.paramMap.subscribe(params => {
+            const id = params.get('id');
 
-    loadProfileData() {
-        this.isLoading = true;
-        const roles = this.authService.getRoles();
-
-        if (roles.includes('ROLE_ADMIN')) {
-            this.route.paramMap.subscribe(params => {
-                const id = params.get('id');
-                if (id) {
-                    this.userId = id;
-                    this.getUserById(id);
-                } else {
-                    this.loadMe();
-                }
-            });
-        } else {
-            this.loadMe();
-        }
+            // Logic: Nếu id là 'me' HOẶC null -> Xem profile chính mình
+            if (id === 'me' || !id) {
+                this.loadMe();
+            }
+            // Logic: Nếu id là số -> Xem profile người khác (Chỉ Admin mới vào được đây)
+            else {
+                this.userId = id;
+                this.getUserById(id);
+            }
+        });
     }
 
     loadMe() {
@@ -95,8 +86,9 @@ export class ProfileComponent implements OnInit {
                 this.isLoading = false;
             },
             error: (err) => {
-                console.error(err);
+                console.error('Lỗi tải user:', err);
                 this.isLoading = false;
+                this.toastService.error('User not found');
             }
         });
     }
@@ -139,8 +131,14 @@ export class ProfileComponent implements OnInit {
         this.userService.updateUser(Number(this.userId), dto).subscribe({
             next: () => {
                 this.toastService.success('Profile updated successfully!');
-                this.loadProfileData();
-            },
+
+                // Reload lại đúng hàm tùy theo đang xem ai
+                const currentUser = this.authService.getUser();
+                if (currentUser && this.userId === currentUser.id.toString()) {
+                    this.loadMe();
+                } else {
+                    this.getUserById(this.userId);
+                }            },
             error: (err) => {
                 console.error('Error updating profile:', err);
                 this.toastService.error('Failed to update profile.');
@@ -169,7 +167,11 @@ export class ProfileComponent implements OnInit {
         this.vehicleService.addVehicle(data).subscribe({
             next: () => {
                 this.toastService.success('Vehicle added successfully!');
-                this.loadProfileData();
+                if (this.userId) {
+                    this.getUserById(this.userId);
+                } else {
+                    this.loadMe();
+                }
             },
             error: (err) => {
                 console.error('Add vehicle error:', err);

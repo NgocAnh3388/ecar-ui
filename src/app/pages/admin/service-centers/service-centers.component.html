@@ -1,0 +1,50 @@
+<div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Service Centers</h1>
+        <button (click)="openAddCenter()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium">
+            + Add Center
+        </button>
+    </div>
+
+    <!-- Table Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <!-- Table Head -->
+                <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                    <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">ID</th>
+                    <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Center Name</th>
+                    <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Address</th>
+                    <th class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">Phone</th>
+                    <th class="px-6 py-4 text-right font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+
+                <!-- Dữ liệu thật từ API -->
+                <tr *ngFor="let center of centers" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">#{{ center.id }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ center.centerName }}</td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ center.address }}</td>
+                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ center.phoneNo }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button (click)="openEditCenter(center)" class="text-blue-600 hover:text-blue-800 font-medium mr-3">Edit</button>
+                        <button (click)="deleteCenter(center.id)" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                    </td>
+                </tr>
+
+                <!-- Hiển thị khi không có dữ liệu -->
+                <tr *ngIf="centers.length === 0">
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        No service centers found.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

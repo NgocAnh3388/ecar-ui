@@ -40,6 +40,16 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             path: '/users'
         },
         {
+            name: 'Service Centers',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M8 21v-2a2 2 0 0 1 4 0v2"/></svg>`,
+            path: '/admin/centers'
+        },
+        {
+            name: 'Vehicle Models',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M14 17h-4"/></svg>`,
+            path: '/admin/models'
+        },
+        {
             name: 'Booking',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
             path: '/customer-schedule'
@@ -64,28 +74,16 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
             path: '/admin/parts-management'
         },
-
-        // --- [XÓA MỤC OVERVIEW TẠI ĐÂY] ---
-        // {
-        //     name: 'Overview',
-        //     icon: `<svg ...></svg>`,
-        //     path: '/overview'
-        // },
-        // ----------------------------------
-
         {
             name: 'Profit Report',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
             path: '/admin/profit-report'
         },
-
-        // --- My Certificates (Dành cho Technician) ---
         {
             name: 'My Certificates',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-4.418 0-8-1.79-8-4s3.582-4 8-4 8 1.79 8 4-3.582 4-8 4z"/><path d="M12 15v7"/><path d="M8 15v3.5"/><path d="M16 15v3.5"/><path d="M8.836 11.252A8.003 8.003 0 0 1 12 7a8.003 8.003 0 0 1 3.164 4.252"/></svg>`,
             path: '/technician/profile'
         },
-
         {
             name: 'User Profile',
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
@@ -93,7 +91,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         },
     ];
 
-    // 2. Danh sách menu thực tế hiển thị
     navItems: NavItem[] = [];
     othersItems: NavItem[] = [];
 
@@ -134,9 +131,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
 
                 const userProfileItem = this.allNavItems.find(i => i.name === 'User Profile');
                 if (userProfileItem) {
-                    userProfileItem.path = this.userRoles.includes('ROLE_ADMIN')
-                        ? `/profile/${user.id}`
-                        : `/profile/me`;
+                    // Fix lỗi path profile
+                    userProfileItem.path = '/profile/me';
                 }
 
                 this.filterMenuByRole();
@@ -173,6 +169,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     private filterMenuByRole() {
         const roleAccess: Record<string, string[]> = {
             'User management': ['ROLE_ADMIN', 'ROLE_STAFF'],
+            'Service Centers': ['ROLE_ADMIN'], // MỚI
+            'Vehicle Models': ['ROLE_ADMIN'],  // MỚI
             'Booking': ['ROLE_CUSTOMER'],
             'Maintenance information': ['ROLE_CUSTOMER'],
             'Service package management': ['ROLE_CUSTOMER'],
@@ -181,8 +179,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             'Profit Report': ['ROLE_ADMIN'],
             'My Certificates': ['ROLE_TECHNICIAN'],
             'User Profile': ['ROLE_CUSTOMER', 'ROLE_ADMIN', 'ROLE_TECHNICIAN', 'ROLE_STAFF'],
-
-            // --- [ĐÃ XÓA OVERVIEW] ---
         };
 
         this.navItems = this.allNavItems.filter((item) => {

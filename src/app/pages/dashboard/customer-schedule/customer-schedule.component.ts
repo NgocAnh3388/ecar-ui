@@ -25,10 +25,7 @@ export class CustomerScheduleComponent implements OnInit {
     scheduleForm: FormGroup;
     myVehicles: Vehicle[] = [];
     centers: Center[] = [];
-
-    // Dùng any[] để tránh lỗi strict mode khi binding dữ liệu phức tạp
     myBookings: any[] = [];
-
     isLoading = false;
     minDate: string = '';
 
@@ -100,7 +97,8 @@ export class CustomerScheduleComponent implements OnInit {
             error: (err: any) => console.error(err)
         });
 
-        this.centerService.getAllCenters().subscribe({
+        // GỌI HÀM getAll() CỦA CENTER SERVICE
+        this.centerService.getAll().subscribe({
             next: (res: any) => this.centers = res,
             error: (err: any) => console.error(err)
         });
@@ -121,14 +119,10 @@ export class CustomerScheduleComponent implements OnInit {
         });
     }
 
-    // Load danh sách lịch sử (Thay cho BookingService)
     loadMyBookings() {
         this.maintenanceService.getMaintenanceHistory('', 100, 0).subscribe({
             next: (res: any) => {
-                // Xử lý dữ liệu trả về (có thể là res.content hoặc res)
                 const list = res.content || res || [];
-
-                // Sort giảm dần theo ngày
                 this.myBookings = list.sort((a: any, b: any) => {
                     const dateA = new Date(a.scheduleDate || 0).getTime();
                     const dateB = new Date(b.scheduleDate || 0).getTime();
@@ -139,7 +133,6 @@ export class CustomerScheduleComponent implements OnInit {
         });
     }
 
-    // Xử lý hủy đơn
     onCancelBooking(bookingId: number) {
         if (confirm('Are you sure you want to cancel this appointment?')) {
             this.isLoading = true;
@@ -148,7 +141,6 @@ export class CustomerScheduleComponent implements OnInit {
                     this.toastService.success('Appointment cancelled successfully!');
                     this.isLoading = false;
 
-                    // Cập nhật UI ngay lập tức
                     const index = this.myBookings.findIndex(b => b.id === bookingId);
                     if (index !== -1) {
                         this.myBookings[index].status = 'CANCELLED';
@@ -223,7 +215,7 @@ export class CustomerScheduleComponent implements OnInit {
         this.maintenanceService.createSchedule(request).subscribe({
             next: () => {
                 this.toastService.success('Booking successful!');
-                this.loadMyBookings(); // Load lại bảng bên dưới
+                this.loadMyBookings();
                 this.scheduleForm.reset();
                 this.isLoading = false;
             },

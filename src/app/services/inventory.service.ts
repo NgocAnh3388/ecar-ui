@@ -63,4 +63,9 @@ export class InventoryService {
     updateStock(inventoryId: number, payload: { isAddition: boolean; quantityChange: number }): Observable<any> {
         return this.http.patch(`${this.baseUrl}/${inventoryId}/stock`, payload);
     }
+
+    // Lấy thông tin tồn kho của 1 phụ tùng trên tất cả center
+    getStockAcrossCenters(partId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/inventory/stock-across/${partId}`);
+    }
 }

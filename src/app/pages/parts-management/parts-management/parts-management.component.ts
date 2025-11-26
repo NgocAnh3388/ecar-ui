@@ -1,16 +1,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// Services
 import { InventoryService } from '../../../services/inventory.service';
+import { AuthService } from '../../../services/auth.service';
+import { UserService } from '../../../services/user.service';
+import { ModalService } from '../../modal/modal.service'; // Đảm bảo path đúng tới ModalService của bạn
+
+// Models
 import { SparePart } from '../../../models/spare-part.model';
 import { CarModel } from '../../../models/car-model';
+
+// Dialogs
 import { AddPartDialogComponent } from '../../dialog/add-part-dialog/add-part-dialog.component';
-import { ModalService } from '../../modal/modal.service';
 import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog.component';
 import { RestockDialogComponent } from '../../dialog/restock-dialog/restock-dialog.component';
 import { AdjustDialogComponent } from '../../dialog/adjust-dialog/adjust-dialog.component';
-import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
 
 @Component({
     selector: 'app-parts-management',
@@ -20,10 +26,11 @@ import { UserService } from '../../../services/user.service';
     styleUrls: ['./parts-management.component.css'],
 })
 export class PartsManagementComponent implements OnInit {
-    // Tabs
-    activeTab = 'parts';
+    // --- FIX LỖI TYPE TẠI ĐÂY ---
+    // Thêm 'used' vào để khớp với HTML *ngIf="activeTab === 'used'"
+    activeTab: 'parts' | 'inventory' | 'used' = 'inventory';
 
-    // ================== PARTS ==================
+    // ================== PARTS DATA ==================
     parts: SparePart[] = [];
     filteredParts: SparePart[] = [];
 
@@ -35,7 +42,7 @@ export class PartsManagementComponent implements OnInit {
     loading = false;
     errorMessage = '';
 
-    // ================== INVENTORY ==================
+    // ================== INVENTORY DATA ==================
     centers: any[] = [];
     selectedCenterId: string = '';
     inventory: any[] = [];
@@ -57,21 +64,21 @@ export class PartsManagementComponent implements OnInit {
     ngOnInit(): void {
         this.loading = true;
 
-        // 1. Load danh sách phụ tùng (chung cho mọi role)
+        // 1. Load danh sách phụ tùng (dữ liệu gốc)
         this.fetchParts();
 
-        // 2. Load danh sách Center
+        // 2. Load danh sách Center (để lọc kho)
         this.loadCenters();
 
-        // 3. Check Role để phân quyền xem kho
+        // 3. Phân quyền xem kho (Staff chỉ xem được kho của mình)
         const roles = this.authService.getRoles();
         if (roles.includes('ROLE_STAFF') || roles.includes('STAFF')) {
             this.userRole = 'STAFF';
-            this.disableCenterSelect = true; // Khóa dropdown
+            this.disableCenterSelect = true; // Khóa dropdown chọn center
 
-            // Lấy thông tin Staff để biết Center ID
+            // Lấy thông tin Staff để biết Center ID của họ
             this.userService.getCurrentUser().subscribe((user: any) => {
-                // Logic lấy ID: user.centerId hoặc user.center.id tùy DTO
+                // Logic: user.centerId hoặc user.center.id tùy backend trả về
                 const centerId = user.centerId || user.center?.id;
                 if (centerId) {
                     this.selectedCenterId = centerId.toString();
@@ -81,8 +88,13 @@ export class PartsManagementComponent implements OnInit {
         } else {
             this.userRole = 'ADMIN';
             this.disableCenterSelect = false;
-            // Admin sẽ tự chọn center, hoặc mặc định load cái đầu tiên trong loadCenters()
+            // Admin có thể chọn bất kỳ center nào
         }
+    }
+
+    // Hàm chuyển tab
+    setActiveTab(tab: 'parts' | 'inventory' | 'used') {
+        this.activeTab = tab;
     }
 
     // ================== PARTS LOGIC ==================
@@ -92,6 +104,7 @@ export class PartsManagementComponent implements OnInit {
         this.inventoryService.getAllParts().subscribe({
             next: (data) => {
                 this.parts = data.map((p) => {
+                    // Giả sử partNumber có format "CARNAME-XXX"
                     const carModelName = p.partNumber?.split('-')[0] ?? '';
                     return {
                         ...p,
@@ -101,6 +114,7 @@ export class PartsManagementComponent implements OnInit {
                     };
                 });
 
+                // Lấy danh sách tên xe duy nhất để filter
                 this.uniqueCarNames = Array.from(
                     new Set(this.parts.map((p) => p.partNumber?.split('-')[0]))
                 ).filter((name): name is string => typeof name === 'string');
@@ -195,8 +209,7 @@ export class PartsManagementComponent implements OnInit {
         this.inventoryService.getCenters().subscribe({
             next: (res) => {
                 this.centers = res;
-
-                // Nếu là ADMIN và chưa chọn Center -> Chọn cái đầu tiên
+                // Nếu là ADMIN và chưa chọn Center nào -> Chọn cái đầu tiên mặc định
                 if (this.userRole !== 'STAFF' && res.length > 0 && !this.selectedCenterId) {
                     this.selectedCenterId = res[0].id.toString();
                     this.onCenterChange();
@@ -214,7 +227,7 @@ export class PartsManagementComponent implements OnInit {
                 next: (res) => {
                     this.inventory = res;
                     this.filteredInventory = res;
-                    this.applyInventoryFilter(); // Apply lại filter nếu đang có
+                    this.applyInventoryFilter(); // Apply filter nếu đang chọn status
                 },
                 error: (err) => console.error('Error loading inventory:', err),
             });
@@ -244,6 +257,7 @@ export class PartsManagementComponent implements OnInit {
     }
 
     openAdjustDialog(item: any) {
+        // Cố gắng lấy inventoryId từ nhiều nguồn khác nhau của item
         const inventoryId = item.id ?? item.inventoryId ?? item.partId;
         if (!inventoryId) return;
 
@@ -257,6 +271,36 @@ export class PartsManagementComponent implements OnInit {
 
         modalRef.afterClosed$.subscribe((res) => {
             if (res) this.onCenterChange();
+        });
+    }
+
+    // Thêm hàm này
+    checkStockAcrossCenters(part: SparePart) {
+        if (!part.id) return;
+
+        // Gọi API lấy dữ liệu
+        this.inventoryService.getStockAcrossCenters(part.id).subscribe(data => {
+            // Format tin nhắn hiển thị (Hoặc làm 1 dialog table đẹp hơn)
+            let message = `<div class="space-y-2">`;
+            message += `<p class="font-bold text-gray-700">Stock for: ${part.partName}</p>`;
+            message += `<ul class="list-disc pl-5 text-sm">`;
+
+            data.forEach(item => {
+                const colorClass = item.stockQuantity > 0 ? 'text-green-600' : 'text-red-600';
+                message += `<li class="${colorClass}">
+                <b>${item.centerName}:</b> ${item.stockQuantity} units
+            </li>`;
+            });
+            message += `</ul></div>`;
+
+            // Mở Dialog thông báo
+            this.modal.open(ConfirmDialogComponent, {
+                data: {
+                    title: 'Inventory Across Centers',
+                    message: message, // Cần ConfirmDialog hỗ trợ render HTML hoặc tạo component riêng
+                    isConfirm: false // Chỉ hiện nút OK
+                }
+            });
         });
     }
 }

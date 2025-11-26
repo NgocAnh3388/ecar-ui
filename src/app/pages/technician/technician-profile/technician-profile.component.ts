@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { ModalService } from '../../modal/modal.service';
+import { CertificateDetailDialogComponent } from '../../dialog/certificate-detail-dialog/certificate-detail-dialog.component';
 
 @Component({
     selector: 'app-technician-profile',
@@ -76,7 +78,9 @@ export class TechnicianProfileComponent implements OnInit {
     // Displayed list after filtering
     displayedCertificates = [...this.certificates];
 
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService,
+                private modalService: ModalService
+    ) {}
 
     ngOnInit() {
         this.authService.getCurrentUser().subscribe({
@@ -93,7 +97,12 @@ export class TechnicianProfileComponent implements OnInit {
     }
 
     onViewCert(cert: any) {
-        alert(`Viewing details for: ${cert.title}\nStatus: ${cert.status}`);
+        // Mở Dialog xịn xò
+        this.modalService.open(CertificateDetailDialogComponent, {
+            data: cert,
+            panelClass: ['modal-panel', 'p-0', 'bg-transparent', 'shadow-none'], // CSS class tùy chỉnh để bỏ viền mặc định
+            backdropClass: 'modal-backdrop' // Lớp nền tối
+        });
     }
 
     // Filter logic

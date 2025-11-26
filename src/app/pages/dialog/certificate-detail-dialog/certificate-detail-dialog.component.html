@@ -1,0 +1,63 @@
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden max-w-lg w-full mx-auto transform transition-all">
+
+    <!-- Header Image -->
+    <div class="relative h-48 bg-gray-100">
+        <img [src]="data.img" alt="Certificate" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <button (click)="close()" class="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors backdrop-blur-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-4">
+        <div>
+            <div class="flex justify-between items-start">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">{{ data.title }}</h2>
+                <span class="ml-2 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border"
+                      [ngClass]="{
+                        'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400': data.status === 'Valid',
+                        'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400': data.status === 'Expired',
+                        'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400': data.status === 'Expiring Soon'
+                      }">
+                    {{ data.status }}
+                </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">{{ data.issuer }}</p>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold">Issued Date</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ data.date | date:'dd MMM yyyy' }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold">Expiry Date</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ data.expiryDate | date:'dd MMM yyyy' }}</p>
+            </div>
+            <div class="col-span-2">
+                <p class="text-xs text-gray-400 uppercase font-semibold">Certificate ID</p>
+                <p class="text-sm font-mono text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-dashed border-gray-300 dark:border-gray-600 w-fit mt-1">
+                    CERT-{{ data.id }}-2024-X89
+                </p>
+            </div>
+        </div>
+
+        <!-- Description (Optional) -->
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            This certificate verifies that the holder has successfully completed the advanced training course and demonstrated proficiency in the required skills.
+        </p>
+
+        <!-- Footer Actions -->
+        <div class="pt-4 mt-2 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+            <button (click)="close()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors text-sm">
+                Close
+            </button>
+            <button (click)="download()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium shadow-sm shadow-emerald-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Download PDF
+            </button>
+        </div>
+    </div>
+</div>

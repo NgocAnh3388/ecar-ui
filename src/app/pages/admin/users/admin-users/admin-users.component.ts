@@ -2,22 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../services/user.service';
-import { AuthService } from '../../../../services/auth.service'; // 1. Import AuthService
+import { AuthService } from '../../../../services/auth.service';
+import { ToastService } from '../../../../pages/toast/toast.service'; // Import Toast
+import { ModalService } from '../../../../pages/modal/modal.service'; // Import Modal
+
+// import { AddUserDialogComponent } from '...'; // Import Dialog (Tạm thời comment nếu chưa tạo file)
 
 @Component({
     selector: 'app-admin-users',
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './admin-users.component.html',
-    styleUrl: './admin-users.component.css'
+    styleUrls: ['./admin-users.component.css']
 })
 export class AdminUsersComponent implements OnInit {
     users: any[] = [];
     allUsers: any[] = [];
     searchValue = '';
-
     currentRoleFilter = 'ALL';
-    currentUserRole: string = ''; // 2. Khai báo biến này
+    currentUserRole: string = '';
 
     pageIndex = 0;
     pageSize = 10;
@@ -26,22 +29,21 @@ export class AdminUsersComponent implements OnInit {
 
     constructor(
         private userService: UserService,
-        private authService: AuthService // 3. Inject AuthService
+        private authService: AuthService,
+        private toast: ToastService, // Inject Toast
+        private modal: ModalService  // Inject Modal
     ) {}
 
     ngOnInit() {
-        // 4. Lấy Role của người đang đăng nhập
-        const roles = this.authService.getRoles(); // Giả sử trả về ['ROLE_STAFF']
+        const roles = this.authService.getRoles();
+        if (roles.includes('ROLE_ADMIN')) this.currentUserRole = 'ADMIN';
+        else if (roles.includes('ROLE_STAFF')) this.currentUserRole = 'STAFF';
+        else if (roles.includes('ROLE_TECHNICIAN')) this.currentUserRole = 'TECHNICIAN';
+        else this.currentUserRole = 'CUSTOMER';
 
-        // Chuẩn hóa tên Role
-        if (roles.some((r: string) => r.includes('ADMIN'))) {
-            this.currentUserRole = 'ADMIN';
-        } else if (roles.some((r: string) => r.includes('STAFF'))) {
-            this.currentUserRole = 'STAFF';
-            // Nếu là Staff -> Mặc định vào tab Customer luôn
+        // Mặc định Staff xem Customer
+        if (this.currentUserRole === 'STAFF') {
             this.currentRoleFilter = 'CUSTOMER';
-        } else {
-            this.currentUserRole = 'CUSTOMER';
         }
 
         this.loadUsers();
@@ -53,10 +55,40 @@ export class AdminUsersComponent implements OnInit {
                 this.allUsers = res;
                 this.applyFilter();
             },
-            error: (err) => console.error('Failed to load users', err)
+            error: (err: any) => console.error('Failed', err)
         });
     }
 
+    // --- [MỚI] Toggle Status ---
+    toggleStatus(user: any) {
+        const newStatus = !user.active;
+        const action = newStatus ? 'Enable' : 'Disable';
+
+        if(confirm(`Are you sure you want to ${action} this user?`)) {
+            this.userService.updateUserStatus(user.id, newStatus).subscribe({
+                next: () => {
+                    user.active = newStatus;
+                    this.toast.success(`User ${action}d successfully`);
+                },
+                error: (err: any) => this.toast.error("Failed to update status")
+            });
+        }
+    }
+
+    // --- [MỚI] Create User ---
+    onCreateUser() {
+        alert("Tính năng Add User Dialog đang phát triển. Vui lòng chờ update sau.");
+        /* Code chuẩn khi có Dialog:
+        const ref = this.modal.open(AddUserDialogComponent, {
+            data: { title: 'Add New Member' }
+        });
+        ref.afterClosed$.subscribe((result: any) => {
+            if(result) this.loadUsers();
+        });
+        */
+    }
+
+    // ... Các hàm filter cũ (Giữ nguyên logic) ...
     filterRole(role: string) {
         this.currentRoleFilter = role;
         this.pageIndex = 0;
@@ -66,12 +98,8 @@ export class AdminUsersComponent implements OnInit {
     applyFilter() {
         let filtered = [...this.allUsers];
 
-        // 5. LOGIC BẢO MẬT DỮ LIỆU (Frontend Side)
-        // Nếu là Staff -> Chỉ cho phép xem Customer và Technician
         if (this.currentUserRole === 'STAFF') {
-            // Chặn nếu cố tình chọn tab Admin hoặc All
             if (['ALL', 'ADMIN', 'STAFF'].includes(this.currentRoleFilter)) {
-                // Ép lọc dữ liệu, chỉ lấy Customer và Technician
                 filtered = filtered.filter(u => {
                     const r = this.getRoleName(u);
                     return r === 'CUSTOMER' || r === 'TECHNICIAN';
@@ -79,15 +107,10 @@ export class AdminUsersComponent implements OnInit {
             }
         }
 
-        // 6. Lọc theo Tab đã chọn
         if (this.currentRoleFilter !== 'ALL') {
-            filtered = filtered.filter(u => {
-                const roleName = this.getRoleName(u);
-                return roleName === this.currentRoleFilter;
-            });
+            filtered = filtered.filter(u => this.getRoleName(u) === this.currentRoleFilter);
         }
 
-        // 7. Tìm kiếm
         if (this.searchValue) {
             const term = this.searchValue.toLowerCase();
             filtered = filtered.filter(u =>
@@ -97,42 +120,27 @@ export class AdminUsersComponent implements OnInit {
             );
         }
 
-        // 8. Sắp xếp Staff/Tech theo Center
         if (['STAFF', 'TECHNICIAN'].includes(this.currentRoleFilter)) {
             filtered.sort((a, b) => (a.centerName || 'ZZ').localeCompare(b.centerName || 'ZZ'));
         }
 
-        // 9. Phân trang
         this.totalPages = Math.ceil(filtered.length / this.pageSize);
         this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-
         if (this.pageIndex >= this.totalPages) this.pageIndex = Math.max(0, this.totalPages - 1);
 
         const start = this.pageIndex * this.pageSize;
         this.users = filtered.slice(start, start + this.pageSize);
     }
 
-    onSearch() {
-        this.pageIndex = 0;
-        this.applyFilter();
-    }
+    onSearch() { this.pageIndex = 0; this.applyFilter(); }
 
     onPageChange(page: number) {
-        // Xử lý cả trường hợp truyền index (0,1) hoặc page number (1,2)
         let newIndex = page;
-        // Nếu bấm vào số trang (1, 2, 3) -> Chuyển về index (0, 1, 2)
-        if (this.pageNumbers.includes(page)) {
-            newIndex = page - 1;
-        }
-
+        if (this.pageNumbers.includes(page)) newIndex = page - 1;
         if (newIndex >= 0 && newIndex < this.totalPages) {
             this.pageIndex = newIndex;
             this.applyFilter();
         }
-    }
-
-    onCreateUser() {
-        alert("Feature coming soon");
     }
 
     getRoleName(user: any): string {

@@ -24,11 +24,14 @@ import { NotFoundComponent } from './pages/other-page/not-found/not-found.compon
 // Admin Pages
 import { AdminUsersComponent } from './pages/admin/users/admin-users/admin-users.component';
 import { ProfitReportComponent } from './pages/admin/profit-report/profit-report.component';
+// [MỚI] Import Admin Components
+import { ServiceCentersComponent } from './pages/admin/service-centers/service-centers.component';
+import { CarModelsComponent } from './pages/admin/car-models/car-models.component';
 
 // Technician Pages
 import { TechnicianProfileComponent } from './pages/technician/technician-profile/technician-profile.component';
 
-//UI Elements & PayPal ... (giữ nguyên import cũ)
+//UI Elements & PayPal
 import { AlertsComponent } from './pages/ui-elements/alerts/alerts.component';
 import { AvatarElementComponent } from './pages/ui-elements/avatar-element/avatar-element.component';
 import { BadgesComponent } from './pages/ui-elements/badges/badges.component';
@@ -68,13 +71,7 @@ export const routes: Routes = [
             { path: 'customer-payment-dashboard', component: CustomerPaymentDashboardComponent, title: 'Service Plan Management' },
 
             // Technician Routes
-            // --- [ĐÃ CHUYỂN VÀO ĐÂY] ---
-            {
-                path: 'technician/profile',
-                component: TechnicianProfileComponent,
-                title: 'My Certificates & Profile'
-            },
-            // ---------------------------
+            { path: 'technician/profile', component: TechnicianProfileComponent, title: 'My Certificates & Profile' },
 
             // Admin & Staff Routes
             { path: 'service-dashboard', component: ServiceDashboardComponent, title: 'Service Dashboard' },
@@ -85,6 +82,11 @@ export const routes: Routes = [
             },
             { path: 'users', component: AdminUsersComponent, title: 'User Management' },
             { path: 'admin/profit-report', component: ProfitReportComponent, title: 'Ecar - Profit Report' },
+
+            // --- [MỚI] Thêm Routes cho Admin ---
+            { path: 'admin/centers', component: ServiceCentersComponent, title: 'Manage Service Centers' },
+            { path: 'admin/models', component: CarModelsComponent, title: 'Manage Vehicle Models' },
+            // ----------------------------------
 
             // UI Samples
             { path: 'form-elements', component: FormElementsComponent, title: 'Form Elements' },
