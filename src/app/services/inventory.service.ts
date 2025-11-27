@@ -68,4 +68,10 @@ export class InventoryService {
     getStockAcrossCenters(partId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.baseUrl}/inventory/stock-across/${partId}`);
     }
+
+    // Lấy lịch sử sử dụng phụ tùng
+    getUsedPartsHistory(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/used-history`);
+    }
+
 }

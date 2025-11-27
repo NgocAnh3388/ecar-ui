@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../../services/inventory.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
-import { ModalService } from '../../modal/modal.service'; // Đảm bảo path đúng tới ModalService của bạn
+import { ModalService } from '../../modal/modal.service';
 
 // Models
 import { SparePart } from '../../../models/spare-part.model';
@@ -26,14 +26,11 @@ import { AdjustDialogComponent } from '../../dialog/adjust-dialog/adjust-dialog.
     styleUrls: ['./parts-management.component.css'],
 })
 export class PartsManagementComponent implements OnInit {
-    // --- FIX LỖI TYPE TẠI ĐÂY ---
-    // Thêm 'used' vào để khớp với HTML *ngIf="activeTab === 'used'"
     activeTab: 'parts' | 'inventory' | 'used' = 'inventory';
 
     // ================== PARTS DATA ==================
     parts: SparePart[] = [];
     filteredParts: SparePart[] = [];
-
     carModels: CarModel[] = [];
     uniqueCarNames: string[] = [];
     selectedCarModel = '';
@@ -49,6 +46,11 @@ export class PartsManagementComponent implements OnInit {
     filteredInventory: any[] = [];
     filterStatus = '';
 
+    // ================== USED PARTS DATA ==================
+    usedParts: any[] = [];
+    filteredUsedParts: any[] = [];
+    usedPartSearchTerm: string = '';
+
     // ================== PERMISSION ==================
     userRole: string = '';
     disableCenterSelect = false;
@@ -63,38 +65,37 @@ export class PartsManagementComponent implements OnInit {
 
     ngOnInit(): void {
         this.loading = true;
-
-        // 1. Load danh sách phụ tùng (dữ liệu gốc)
         this.fetchParts();
-
-        // 2. Load danh sách Center (để lọc kho)
         this.loadCenters();
+        this.checkPermission();
+    }
 
-        // 3. Phân quyền xem kho (Staff chỉ xem được kho của mình)
+    checkPermission() {
         const roles = this.authService.getRoles();
         if (roles.includes('ROLE_STAFF') || roles.includes('STAFF')) {
             this.userRole = 'STAFF';
-            this.disableCenterSelect = true; // Khóa dropdown chọn center
+            this.disableCenterSelect = true;
 
-            // Lấy thông tin Staff để biết Center ID của họ
             this.userService.getCurrentUser().subscribe((user: any) => {
-                // Logic: user.centerId hoặc user.center.id tùy backend trả về
                 const centerId = user.centerId || user.center?.id;
                 if (centerId) {
                     this.selectedCenterId = centerId.toString();
-                    this.onCenterChange(); // Load kho ngay lập tức
+                    this.onCenterChange();
                 }
             });
         } else {
             this.userRole = 'ADMIN';
             this.disableCenterSelect = false;
-            // Admin có thể chọn bất kỳ center nào
         }
     }
 
-    // Hàm chuyển tab
+    // --- TAB LOGIC ---
     setActiveTab(tab: 'parts' | 'inventory' | 'used') {
         this.activeTab = tab;
+        // Nếu chuyển sang tab Used và chưa có data thì load
+        if (tab === 'used' && this.usedParts.length === 0) {
+            this.loadUsedPartsHistory();
+        }
     }
 
     // ================== PARTS LOGIC ==================
@@ -104,17 +105,10 @@ export class PartsManagementComponent implements OnInit {
         this.inventoryService.getAllParts().subscribe({
             next: (data) => {
                 this.parts = data.map((p) => {
-                    // Giả sử partNumber có format "CARNAME-XXX"
                     const carModelName = p.partNumber?.split('-')[0] ?? '';
-                    return {
-                        ...p,
-                        carModelName,
-                        stockQuantity: p.stockQuantity ?? 0,
-                        minStockLevel: p.minStockLevel ?? 0,
-                    };
+                    return { ...p, carModelName };
                 });
 
-                // Lấy danh sách tên xe duy nhất để filter
                 this.uniqueCarNames = Array.from(
                     new Set(this.parts.map((p) => p.partNumber?.split('-')[0]))
                 ).filter((name): name is string => typeof name === 'string');
@@ -125,7 +119,7 @@ export class PartsManagementComponent implements OnInit {
             error: (err) => {
                 this.loading = false;
                 this.errorMessage = 'Unable to load spare part data.';
-                console.error('Error loading parts:', err);
+                console.error(err);
             },
         });
     }
@@ -147,7 +141,6 @@ export class PartsManagementComponent implements OnInit {
                 (part) => part.carModelName === this.selectedCarModel
             );
         }
-
         this.filteredParts = result;
     }
 
@@ -172,11 +165,7 @@ export class PartsManagementComponent implements OnInit {
 
     openEditDialog(part: SparePart) {
         const modalRef = this.modal.open(AddPartDialogComponent, {
-            data: {
-                title: 'Edit Spare Part',
-                partData: part,
-                isEdit: true,
-            },
+            data: { title: 'Edit Spare Part', partData: part, isEdit: true },
         });
         modalRef.afterClosed$.subscribe((result) => {
             if (result) this.fetchParts();
@@ -190,16 +179,8 @@ export class PartsManagementComponent implements OnInit {
                 message: `Are you sure you want to delete <b>${part.partName}</b>?`,
             },
         });
-
         modalRef.afterClosed$.subscribe((confirmed) => {
-            if (confirmed) this.deletePart(part.id!);
-        });
-    }
-
-    deletePart(id: number) {
-        this.inventoryService.deletePart(id).subscribe({
-            next: () => this.fetchParts(),
-            error: (err) => console.error('Delete failed:', err),
+            if (confirmed) this.inventoryService.deletePart(part.id!).subscribe(() => this.fetchParts());
         });
     }
 
@@ -209,7 +190,6 @@ export class PartsManagementComponent implements OnInit {
         this.inventoryService.getCenters().subscribe({
             next: (res) => {
                 this.centers = res;
-                // Nếu là ADMIN và chưa chọn Center nào -> Chọn cái đầu tiên mặc định
                 if (this.userRole !== 'STAFF' && res.length > 0 && !this.selectedCenterId) {
                     this.selectedCenterId = res[0].id.toString();
                     this.onCenterChange();
@@ -221,15 +201,20 @@ export class PartsManagementComponent implements OnInit {
 
     onCenterChange() {
         if (!this.selectedCenterId) return;
+        this.loading = true;
         this.inventoryService
             .getInventoryByCenter(Number(this.selectedCenterId))
             .subscribe({
                 next: (res) => {
                     this.inventory = res;
                     this.filteredInventory = res;
-                    this.applyInventoryFilter(); // Apply filter nếu đang chọn status
+                    this.applyInventoryFilter();
+                    this.loading = false;
                 },
-                error: (err) => console.error('Error loading inventory:', err),
+                error: (err) => {
+                    console.error(err);
+                    this.loading = false;
+                },
             });
     }
 
@@ -249,7 +234,7 @@ export class PartsManagementComponent implements OnInit {
 
     openRestockDialog(item: any) {
         const modalRef = this.modal.open(RestockDialogComponent, {
-            data: { inventoryId: item.inventoryId ?? item.id },
+            data: { inventoryId: item.id, partName: item.partName, currentStock: item.stockQuantity },
         });
         modalRef.afterClosed$.subscribe((res) => {
             if (res) this.onCenterChange();
@@ -257,50 +242,134 @@ export class PartsManagementComponent implements OnInit {
     }
 
     openAdjustDialog(item: any) {
-        // Cố gắng lấy inventoryId từ nhiều nguồn khác nhau của item
-        const inventoryId = item.id ?? item.inventoryId ?? item.partId;
-        if (!inventoryId) return;
-
         const modalRef = this.modal.open(AdjustDialogComponent, {
             data: {
-                inventoryId: inventoryId,
+                inventoryId: item.id,
+                partName: item.partName,
                 stockQuantity: item.stockQuantity,
                 minStockLevel: item.minStockLevel,
             },
         });
-
         modalRef.afterClosed$.subscribe((res) => {
             if (res) this.onCenterChange();
         });
     }
 
-    // Thêm hàm này
+    // --- CHECK STOCK ACROSS CENTERS ---
     checkStockAcrossCenters(part: SparePart) {
         if (!part.id) return;
 
-        // Gọi API lấy dữ liệu
         this.inventoryService.getStockAcrossCenters(part.id).subscribe(data => {
-            // Format tin nhắn hiển thị (Hoặc làm 1 dialog table đẹp hơn)
-            let message = `<div class="space-y-2">`;
-            message += `<p class="font-bold text-gray-700">Stock for: ${part.partName}</p>`;
-            message += `<ul class="list-disc pl-5 text-sm">`;
+            let message = `<div class="space-y-3 text-left">`;
+            message += `<p class="text-sm text-gray-600">Stock availability for: <b class="text-gray-900">${part.partName}</b></p>`;
 
-            data.forEach(item => {
-                const colorClass = item.stockQuantity > 0 ? 'text-green-600' : 'text-red-600';
-                message += `<li class="${colorClass}">
-                <b>${item.centerName}:</b> ${item.stockQuantity} units
-            </li>`;
-            });
-            message += `</ul></div>`;
+            if (data.length === 0) {
+                message += `<p class="text-red-500 italic">No stock data found in any center.</p>`;
+            } else {
+                message += `<div class="border rounded-lg overflow-hidden"><table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50"><tr><th class="px-3 py-2">Center</th><th class="px-3 py-2 text-right">Stock</th></tr></thead>
+                    <tbody>`;
 
-            // Mở Dialog thông báo
+                data.forEach((item: any) => {
+                    const stockClass = item.stockQuantity > 0 ? 'text-emerald-600 font-bold' : 'text-red-500 font-bold';
+                    message += `<tr class="border-t">
+                        <td class="px-3 py-2">${item.centerName}</td>
+                        <td class="px-3 py-2 text-right ${stockClass}">${item.stockQuantity}</td>
+                    </tr>`;
+                });
+                message += `</tbody></table></div>`;
+            }
+            message += `</div>`;
+
             this.modal.open(ConfirmDialogComponent, {
                 data: {
-                    title: 'Inventory Across Centers',
-                    message: message, // Cần ConfirmDialog hỗ trợ render HTML hoặc tạo component riêng
-                    isConfirm: false // Chỉ hiện nút OK
-                }
+                    title: 'Stock Availability',
+                    message: message,
+                    isConfirm: false
+                },
+                panelClass: ['modal-panel', 'bg-white', 'rounded-xl', 'shadow-xl', 'max-w-md', 'w-full']
             });
         });
+    }
+
+    // ================== USED PARTS LOGIC ==================
+
+    loadUsedPartsHistory() {
+        this.loading = true;
+
+        // --- CÁCH 1: GỌI API THẬT ---
+        this.inventoryService.getUsedPartsHistory().subscribe({
+            next: (data: any) => {
+                // Nếu API trả về rỗng, ta thêm data giả để test UI (Chỉ dùng khi dev)
+                if (!data || data.length === 0) {
+                    this.usedParts = this.getMockUsedParts();
+                } else {
+                    this.usedParts = data;
+                }
+                this.applyUsedPartsFilter();
+                this.loading = false;
+            },
+            error: (err: any) => {
+                console.error(err);
+                // Fallback data giả nếu lỗi
+                this.usedParts = this.getMockUsedParts();
+                this.applyUsedPartsFilter();
+                this.loading = false;
+            }
+        });
+    }
+
+    // Hàm tạo data giả
+    getMockUsedParts() {
+        return [
+            {
+                serviceDate: new Date(),
+                centerName: 'ECar Binh Duong',
+                partName: 'Front Brake Pads',
+                partNumber: 'VF5-BRK-01',
+                licensePlate: '63-B6-51709',
+                quantityUsed: 2,
+                priceAtTimeOfUse: 800000
+            },
+            {
+                serviceDate: new Date(new Date().setDate(new Date().getDate() - 2)), // 2 ngày trước
+                centerName: 'ECar Thu Duc',
+                partName: 'Wiper Blade Kit',
+                partNumber: 'VF5-WPR-01',
+                licensePlate: '51G-123.45',
+                quantityUsed: 1,
+                priceAtTimeOfUse: 400000
+            }
+        ];
+    }
+
+    onUsedPartsCenterChange() {
+        this.applyUsedPartsFilter();
+    }
+
+    applyUsedPartsFilter() {
+        let result = this.usedParts;
+
+        // Filter theo Center nếu có chọn
+        if (this.selectedCenterId) {
+            // Lưu ý: Backend trả về centerName chứ không phải centerId trong DTO UsedPartHistoryDTO
+            // Nên ta cần tìm tên center tương ứng với ID đã chọn
+            const selectedCenter = this.centers.find(c => c.id.toString() === this.selectedCenterId);
+            if (selectedCenter) {
+                result = result.filter(r => r.centerName === selectedCenter.centerName);
+            }
+        }
+
+        // Filter theo từ khóa
+        const term = this.usedPartSearchTerm.toLowerCase().trim();
+        if (term) {
+            result = result.filter(r =>
+                (r.partName && r.partName.toLowerCase().includes(term)) ||
+                (r.partNumber && r.partNumber.toLowerCase().includes(term)) ||
+                (r.licensePlate && r.licensePlate.toLowerCase().includes(term))
+            );
+        }
+
+        this.filteredUsedParts = result;
     }
 }

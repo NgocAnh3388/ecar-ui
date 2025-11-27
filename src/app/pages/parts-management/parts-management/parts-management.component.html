@@ -8,6 +8,7 @@
     <!-- Modern Tabs -->
     <div class="mb-6">
         <div class="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
+            <!-- Tab 1: Parts -->
             <button
                     class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
                     [class]="activeTab === 'parts' ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
@@ -20,6 +21,7 @@
                     Spare Parts
                 </span>
             </button>
+            <!-- Tab 2: Inventory -->
             <button
                     class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
                     [class]="activeTab === 'inventory' ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
@@ -32,11 +34,22 @@
                     Inventory
                 </span>
             </button>
+            <!-- Tab 3: Used Parts -->
+            <button
+                    class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
+                    [class]="activeTab === 'used' ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                    (click)="setActiveTab('used')"
+            >
+                <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Used Parts
+                </span>
+            </button>
 
         </div>
     </div>
 
-    <!-- Tab: Spare Parts -->
+    <!-- ================= TAB 1: SPARE PARTS LIST ================= -->
     <div *ngIf="activeTab === 'parts'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <!-- Toolbar -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -174,7 +187,7 @@
         </div>
     </div>
 
-    <!-- Tab: Inventory -->
+    <!-- ================= TAB 2: INVENTORY STOCK ================= -->
     <div *ngIf="activeTab === 'inventory'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <!-- Toolbar -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -288,13 +301,121 @@
     </div>
 
     <!-- Tab: Used Parts (Placeholder) -->
-    <div *ngIf="activeTab === 'used'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
+<!--    <div *ngIf="activeTab === 'used'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">-->
+<!--        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">-->
+<!--            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>-->
+<!--            </svg>-->
+<!--        </div>-->
+<!--        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Used Parts Coming Soon</h3>-->
+<!--        <p class="text-gray-500 dark:text-gray-400">This feature is under development</p>-->
+<!--    </div>-->
+    <!-- Used Parts Table -->
+    <!-- ================= TAB 3: USED PARTS HISTORY ================= -->
+    <div *ngIf="activeTab === 'used'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+
+        <!-- Filter Toolbar -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col lg:flex-row gap-3 justify-between">
+
+                <!-- Left: Center & Search Filters -->
+                <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                    <!-- Select Center -->
+                    <select
+                            class="px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition disabled:opacity-60 disabled:cursor-not-allowed"
+                            [(ngModel)]="selectedCenterId"
+                            (change)="onUsedPartsCenterChange()"
+                            [disabled]="disableCenterSelect"
+                    >
+                        <option value="">All Service Centers</option>
+                        <option *ngFor="let c of centers" [value]="c.id">{{ c.centerName }}</option>
+                    </select>
+
+                    <!-- Search Input -->
+                    <div class="relative flex-1 max-w-sm">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input
+                                type="text"
+                                placeholder="Search part name, plate number..."
+                                class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                                [(ngModel)]="usedPartSearchTerm"
+                                (input)="applyUsedPartsFilter()"
+                        />
+                    </div>
+                </div>
+
+                <!-- Right: Export Button (Placeholder) -->
+                <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Export Report
+                </button>
+            </div>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Used Parts Coming Soon</h3>
-        <p class="text-gray-500 dark:text-gray-400">This feature is under development</p>
+
+        <!-- Used Parts Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Date Used</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Part Name / Number</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Vehicle Plate</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-center">Quantity</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-right">Unit Price</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300 text-right">Total Cost</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr *ngFor="let record of filteredUsedParts" class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition">
+                    <!-- Date -->
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                        {{ record.serviceDate | date:'dd MMM yyyy, HH:mm' }}
+                        <div class="text-xs text-gray-400">{{ record.centerName }}</div>
+                    </td>
+
+                    <!-- Part Info -->
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ record.partName }}</div>
+                        <div class="text-xs text-gray-500 font-mono">{{ record.partNumber }}</div>
+                    </td>
+
+                    <!-- Vehicle -->
+                    <td class="px-4 py-3">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                {{ record.licensePlate }}
+                            </span>
+                    </td>
+
+                    <!-- Quantity -->
+                    <td class="px-4 py-3 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                                {{ record.quantityUsed }}
+                            </span>
+                    </td>
+
+                    <!-- Unit Price -->
+                    <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
+                        {{ record.priceAtTimeOfUse | number }} ₫
+                    </td>
+
+                    <!-- Total -->
+                    <td class="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                        {{ (record.priceAtTimeOfUse * record.quantityUsed) | number }} ₫
+                    </td>
+                </tr>
+
+                <!-- Empty State (Nằm TRONG tbody để giữ layout) -->
+                <tr *ngIf="filteredUsedParts.length === 0">
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No used parts found</h3>
+                        <p class="text-gray-500 dark:text-gray-400">Try adjusting filters or search criteria</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
