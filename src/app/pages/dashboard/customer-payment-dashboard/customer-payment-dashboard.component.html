@@ -1,150 +1,162 @@
-<div class="grid grid-cols-12 gap-4 md:gap-6">
-    <!-- ✅ If no package exists -->
-    <div *ngIf="!isLoading && !subscription" class="col-span-12">
-        <div
-                class="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white py-16 dark:border-gray-800 dark:bg-white/[0.03] text-center"
-        >
-            <img
-                    src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
-                    alt="empty"
-                    class="w-24 h-24 mb-4 opacity-90"
-            />
-            <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                You do not have any maintenance package
-            </h3>
-            <p class="text-gray-500 mb-6">
-                Subscribe to a maintenance package to receive benefits and track your services.
-            </p>
-            <button
-                    class="px-6 py-3 rounded-xl text-white font-medium shadow-md bg-brand-500 hover:bg-brand-600 transition"
-                    (click)="renew()"
-            >
-                Subscribe to a Service Package
-            </button>
-        </div>
-    </div>
+<div class="p-6 space-y-8">
 
-    <!-- If package exists -->
-    <div *ngIf="subscription" class="col-span-12">
-        <div class="col-span-12 xl:col-span-7">
-            <div
-                    class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6"
-            >
-                <div class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
-                            Maintenance package information
-                        </h3>
+    <!-- 1. HEADER & SUMMARY CARDS -->
+    <!-- (Phần này hiển thị tóm tắt gói dịch vụ hiện tại) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Active Plan Card -->
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="text-lg font-medium opacity-90">Current Plan Status</h3>
+                <div class="mt-4 flex items-baseline gap-2">
+                    <!-- Hiển thị dữ liệu thật từ biến subscription -->
+                    <span class="text-3xl font-bold">
+                        {{ getSubscriptionStatus(subscription?.endDate) }}
+                    </span>
+                    <span class="text-sm opacity-80" *ngIf="subscription?.endDate">
+                        until {{ subscription?.endDate | date:'dd MMM yyyy' }}
+                    </span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1 opacity-80">
+                        <span>Duration used</span>
+                        <span>{{ calculateProgress(subscription?.startDate, subscription?.endDate) }}%</span>
+                    </div>
+                    <div class="w-full bg-white/20 rounded-full h-2">
+                        <div class="bg-white h-2 rounded-full" [style.width.%]="calculateProgress(subscription?.startDate, subscription?.endDate)"></div>
                     </div>
                 </div>
+            </div>
+            <!-- Decor icon -->
+            <svg class="absolute -bottom-4 -right-4 w-32 h-32 text-white/10" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
 
-                <div class="max-w-full overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="border-y border-gray-100 dark:border-gray-800">
-                        <tr>
-                            <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Start date</th>
-                            <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">End date</th>
-                            <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Payment date</th>
-                            <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</th>
-                            <th class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-center">
-                                Registration / Renewal
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        <tr>
-                            <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                {{ subscription?.startDate | date: 'dd-MM-yyyy' }}
-                            </td>
-                            <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                {{ subscription?.endDate | date: 'dd-MM-yyyy' }}
-                            </td>
-                            <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                {{ subscription?.paymentDate | date: 'dd-MM-yyyy' }}
-                            </td>
-                            <td class="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                <app-badge
-                                        size="sm"
-                                        [color]="getSubscriptionStatusBadgeColor(subscription?.endDate)"
-                                >
-                                    {{ getSubscriptionStatus(subscription?.endDate) }}
-                                </app-badge>
-                            </td>
-                            <td class="py-3 text-center">
-                                <button
-                                        (click)="renew()"
-                                        type="button"
-                                        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white transition"
-                                >
-                                    <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-4 h-4"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            viewBox="0 0 24 24"
-                                    >
-                                        <polyline points="23 4 23 10 17 10"></polyline>
-                                        <polyline points="1 20 1 14 7 14"></polyline>
-                                        <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
-                                        <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
-                                    </svg>
-                                    {{ getRenewButtonLabel(subscription?.endDate) }}
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h3>
+                <p class="text-sm text-gray-500 mt-1">Manage your subscription easily</p>
+            </div>
+            <div class="flex gap-3 mt-4">
+                <button (click)="renew()" class="flex-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 py-2 rounded-lg text-sm font-semibold transition-colors">
+                    {{ getRenewButtonLabel(subscription?.endDate) }}
+                </button>
+                <button class="flex-1 bg-gray-50 text-gray-700 hover:bg-gray-100 py-2 rounded-lg text-sm font-semibold transition-colors">
+                    View Policy
+                </button>
+            </div>
+        </div>
+
+        <!-- Next Payment Info -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Next Payment</h3>
+            <div class="mt-4 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Due Date</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">
+                        {{ subscription?.endDate ? (subscription?.endDate | date:'dd MMM yyyy') : 'Not Available' }}
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Payment history -->
-    <div class="col-span-12">
-        <div class="col-span-12 xl:col-span-7">
-            <div
-                    class="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]"
-            >
-                <div class="flex flex-col gap-2 px-5 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Payment history</h3>
-                </div>
-
-                <div class="overflow-hidden">
-                    <div class="max-w-full px-5 overflow-x-auto sm:px-6">
-                        <table class="min-w-full">
-                            <thead class="border-gray-100 border-y dark:border-white/[0.05]">
-                            <tr>
-                                <th class="py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Date</th>
-                                <th class="py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Payment method</th>
-                                <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Status</th>
-                                <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Year number</th>
-                            </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            <tr *ngFor="let item of paymentHistory">
-                                <td class="px-4 py-4 text-gray-700 whitespace-nowrap text-theme-sm dark:text-gray-400">
-                                    {{ item.paymentDate | date: 'dd-MM-yyyy' }}
-                                </td>
-                                <td class="px-4 py-4 text-gray-700 whitespace-nowrap text-theme-sm dark:text-gray-400">
-                                    {{ item.paymentMethod }}
-                                </td>
-                                <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
-                                    <app-badge size="sm" [color]="getPaymentStatusBadge(item.paymentStatus)">
-                                        {{ item.paymentStatus }}
-                                    </app-badge>
-                                </td>
-                                <td class="px-4 py-4 text-gray-700 whitespace-nowrap text-theme-sm dark:text-gray-400">
-                                    {{ item.numOfYears }}
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- 2. MAINTENANCE PACKAGES INFO (Chi tiết gói hiện tại) -->
+    <div *ngIf="subscription" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="font-bold text-gray-900 dark:text-white">Current Package Details</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs uppercase text-gray-500 font-semibold">
+                <tr>
+                    <th class="px-6 py-3">Start Date</th>
+                    <th class="px-6 py-3">End Date</th>
+                    <th class="px-6 py-3">Payment Date</th>
+                    <th class="px-6 py-3 text-center">Status</th>
+                    <th class="px-6 py-3 text-right">Action</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                        {{ subscription?.startDate | date: 'dd MMM yyyy' }}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">
+                        {{ subscription?.endDate | date: 'dd MMM yyyy' }}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">
+                        {{ subscription?.paymentDate | date: 'dd MMM yyyy' }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <app-badge size="sm" [color]="getSubscriptionStatusBadgeColor(subscription?.endDate)">
+                            {{ getSubscriptionStatus(subscription?.endDate) }}
+                        </app-badge>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button (click)="renew()" class="text-emerald-600 hover:text-emerald-800 font-medium text-xs hover:underline">
+                            {{ getRenewButtonLabel(subscription?.endDate) }}
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+
+    <!-- 3. PAYMENT HISTORY (Lịch sử thanh toán) -->
+    <div *ngIf="paymentHistory && paymentHistory.length > 0" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="font-bold text-gray-900 dark:text-white">Payment History</h3>
+            <button class="text-sm text-emerald-600 hover:underline">Export CSV</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs uppercase text-gray-500 font-semibold">
+                <tr>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Method</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Years</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr *ngFor="let item of paymentHistory" class="hover:bg-gray-50 dark:hover:bg-gray-750">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                        {{ item.paymentDate | date: 'dd MMM yyyy, HH:mm' }}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 uppercase text-xs font-bold tracking-wide">
+                        {{ item.paymentMethod }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <app-badge size="sm" [color]="getPaymentStatusBadge(item.paymentStatus)">
+                            {{ item.paymentStatus }}
+                        </app-badge>
+                    </td>
+                    <td class="px-6 py-4 text-right text-gray-900 dark:text-white">
+                        {{ item.numOfYears }} Year(s)
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. EMPTY STATE (Nếu chưa có gói) -->
+    <div *ngIf="!isLoading && !subscription" class="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white py-16 dark:border-gray-800 dark:bg-white/[0.03] text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="empty" class="w-24 h-24 mb-4 opacity-90" />
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+            You do not have any maintenance package
+        </h3>
+        <p class="text-gray-500 mb-6">
+            Subscribe to a maintenance package to receive benefits and track your services.
+        </p>
+        <button class="px-6 py-3 rounded-xl text-white font-medium shadow-md bg-emerald-600 hover:bg-emerald-700 transition" (click)="renew()">
+            Subscribe Now
+        </button>
+    </div>
+
 </div>

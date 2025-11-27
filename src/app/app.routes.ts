@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 //Landing pages
 import { LandingShellComponent } from './features/landing/landing-shell/landing-shell.component';
 
-
 //Auth pages
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
@@ -21,9 +20,18 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { BlankComponent } from './pages/blank/blank.component';
 import { BasicTablesComponent } from './pages/tables/basic-tables/basic-tables.component';
 import { NotFoundComponent } from './pages/other-page/not-found/not-found.component';
-import { UserManagementComponent } from './pages/management/user-management/user-management.component';
 
-//UI Elements
+// Admin Pages
+import { AdminUsersComponent } from './pages/admin/users/admin-users/admin-users.component';
+import { ProfitReportComponent } from './pages/admin/profit-report/profit-report.component';
+// [MỚI] Import Admin Components
+import { ServiceCentersComponent } from './pages/admin/service-centers/service-centers.component';
+import { CarModelsComponent } from './pages/admin/car-models/car-models.component';
+
+// Technician Pages
+import { TechnicianProfileComponent } from './pages/technician/technician-profile/technician-profile.component';
+
+//UI Elements & PayPal
 import { AlertsComponent } from './pages/ui-elements/alerts/alerts.component';
 import { AvatarElementComponent } from './pages/ui-elements/avatar-element/avatar-element.component';
 import { BadgesComponent } from './pages/ui-elements/badges/badges.component';
@@ -31,29 +39,21 @@ import { ButtonsComponent } from './pages/ui-elements/buttons/buttons.component'
 import { ImagesComponent } from './pages/ui-elements/images/images.component';
 import { VideosComponent } from './pages/ui-elements/videos/videos.component';
 import { FormElementsComponent } from './pages/forms/form-elements/form-elements.component';
-
-//PayPal
 import { PaypalSuccessComponent } from './pages/paypal-success/paypal-success.component';
 import { PaymentCancelComponent } from './pages/payment-cancel/payment-cancel.component';
-
-//Layout & Guard
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 import { AuthGuard } from './guard/auth.guard';
 
-import { ProfitReportComponent } from './pages/admin/profit-report/profit-report.component';
-
-//ROUTES CONFIG
 export const routes: Routes = [
     //Public pages
     { path: '', redirectTo: '/index', pathMatch: 'full' },
     { path: 'index', component: LandingShellComponent, title: 'Home' },
 
-
     //Auth pages
     { path: 'signin', component: SignInComponent, title: 'Sign In' },
     { path: 'signup', component: SignUpComponent, title: 'Sign Up' },
 
-    //Protected (có AuthGuard)
+    //Protected Pages (Có Sidebar + Header)
     {
         path: '',
         component: AppLayoutComponent,
@@ -61,27 +61,34 @@ export const routes: Routes = [
         children: [
             { path: '', component: EcommerceComponent, pathMatch: 'full', title: 'Dashboard' },
 
-            //Profile
+            // Customer Routes
+            { path: 'profile', redirectTo: 'profile/me', pathMatch: 'full' },
             { path: 'profile/me', component: ProfileComponent, title: 'Personal Profile' },
             { path: 'profile/:id', component: ProfileComponent, title: 'User Profile' },
-            { path: 'overview', component: EcommerceComponent, title: 'Overview Dashboard', canActivate: [AuthGuard] },
-
-            //Customer area
+            { path: 'overview', component: EcommerceComponent, title: 'Overview Dashboard' },
             { path: 'customer-schedule', component: CustomerScheduleComponent, title: 'Book Appointment' },
             { path: 'customer-maintenance', component: CustomerMaintenanceComponent, title: 'Maintenance History' },
             { path: 'customer-payment-dashboard', component: CustomerPaymentDashboardComponent, title: 'Service Plan Management' },
 
-            //Service & Admin
+            // Technician Routes
+            { path: 'technician/profile', component: TechnicianProfileComponent, title: 'My Certificates & Profile' },
+
+            // Admin & Staff Routes
             { path: 'service-dashboard', component: ServiceDashboardComponent, title: 'Service Dashboard' },
             {
                 path: 'admin/parts-management',
-                loadChildren: () =>
-                    import('./pages/parts-management/parts-management.module').then((m) => m.PartsManagementModule),
+                loadChildren: () => import('./pages/parts-management/parts-management.module').then((m) => m.PartsManagementModule),
                 title: 'Parts & Inventory Management',
             },
-            { path: 'users', component: UserManagementComponent, title: 'User Management' },
+            { path: 'users', component: AdminUsersComponent, title: 'User Management' },
+            { path: 'admin/profit-report', component: ProfitReportComponent, title: 'Ecar - Profit Report' },
 
-            //UI Samples
+            // --- [MỚI] Thêm Routes cho Admin ---
+            { path: 'admin/centers', component: ServiceCentersComponent, title: 'Manage Service Centers' },
+            { path: 'admin/models', component: CarModelsComponent, title: 'Manage Vehicle Models' },
+            // ----------------------------------
+
+            // UI Samples
             { path: 'form-elements', component: FormElementsComponent, title: 'Form Elements' },
             { path: 'basic-tables', component: BasicTablesComponent, title: 'Basic Tables' },
             { path: 'blank', component: BlankComponent, title: 'Blank Page' },
@@ -92,12 +99,6 @@ export const routes: Routes = [
             { path: 'buttons', component: ButtonsComponent, title: 'Buttons' },
             { path: 'images', component: ImagesComponent, title: 'Images' },
             { path: 'videos', component: VideosComponent, title: 'Videos' },
-            {
-                path: 'admin/profit-report',
-                component: ProfitReportComponent,
-                title: 'Ecar - Profit Report'
-            }
-
         ],
     },
 
@@ -105,9 +106,6 @@ export const routes: Routes = [
     { path: 'paypal/success', component: PaypalSuccessComponent, title: 'Payment Successful' },
     { path: 'paypal/cancel', component: PaymentCancelComponent, title: 'Payment Canceled' },
 
-    //Not found
+    //Not found (Luôn để cuối cùng)
     { path: '**', component: NotFoundComponent, title: 'Page Not Found' },
-
-
-
 ];

@@ -7,14 +7,14 @@ import {VehicleCreate} from "../models/vehicle-create";
 export class VehicleService {
     private api = 'http://localhost:8080';
 
-    constructor(private http: HttpClient) {
-    }
+    constructor(private http: HttpClient) {}
 
     getVehicles(): Observable<any> {
         return this.http.get<any>(`${this.api}/api/vehicles`);
     }
 
-    addVehicle(request: VehicleCreate): Observable<any> {
-        return this.http.post<any>(`${this.api}/api/vehicles`, request);
+    // Giữ lại hàm này là đủ
+    addVehicle(data: any): Observable<any> {
+        return this.http.post(`${this.api}/api/vehicles`, data);
     }
 }

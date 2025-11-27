@@ -11,8 +11,30 @@ export class UserService {
 
     constructor(private http: HttpClient) {}
 
+    // ================== READ ==================
+
+    getAllUsers(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.api}/api/users`, { withCredentials: true });
+    }
+
     me(): Observable<User> {
-        return this.http.get<User>(`${this.api}/api/users/me`).pipe(
+        return this.http.get<User>(`${this.api}/api/users/me`, { withCredentials: true }).pipe(
+            map(res => new User(res))
+        );
+    }
+
+    // Alias cho hàm me()
+    getMyProfile(): Observable<User> {
+        return this.me();
+    }
+
+    // Alias để lấy raw data
+    getCurrentUser(): Observable<any> {
+        return this.http.get<any>(`${this.api}/api/users/me`, { withCredentials: true });
+    }
+
+    getUserById(id: string | number): Observable<User> {
+        return this.http.get<User>(`${this.api}/api/users/${id}`, { withCredentials: true }).pipe(
             map(res => new User(res))
         );
     }
@@ -26,9 +48,27 @@ export class UserService {
         return this.http.post<any>(`${this.api}/api/users/search`, userSearch);
     }
 
-    deleteUser(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.api}/api/users/${id}`);
+    getUsersByRole(role: string): Observable<any> {
+        return this.http.get<any>(`${this.api}/api/users/get-by-role/${role}`);
     }
+
+    getUserByEmail(email: string): Observable<UserDto> {
+        const userSearch = new UserSearch(email, 0, 1);
+        return this.http.post<any>(`${this.api}/api/users/search`, userSearch).pipe(
+            map(res => {
+                if (res.content && res.content.length > 0) {
+                    return res.content[0];
+                }
+                throw new Error('User not found');
+            })
+        );
+    }
+
+    getTechniciansByMyCenter(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.api}/api/users/technicians/my-center`, { withCredentials: true });
+    }
+
+    // ================== WRITE ==================
 
     createUser(user: UserDto): Observable<any> {
         return this.http.post<any>(`${this.api}/api/users`, user);
@@ -38,14 +78,14 @@ export class UserService {
         return this.http.put<any>(`${this.api}/api/users/${id}`, user);
     }
 
-    getUsersByRole(role: string): Observable<any> {
-        return this.http.get<any>(`${this.api}/api/users/get-by-role/${role}`);
+    deleteUser(id: number): Observable<any> {
+        return this.http.delete<any>(`${this.api}/api/users/${id}`);
     }
 
-    getUserById(id: string | number): Observable<User> {
-        return this.http.get<User>(`${this.api}/api/users/${id}`).pipe(
-            map(res => new User(res))
-        );
+    // Enable/Disable User
+    updateUserStatus(userId: number, status: boolean): Observable<void> {
+        // Backend API: PUT /api/users/{id}/status?active=true/false
+        return this.http.put<void>(`${this.api}/api/users/${userId}/status?active=${status}`, {}, { withCredentials: true });
     }
 
     toggleActive(id: number): Observable<void> {

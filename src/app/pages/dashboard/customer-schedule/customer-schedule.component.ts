@@ -1,122 +1,230 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Router } from '@angular/router';
+
+// Services
+import { MaintenanceService } from '../../../services/maintenance.service';
 import { VehicleService } from '../../../services/vehicle.service';
+import { CenterService } from '../../../services/center.service';
+import { ToastService } from '../../toast/toast.service';
+
+// Models
+import { MaintenanceScheduleRequest } from '../../../models/schedule-request';
 import { Vehicle } from '../../../models/vehicle';
-import { catchError, EMPTY, finalize } from 'rxjs';
-import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { ModalService } from '../../modal/modal.service';
-import { MaintenanceDialogComponent } from '../../dialog/maintenance-dialog/maintenance-dialog.component';
-import { CreateCarDialogComponent } from '../../dialog/create-car-dialog/create-car-dialog.component';
+import { Center } from '../../../models/center';
 
 @Component({
     selector: 'app-customer-schedule',
     standalone: true,
-    imports: [BadgeComponent, ButtonComponent, DatePipe, DecimalPipe, NgClass],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './customer-schedule.component.html',
-    styleUrls: ['./customer-schedule.component.css'],
+    styleUrls: ['./customer-schedule.component.css']
 })
-export class CustomerScheduleComponent implements AfterViewInit {
-    vehicleData: Vehicle[] = [];
+export class CustomerScheduleComponent implements OnInit {
+    scheduleForm: FormGroup;
+    myVehicles: Vehicle[] = [];
+    centers: Center[] = [];
+    myBookings: any[] = [];
+    isLoading = false;
+    minDate: string = '';
 
-    constructor(
-        private vehicleService: VehicleService,
-        private modal: ModalService
-    ) {}
+    private fb = inject(FormBuilder);
+    private maintenanceService = inject(MaintenanceService);
+    private vehicleService = inject(VehicleService);
+    private centerService = inject(CenterService);
+    private toastService = inject(ToastService);
+    private router = inject(Router);
 
-    ngAfterViewInit() {
-        this.getVehicleData();
-    }
-
-    getVehicleData() {
-        this.vehicleService
-            .getVehicles()
-            .pipe(
-                finalize(() => {}),
-                catchError((err) => {
-                    console.error(err);
-                    return EMPTY;
-                })
-            )
-            .subscribe((res) => {
-                this.vehicleData = res;
-            });
-        //mock test màu
-//     this.vehicleData = [
-//       new Vehicle({
-//         id: 1,
-//         licensePlate: '30A-12345',
-//         vinNumber: '4Y1SL65848Z411440',
-//         carModel: { carName: 'VF7', carType: 'SUV' },
-//         nextDate: new Date('2025-12-25'),
-//         nextKm: 20000,
-//         oldDate: new Date('2025-09-25'),
-//         oldKm: 15000
-//       }),
-//       new Vehicle({
-//         id: 2,
-//         licensePlate: '30B-67890',
-//         vinNumber: 'JH4KA9650MC012345',
-//         carModel: { carName: 'VF3', carType: 'Hatchback' },
-//         nextDate: new Date('2025-11-20'),
-//         nextKm: 18000,
-//         oldDate: new Date('2025-10-05'),
-//         oldKm: 13000
-//       }),
-//       new Vehicle({
-//         id: 3,
-//         licensePlate: '30C-99999',
-//         vinNumber: '1HGCM82633A123456',
-//         carModel: { carName: 'Accent', carType: 'Sedan' },
-//         nextDate: new Date('2025-10-10'),
-//         nextKm: 16000,
-//         oldDate: new Date('2025-08-10'),
-//         oldKm: 12000
-//       })
-//     ];
-    }
-
-
-    getBadgeColor(_: string): 'success' | 'warning' | 'error' {
-        return 'success';
-    }
-
-    schedule(id: number) {
-        const ref = this.modal.open(MaintenanceDialogComponent, {
-            data: {
-                title: 'Schedule maintenance',
-                message: '',
-                vehicle: this.vehicleData.find((v) => v.id === id),
-                //  Thêm user info ở đây
-                user: {
-                    fullName: 'Nguyen Van A',  // hoặc lấy từ userService
-                    email: 'nguyenvana@email.com',
-                    phoneNo: '0123456789'
-                }
-            },
-            panelClass: ['modal-panel', 'p-0'],
-            backdropClass: 'modal-backdrop',
-            disableClose: false,
-        });
-
-        ref.afterClosed$.subscribe((confirmed) => {
-            if (confirmed) this.getVehicleData();
+    constructor() {
+        this.scheduleForm = this.fb.group({
+            centerId: [null, Validators.required],
+            scheduleDate: ['', [Validators.required, this.futureDateValidator()]],
+            scheduleTime: ['', [Validators.required, this.businessHoursValidator()]],
+            vehicleId: [null, Validators.required],
+            licensePlate: [{value: '', disabled: true}],
+            carModel: [{value: '', disabled: true}],
+            vinNumber: [{value: '', disabled: true}],
+            numOfKm: [0],
+            isMaintenance: [true],
+            isRepair: [false],
+            remark: ['']
         });
     }
 
+    ngOnInit() {
+        this.setMinDate();
+        this.loadData();
+        this.loadMyBookings();
+        this.setupFormListeners();
+    }
 
-
-    getBadgeClass(nextDate: string | Date | null): string {
-        if (!nextDate) return 'bg-gray-100 text-gray-600';
-
+    setMinDate() {
         const today = new Date();
-        const target = nextDate instanceof Date ? nextDate : new Date(nextDate);
-        const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 3600 * 24));
-
-        if (diffDays < 0) return 'bg-red-100 text-red-700';
-        if (diffDays <= 30) return 'bg-yellow-100 text-yellow-700';
-        return 'bg-green-100 text-green-700';
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, '0');
+        const day = today.getDate().toString().padStart(2, '0');
+        this.minDate = `${year}-${month}-${day}`;
     }
 
+    futureDateValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) return null;
+            const selectedDate = new Date(control.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return selectedDate < today ? { pastDate: true } : null;
+        };
+    }
 
+    businessHoursValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) return null;
+            const [hours, minutes] = control.value.split(':').map(Number);
+            const totalMinutes = hours * 60 + minutes;
+            const openTime = 8 * 60;  // 08:00
+            const closeTime = 21 * 60; // 21:00
+            if (totalMinutes < openTime || totalMinutes > closeTime) {
+                return { outOfBusinessHours: true };
+            }
+            return null;
+        };
+    }
+
+    loadData() {
+        this.vehicleService.getVehicles().subscribe({
+            next: (res: any) => this.myVehicles = res,
+            error: (err: any) => console.error(err)
+        });
+
+        // GỌI HÀM getAll() CỦA CENTER SERVICE
+        this.centerService.getAll().subscribe({
+            next: (res: any) => this.centers = res,
+            error: (err: any) => console.error(err)
+        });
+    }
+
+    setupFormListeners() {
+        this.scheduleForm.get('vehicleId')?.valueChanges.subscribe(val => {
+            const vehicleId = Number(val);
+            const selectedCar = this.myVehicles.find(v => v.id === vehicleId);
+            if (selectedCar) {
+                this.scheduleForm.patchValue({
+                    licensePlate: selectedCar.licensePlate,
+                    carModel: selectedCar.carModel?.carName,
+                    vinNumber: selectedCar.vinNumber,
+                    numOfKm: selectedCar.nextKm || 0
+                });
+            }
+        });
+    }
+
+    loadMyBookings() {
+        this.maintenanceService.getMaintenanceHistory('', 100, 0).subscribe({
+            next: (res: any) => {
+                const list = res.content || res || [];
+                this.myBookings = list.sort((a: any, b: any) => {
+                    const dateA = new Date(a.scheduleDate || 0).getTime();
+                    const dateB = new Date(b.scheduleDate || 0).getTime();
+                    return dateB - dateA;
+                });
+            },
+            error: (err: any) => console.error('Error loading bookings:', err)
+        });
+    }
+
+    onCancelBooking(bookingId: number) {
+        if (confirm('Are you sure you want to cancel this appointment?')) {
+            this.isLoading = true;
+            this.maintenanceService.cancelTicket(bookingId).subscribe({
+                next: (res: any) => {
+                    this.toastService.success('Appointment cancelled successfully!');
+                    this.isLoading = false;
+
+                    const index = this.myBookings.findIndex(b => b.id === bookingId);
+                    if (index !== -1) {
+                        this.myBookings[index].status = 'CANCELLED';
+                    }
+                },
+                error: (err: any) => {
+                    this.isLoading = false;
+                    const msg = err.error?.message || 'Failed to cancel appointment.';
+                    this.toastService.error(msg);
+                }
+            });
+        }
+    }
+
+    onSubmit() {
+        if (this.scheduleForm.invalid) {
+            this.scheduleForm.markAllAsTouched();
+            this.toastService.error('Please fill in all required fields correctly.');
+            return;
+        }
+
+        const vehicleId = Number(this.scheduleForm.get('vehicleId')?.value);
+        this.isLoading = true;
+
+        this.maintenanceService.getHistory({ searchValue: '', page: 0, size: 100 }).subscribe({
+            next: (res: any) => {
+                const activeTicket = res.content?.find((t: any) =>
+                    (t.vehicleId === vehicleId || t.licensePlate === this.scheduleForm.get('licensePlate')?.value) &&
+                    !['DONE', 'CANCELLED', 'COMPLETED', 'TECHNICIAN_COMPLETED'].includes(t.status)
+                );
+
+                if (activeTicket) {
+                    this.toastService.error('This vehicle has an ongoing service.');
+                    this.isLoading = false;
+                    return;
+                }
+                this.createAppointment();
+            },
+            error: (err: any) => {
+                console.error(err);
+                this.createAppointment();
+            }
+        });
+    }
+
+    createAppointment() {
+        const formData = this.scheduleForm.getRawValue();
+
+        let timeStr = formData.scheduleTime;
+        if (timeStr && timeStr.length === 5) {
+            timeStr += ':00';
+        }
+
+        const rawDate = formData.scheduleDate;
+        let dateStr = rawDate;
+        if (rawDate && rawDate.includes('-')) {
+            const [year, month, day] = rawDate.split('-');
+            dateStr = `${day}-${month}-${year}`;
+        }
+
+        const request: MaintenanceScheduleRequest = {
+            centerId: Number(formData.centerId),
+            scheduleDate: dateStr,
+            scheduleTime: timeStr,
+            vehicleId: Number(formData.vehicleId),
+            numOfKm: 0,
+            isMaintenance: !!formData.isMaintenance,
+            isRepair: !!formData.isRepair,
+            remark: formData.remark || ''
+        };
+
+        this.maintenanceService.createSchedule(request).subscribe({
+            next: () => {
+                this.toastService.success('Booking successful!');
+                this.loadMyBookings();
+                this.scheduleForm.reset();
+                this.isLoading = false;
+            },
+            error: (err: any) => {
+                this.isLoading = false;
+                console.error('Backend Error:', err);
+                const msg = err.error?.message || 'Booking failed. Please try again.';
+                this.toastService.error(msg);
+            }
+        });
+    }
 }

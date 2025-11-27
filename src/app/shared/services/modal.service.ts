@@ -1,32 +1,30 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ModalService {
-  private isOpenSubject = new BehaviorSubject<boolean>(false);
+    constructor(private dialog: Dialog) {}
 
-  /** Observable for modal open state */
-  isOpen$: Observable<boolean> = this.isOpenSubject.asObservable();
+    open<T, D = any, R = any>(component: any, config?: DialogConfig<D, DialogRef<R, T>>) {
+        return this.dialog.open(component, {
+            minWidth: '300px',
+            maxWidth: '90vw',
+            panelClass: ['modal-panel', 'bg-white', 'rounded-lg', 'shadow-xl', 'outline-none'],
+            backdropClass: 'modal-backdrop',
+            ...config
+        });
+    }
 
-  /** Get current value synchronously */
-  get isOpen(): boolean {
-    return this.isOpenSubject.value;
-  }
+    // Hàm chuẩn
+    closeAll() {
+        this.dialog.closeAll();
+    }
 
-  /** Open the modal */
-  openModal(): void {
-    this.isOpenSubject.next(true);
-  }
-
-  /** Close the modal */
-  closeModal(): void {
-    this.isOpenSubject.next(false);
-  }
-
-  /** Toggle the modal */
-  toggleModal(): void {
-    this.isOpenSubject.next(!this.isOpenSubject.value);
-  }
+    // --- THÊM HÀM NÀY ĐỂ FIX LỖI ---
+    // Hàm này giúp tương thích ngược với code cũ
+    closeModal() {
+        this.closeAll();
+    }
 }

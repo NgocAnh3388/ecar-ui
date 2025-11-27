@@ -1,0 +1,54 @@
+<div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Car Models</h1>
+        <button (click)="openAddModel()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium">
+            + Add Model
+        </button>
+    </div>
+
+    <!-- Grid Danh sách xe -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        <!-- Loop Data Real -->
+        <div *ngFor="let model of carModels" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow relative group">
+
+            <!-- Edit Icon (Mặc định ẩn, hiện khi di chuột vào) -->
+            <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="openEditModel(model)" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Edit Model">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
+            </div>
+
+            <!-- Icon Xe -->
+            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <svg class="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                </svg>
+            </div>
+
+            <!-- Thông tin xe -->
+            <div class="text-center">
+                <!-- Tên xe (VF3, VF5...) -->
+                <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-1">{{ model.carName }}</h3>
+
+                <!-- Loại xe (Mini SUV...) -->
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ model.carType }}</p>
+
+                <!-- Chu kỳ bảo dưỡng -->
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300">
+                    Maintenance Cycle: {{ model.maintenanceCycle || '12,000' }} km
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (Hiện khi không có dữ liệu) -->
+    <div *ngIf="carModels.length === 0" class="text-center py-16">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">No car models found</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new vehicle model.</p>
+    </div>
+</div>

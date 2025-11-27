@@ -8,9 +8,13 @@ export interface MonthlyDetail {
 export interface ProfitReportResponse {
     startDate: string;
     endDate: string;
+
     totalRevenue: number;
     totalExpense: number;
-    netProfit: number;
+
+    netProfit: number; // Backend trả về tên này
+    profit?: number;   // Frontend có thể dùng tên này (alias) nếu cần
+
     currency: string;
     monthlyBreakdown: MonthlyDetail[];
 }

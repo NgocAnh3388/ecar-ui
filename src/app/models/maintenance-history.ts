@@ -1,32 +1,49 @@
 export class MaintenanceHistory {
+    // ID chính (Maintenance History ID)
+    id: number = 0;
+
+    // Các ID liên quan (nếu có)
+    maintenanceId?: number;
+    bookingId?: number;
+
+    // Thông tin xe
     carName: string = '';
+    carModelName: string = '';
+    carModel?: { carName: string } = { carName: '' };
     carType: string = '';
     licensePlate: string = '';
-    submittedAt: Date | null = null;
-    completedAt: Date | null = null;
+
+    // Thời gian
+    scheduleDate: string = '';
+    scheduleTime: string = '';
+    submittedAt: Date | string | null = null;
+    completedAt: Date | string | null = null;
+    handoverDate: Date | string | null = null;
+
+    // Trạng thái
     status: string = '';
+    subInfo?: string = '';
 
     constructor(init?: Partial<MaintenanceHistory>) {
-        Object.assign(this, init);
+        if (init) {
+            Object.assign(this, init);
+            // Logic fallback ID
+            if (!this.id) {
+                this.id = this.maintenanceId || this.bookingId || 0;
+            }
+        }
     }
 
     static fromJSON(jsonStr: string): MaintenanceHistory {
-        let obj: unknown;
         try {
-            obj = JSON.parse(jsonStr);
+            const data = JSON.parse(jsonStr);
+            return new MaintenanceHistory({
+                ...data,
+                id: data.id || data.maintenanceId || data.bookingId || 0,
+                carModel: data.carModel ? { carName: data.carModel.carName } : undefined
+            });
         } catch {
-            throw new Error('Invalid JSON');
+            return new MaintenanceHistory();
         }
-        // ép kiểu an toàn: chỉ nhận các field hợp lệ
-        const { carName, carType, licensePlate, submittedAt, completedAt, status } = (obj as any) ?? {};
-        return new MaintenanceHistory({
-            carName: typeof carName === 'string' ? carName : '',
-            carType: typeof carType === 'string' ? carType : '',
-            licensePlate: typeof licensePlate === 'string' ? licensePlate : '',
-            submittedAt: submittedAt,
-            completedAt: completedAt,
-            status: typeof licensePlate === 'string' ? status : '',
-        });
     }
-
 }

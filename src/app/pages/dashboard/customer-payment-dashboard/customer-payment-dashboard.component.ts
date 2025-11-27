@@ -6,9 +6,9 @@ import { SubscriptionInfo } from "../../../models/subscription-info";
 import { RenewDialogComponent } from "../../dialog/renew-dialog/renew-dialog.component";
 import { ModalService } from "../../modal/modal.service";
 import { PaymentHistory } from "../../../models/payment-history";
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component'; // <-- THÊM IMPORT NÀY
-import { forkJoin } from 'rxjs'; // <-- THÊM IMPORT NÀY
-import { finalize } from 'rxjs/operators'; // <-- THÊM IMPORT NÀY
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'app-customer-payment-dashboard',
@@ -17,7 +17,7 @@ import { finalize } from 'rxjs/operators'; // <-- THÊM IMPORT NÀY
         CommonModule,
         DatePipe,
         BadgeComponent,
-        LoadingSpinnerComponent // Cần để hiển thị spinner
+        LoadingSpinnerComponent
     ],
     templateUrl: './customer-payment-dashboard.component.html',
     styleUrl: './customer-payment-dashboard.component.css'
@@ -34,11 +34,11 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
     ) {}
 
     ngOnInit(): void {
-        this.loadInitialData(); // Gọi một hàm duy nhất để tải dữ liệu
+        this.loadInitialData();
     }
 
     loadInitialData() {
-        this.isLoading = true; // 1. Bật spinner
+        this.isLoading = true;
 
         forkJoin({
             subscription: this.subscriptionService.get(),
@@ -67,18 +67,18 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
 
     ngAfterViewInit(): void {}
 
-    /** ✅ Badge color theo trạng thái */
+    /** Badge color theo trạng thái */
     getSubscriptionStatusBadgeColor(endDate?: Date | string | null): 'success' | 'warning' | 'error' | 'light' {
         const status = this.getSubscriptionStatus(endDate);
         switch (status) {
-            case 'Còn hiệu lực': return 'success';
-            case 'Sắp kết thúc': return 'warning';
-            case 'Hết hạn': return 'error';
+            case 'Valid': return 'success';
+            case 'Expiring soon': return 'warning';
+            case 'Expired': return 'error';
             default: return 'light';
         }
     }
 
-    /** ✅ Badge status payment */
+    /** Badge status payment */
     getPaymentStatusBadge(status: string): 'success' | 'warning' | 'error' {
         switch (status) {
             case 'APPROVED': return 'success';
@@ -88,39 +88,39 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
         }
     }
 
-    /** ✅ Logic xác định trạng thái gói */
-    getSubscriptionStatus(endDate?: Date | string | null): "Chưa đăng ký" | "Hết hạn" | "Sắp kết thúc" | "Còn hiệu lực" {
-        if (!endDate) return 'Chưa đăng ký';
+    /** Logic xác định trạng thái gói */
+    getSubscriptionStatus(endDate?: Date | string | null): "Not registered" | "Expired" | "Expiring soon" | "Valid" {
+        if (!endDate) return 'Not registered';
 
         const enDate = endDate instanceof Date ? endDate : new Date(endDate);
-        if (isNaN(enDate.getTime())) return 'Chưa đăng ký';
+        if (isNaN(enDate.getTime())) return 'Not registered';
 
         const now = new Date();
         const endOfDay = new Date(enDate);
         endOfDay.setHours(23, 59, 59, 999);
 
         const diffMs = endOfDay.getTime() - now.getTime();
-        if (diffMs < 0) return 'Hết hạn';
+        if (diffMs < 0) return 'Expired';
 
         const MS_PER_DAY = 24 * 60 * 60 * 1000;
         const daysLeft = Math.ceil(diffMs / MS_PER_DAY);
 
-        if (daysLeft <= 30) return 'Sắp kết thúc';
-        return 'Còn hiệu lực';
+        if (daysLeft <= 30) return 'Expiring soon';
+        return 'Valid';
     }
 
-    /** ✅ Nút hiển thị theo trạng thái */
+    /** Nút hiển thị theo trạng thái */
     getRenewButtonLabel(endDate?: Date | string | null): string {
         const status = this.getSubscriptionStatus(endDate);
         switch (status) {
-            case 'Còn hiệu lực': return 'Gia hạn';
-            case 'Sắp kết thúc': return 'Gia hạn ngay';
-            case 'Hết hạn': return 'Đăng ký lại';
-            default: return 'Đăng ký gói dịch vụ';
+            case 'Valid': return 'Renew';
+            case 'Expiring soon': return 'Renew now';
+            case 'Expired': return 'Reactivate';
+            default: return 'Subscribe';
         }
     }
 
-    /** ✅ Lấy dữ liệu gói */
+    /** Lấy dữ liệu gói */
     initSubscription() {
         this.isLoading = true;
         this.subscriptionService.get().subscribe({
@@ -135,7 +135,7 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
         });
     }
 
-    /** ✅ Mở modal gia hạn / đăng ký */
+    /** Mở modal gia hạn / đăng ký */
     renew() {
         const ref = this.modal.open(RenewDialogComponent, {
             data: { title: 'Renew / Register Service Package', message: '' },
@@ -155,11 +155,33 @@ export class CustomerPaymentDashboardComponent implements OnInit, AfterViewInit 
         });
     }
 
-    /** ✅ Lịch sử thanh toán */
+    /** Lịch sử thanh toán */
     initPaymentHistory() {
         this.subscriptionService.getHistory().subscribe({
             next: (res) => this.paymentHistory = res,
             error: () => this.paymentHistory = []
         });
+    }// Thêm hàm này vào trong class
+// Cho phép nhận thêm kiểu null
+    calculateProgress(startDate?: string | Date | null, endDate?: string | Date | null): number {
+        if (!startDate || !endDate) return 0;
+
+        const start = new Date(startDate).getTime();
+        const end = new Date(endDate).getTime();
+        const now = new Date().getTime();
+
+        if (isNaN(start) || isNaN(end)) return 0; // Thêm check invalid date
+
+        if (now < start) return 0;
+        if (now > end) return 100;
+
+        const totalDuration = end - start;
+        const elapsed = now - start;
+
+        // Tránh chia cho 0
+        if (totalDuration <= 0) return 100;
+
+        return Math.round((elapsed / totalDuration) * 100);
     }
+
 }

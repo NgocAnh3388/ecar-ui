@@ -1,62 +1,129 @@
-<div class="p-6 min-w-[320px]">
-    <h2 class="text-xl font-semibold mb-2">{{ title() }}</h2>
-    <div class="flex flex-col gap-4 min-h-[20vh]">
+<!-- ========== USER DIALOG (FINAL FIXED TS2322) ========== -->
+<div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
 
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div>
-            <app-label>Email</app-label>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ title }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage user information</p>
+        </div>
+        <button (click)="close()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Body -->
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+
+        <!-- 1. EMAIL -->
+        <div>
+            <app-label>
+                Email <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-input-field
                     id="email"
                     type="email"
-                    [value]="email"
-                    [error]="error"
-                    (valueChange)="handleEmailChange($event)"
-                    placeholder="Nhập email của bạn"
-                    [hint]="error ? 'Email không hợp lệ' : ''"
-                    [readonly]="isEdit"
+                    placeholder="Enter email address"
+
+                    [value]="userForm.get('email')?.value"
+                    (valueChange)="userForm.get('email')?.setValue($event)"
+
+                    [readonly]="isEditProfile"
+
+                    [error]="!!(userForm.get('email')?.invalid && userForm.get('email')?.touched)"
+
+                    [hint]="userForm.get('email')?.hasError('required') ? 'Email is required' :
+                        userForm.get('email')?.hasError('email') ? 'Invalid email format' :
+                        userForm.get('email')?.hasError('emailExists') ? 'Email already exists' :
+                        userForm.get('email')?.pending ? 'Checking availability...' : ''"
             ></app-input-field>
+
+            <!-- Spinner loading -->
+            <div *ngIf="userForm.get('email')?.pending" class="text-xs text-blue-500 mt-1 flex items-center">
+                <svg class="animate-spin h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Validating email...
+            </div>
         </div>
 
+        <!-- 2. FULL NAME -->
         <div>
-            <app-label>Name</app-label>
+            <app-label>
+                Full Name <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-input-field
                     id="fullName"
                     type="text"
-                    [value]="fullName"
-                    [error]="fullNameError"
-                    (valueChange)="handleFullNameChange($event)"
-                    placeholder="Nhập tên của bạn"
-                    [hint]="fullNameError ? 'Tên không thể trống' : ''"
+                    placeholder="Enter full name"
+
+                    [value]="userForm.get('fullName')?.value"
+                    (valueChange)="userForm.get('fullName')?.setValue($event)"
+
+                    [error]="!!(userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched)"
+
+                    [hint]="userForm.get('fullName')?.hasError('required') ? 'Full name is required' : ''"
             ></app-input-field>
         </div>
 
+        <!-- 3. PHONE NUMBER -->
         <div>
-            <app-label>Phone Number</app-label>
+            <app-label>
+                Phone Number <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-input-field
                     id="phoneNo"
                     type="tel"
-                    [value]="phoneNo"
-                    [error]="phoneError"
-                    (valueChange)="handlePhoneChange($event)"
-                    placeholder="Nhập số điện thoại của bạn"
-                    [hint]="phoneError ? 'Số điện thoại không đúng' : ''"
+                    placeholder="Enter phone number"
+
+                    [value]="userForm.get('phoneNo')?.value"
+                    (valueChange)="userForm.get('phoneNo')?.setValue($event)"
+
+                    [error]="!!(userForm.get('phoneNo')?.invalid && userForm.get('phoneNo')?.touched)"
+
+                    [hint]="userForm.get('phoneNo')?.hasError('required') ? 'Phone number is required' :
+                        userForm.get('phoneNo')?.hasError('pattern') ? 'Only numbers allowed' :
+                        userForm.get('phoneNo')?.hasError('phoneExists') ? 'Phone number already used' :
+                        userForm.get('phoneNo')?.pending ? 'Checking availability...' : ''"
             ></app-input-field>
+
+            <!-- Spinner loading -->
+            <div *ngIf="userForm.get('phoneNo')?.pending" class="text-xs text-blue-500 mt-1 flex items-center">
+                <svg class="animate-spin h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Validating phone...
+            </div>
         </div>
 
-        <div>
-            <app-label>Role</app-label>
+        <!-- 4. ROLE (Chỉ hiện nếu là Admin) -->
+        <div *ngIf="isAdmin">
+            <app-label>
+                Role <span class="text-red-500 ml-1">*</span>
+            </app-label>
             <app-select
                     [options]="options"
-                    placeholder="Chọn vai trò"
-                    [value]="selectedValue"
-                    (valueChange)="handleSelectChange($event)"
-                    class="dark:bg-dark-900"
+                    placeholder="Select user role"
+
+                    [value]="userForm.get('role')?.value"
+                    (valueChange)="userForm.get('role')?.setValue($event)"
             ></app-select>
         </div>
 
-        <div class="mt-auto flex justify-end gap-2">
-            <app-button size="sm" variant="outline" (btnClick)="ok()">OK</app-button>
-            <app-button size="sm" variant="outline" (btnClick)="cancel()">Cancel</app-button>
-        </div>
+    </form>
 
+    <!-- Footer -->
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+        <app-button size="sm" variant="outline" (btnClick)="close()">
+            Cancel
+        </app-button>
+
+        <app-button
+                size="sm"
+                (btnClick)="onSubmit()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="userForm.invalid || userForm.pending">
+
+            <span *ngIf="userForm.pending" class="mr-2 animate-spin inline-block">⟳</span>
+            {{ btnLabel }}
+        </app-button>
     </div>
 </div>

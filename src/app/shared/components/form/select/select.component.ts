@@ -1,45 +1,46 @@
+import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // ✅ Đã thêm import quan trọng
-
-export interface Option {
-    value: string;
-    label: string;
-}
 
 @Component({
     selector: 'app-select',
-    imports: [CommonModule, FormsModule], // ✅ Đã thêm FormsModule
+    standalone: true,
+    imports: [CommonModule],
     templateUrl: './select.component.html',
+    // styleUrl: './select.component.css' <--- ĐÃ XÓA DÒNG NÀY
 })
-export class SelectComponent implements OnInit, OnChanges { // ✅ Thêm OnChanges
-    @Input() options: Option[] = [];
+export class SelectComponent {
+    @Input() options: { value: string | number; label: string }[] = [];
+    @Input() value: string | number | null = null;
     @Input() placeholder: string = 'Select an option';
-    @Input() className: string = '';
-    @Input() defaultValue: string = '';
-    @Input() value: string = '';
+    @Input() disabled: boolean = false; // Quan trọng để fix lỗi NG8002
 
-    @Output() valueChange = new EventEmitter<string>();
+    @Output() valueChange = new EventEmitter<any>();
 
-    ngOnInit() {
-        if (!this.value && this.defaultValue) {
-            this.value = this.defaultValue;
-        }
+    isOpen = false;
+
+    constructor(private elementRef: ElementRef) {}
+
+    get selectedLabel(): string {
+        const selected = this.options.find(opt => opt.value == this.value);
+        return selected ? selected.label : this.placeholder;
     }
 
-    // ✅ CẬP NHẬT QUAN TRỌNG:
-    // Giúp component nhận giá trị mới nếu component cha thay đổi
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['value'] && !changes['value'].firstChange) {
-            this.value = changes['value'].currentValue;
-        }
+    toggle() {
+        if (this.disabled) return;
+        this.isOpen = !this.isOpen;
     }
 
-    // ✅ Cập nhật: Hàm này được thiết kế để dùng với (ngModelChange)
-    // event ở đây chính là giá trị (value), không phải object (event: Event)
-    onChange(event: any) {
-        console.log(event);
-        this.value = event;
-        this.valueChange.emit(event);
+    select(option: any) {
+        if (this.disabled) return;
+        this.value = option.value;
+        this.valueChange.emit(option.value);
+        this.isOpen = false;
+    }
+
+    @HostListener('document:click', ['$event'])
+    onClickOutside(event: Event) {
+        if (!this.elementRef.nativeElement.contains(event.target)) {
+            this.isOpen = false;
+        }
     }
 }
